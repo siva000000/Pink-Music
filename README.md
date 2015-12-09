@@ -5,7 +5,13 @@ PinkMusic for Android is a simple and lightweight music player, with clean inter
 
 The main goal of this project is to provide the users with a fully functional music player based on lists and folders. The player itself does not consume too much memory, and respects WCAG 2.0 accessibility guidelines for colors and contrast, being friendly for color blind people as well as for people with mild visual impairments.
 
-Moreover, this source code can be used as an example on how to do a few tasks in Android:
+Screenshots
+============
+<img src="http://imgur.com/yjL9pE0" width=761 height=480>
+<img src="http://imgur.com/pfFeWZs" width=761 height=480>
+
+Features
+=========
 - Browse through Icecast Directory
 - Extract ID3v1 and ID3v2 information from MP3 and AAC files without android.media.MediaMetadataRetriever
 - Reduce the latency between consecutive tracks using setNextMediaPlayer()
