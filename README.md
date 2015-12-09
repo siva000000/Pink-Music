@@ -1,4 +1,4 @@
-PinkMusicAndroid
+PinkMusic
 ============
 
 PinkMusic for Android is a simple and lightweight music player, with clean interface, equalizer, bass boost and customizable colors.
@@ -43,9 +43,10 @@ PinkMusic can be integrated to Arduino, or other electronic board, via Bluetooth
 
 Very special thanks to the people who helped translating PinkMusic:
 
-Lenin Retina
+LENIN RETINA
 
 Alex
+
 SHAJIN
 
 STALIN BOSE
