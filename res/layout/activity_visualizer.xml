@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<br.com.siva.pinkmusic.ui.InterceptableLayout android:id="@+id/panelControls"
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:tools="http://schemas.android.com/tools"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:fitsSystemWindows="false"
+   android:splitMotionEvents="false"
+   tools:context=".ActivityVisualizer">                                                 
+
+    <RelativeLayout
+        android:id="@+id/panelTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:splitMotionEvents="false">
+
+        <br.com.siva.pinkmusic.ui.BgButton
+            android:id="@+id/btnGoBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:contentDescription="@string/go_back"
+            android:nextFocusDown="@+id/btnPrev"
+            android:nextFocusForward="@+id/btnPrev"
+            android:nextFocusLeft="@+id/btnMenu"
+            android:nextFocusRight="@+id/btnPrev"
+            android:nextFocusUp="@+id/btnMenu"/>
+
+        <LinearLayout
+            android:id="@+id/panelSecondary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:splitMotionEvents="false">
+
+            <br.com.siva.pinkmusic.ui.BgButton
+                android:id="@+id/btnPrev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/previous"
+                android:nextFocusDown="@+id/btnPlay"
+                android:nextFocusForward="@+id/btnPlay"
+                android:nextFocusLeft="@+id/btnGoBack"
+                android:nextFocusRight="@+id/btnPlay"
+                android:nextFocusUp="@+id/btnGoBack"/>
+
+            <br.com.siva.pinkmusic.ui.BgButton
+                android:id="@+id/btnPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/play"
+                android:nextFocusDown="@+id/btnNext"
+                android:nextFocusForward="@+id/btnNext"
+                android:nextFocusLeft="@+id/btnPrev"
+                android:nextFocusRight="@+id/btnNext"
+                android:nextFocusUp="@+id/btnPrev"/>
+
+            <br.com.siva.pinkmusic.ui.BgButton
+                android:id="@+id/btnNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/next"
+                android:nextFocusDown="@+id/btnMenu"
+                android:nextFocusForward="@+id/btnMenu"
+                android:nextFocusLeft="@+id/btnPlay"
+                android:nextFocusRight="@+id/btnMenu"
+                android:nextFocusUp="@+id/btnPlay"/>
+        </LinearLayout>
+
+        <br.com.siva.pinkmusic.ui.BgButton
+            android:id="@+id/btnMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/menu"
+            android:nextFocusDown="@+id/btnGoBack"
+            android:nextFocusForward="@+id/btnGoBack"
+            android:nextFocusLeft="@+id/btnNext"
+            android:nextFocusRight="@+id/btnGoBack"
+            android:nextFocusUp="@+id/btnNext"/>
+
+        <TextView
+            android:id="@+id/lblTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/panelSecondary"
+            android:layout_centerInParent="true"
+            android:ellipsize="end"
+            android:gravity="center_horizontal"
+            android:maxLines="3"
+            android:text="@string/nothing_playing"/>
+    </RelativeLayout>
+
+</br.com.siva.pinkmusic.ui.InterceptableLayout>

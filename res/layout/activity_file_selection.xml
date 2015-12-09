@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:splitMotionEvents="false"
+                tools:context=".ActivityHost">
+
+    <RelativeLayout
+        android:id="@+id/panelControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:splitMotionEvents="false">
+
+        <br.com.siva.pinkmusic.ui.BgButton
+            android:id="@+id/btnGoBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:contentDescription="@string/go_back"
+            android:nextFocusDown="@+id/list"
+            android:nextFocusForward="@+id/btnMenu"
+            android:nextFocusLeft="@+id/list"
+            android:nextFocusRight="@+id/btnMenu"
+            android:nextFocusUp="@+id/list"/>
+
+        <br.com.siva.pinkmusic.ui.BgButton
+            android:id="@+id/btnMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/menu"
+            android:nextFocusDown="@+id/list"
+            android:nextFocusForward="@+id/list"
+            android:nextFocusLeft="@+id/btnGoBack"
+            android:nextFocusRight="@+id/list"
+            android:nextFocusUp="@+id/list"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/lblLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:maxLines="1"
+        android:text="@string/loading"
+        android:visibility="gone"/>
+
+    <br.com.siva.pinkmusic.ui.BgListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/panelControls"
+        android:nextFocusForward="@+id/btnGoBack"
+        android:splitMotionEvents="false">
+
+        <requestFocus/>
+    </br.com.siva.pinkmusic.ui.BgListView>
+
+    <RelativeLayout
+        android:id="@+id/panelSecondary"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentBottom="true"
+        android:splitMotionEvents="false"
+        android:visibility="gone">
+
+        <br.com.siva.pinkmusic.ui.BgButton
+            android:id="@+id/btnAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/sep2"
+            android:contentDescription="@string/add"
+            android:nextFocusDown="@+id/btnMenu"
+            android:nextFocusForward="@+id/btnPlay"
+            android:nextFocusLeft="@+id/list"
+            android:nextFocusRight="@+id/btnPlay"
+            android:nextFocusUp="@+id/list"/>
+
+        <TextView
+            android:id="@+id/sep2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"/>
+
+        <br.com.siva.pinkmusic.ui.BgButton
+            android:id="@+id/btnPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/play"
+            android:nextFocusDown="@+id/btnMenu"
+            android:nextFocusForward="@+id/btnGoBack"
+            android:nextFocusLeft="@+id/btnAdd"
+            android:nextFocusRight="@+id/btnGoBack"
+            android:nextFocusUp="@+id/list"/>
+    </RelativeLayout>
+
+</RelativeLayout>

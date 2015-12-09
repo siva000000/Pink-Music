@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <!--
+         Base application theme for API 21+. This theme completely replaces
+		AppBaseTheme from BOTH res/values/styles.xml, res/values-v11/styles.xml and res/values-v13/styles.xml
+		on API 21+ devices.
+    -->
+    <style name="AppBaseTheme" parent="@android:style/Theme.Material.Light.NoActionBar.Fullscreen">
+        <!-- API 21 theme customizations can go here. -->
+    </style>
+
+    <style name="MenuDialog" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+</resources>
