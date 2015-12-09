@@ -1,6 +1,3 @@
-# Pink-Music
-Music player For Android Mobiles
-
 PinkMusicAndroid
 ============
 
@@ -41,8 +38,6 @@ PinkMusic
 ============
 
 PinkMusic can be integrated to Arduino, or other electronic board, via Bluetooth SPP - Serial Port Profile :D
-
-The Arduino library is available on GitHub: https://github.com/siva000000/PinkMusic
 
 ----
 
