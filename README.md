@@ -7,8 +7,8 @@ The main goal of this project is to provide the users with a fully functional mu
 
 Screenshots
 ============
-<img src="http://imgur.com/yjL9pE0" width=761 height=480>
-<img src="http://imgur.com/pfFeWZs" width=761 height=480>
+<img src="http://imgur.com/bPn8PBC" width=761 height=480>
+<img src="http://imgur.com/gCRVQpZ" width=761 height=480>
 
 Features
 =========
