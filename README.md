@@ -45,7 +45,7 @@ Very special thanks to the people who helped translating PinkMusic:
 
 LENIN RETINA
 
-Alex
+ALEX
 
 SHAJIN
 
