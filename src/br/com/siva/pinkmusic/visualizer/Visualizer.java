@@ -39,7 +39,7 @@ import android.view.ContextMenu;
 import br.com.siva.pinkmusic.list.Song;
 
 public interface Visualizer {
-	String EXTRA_VISUALIZER_CLASS_NAME = "br.com.siva.pinkmusic.activity.ActivityVisualizer.VISUALIZER_CLASS_NAME";
+	String EXTRA_VISUALIZER_CLASS_NAME = "br.com.siva.pinkmusic.ActivityVisualizer.VISUALIZER_CLASS_NAME";
 
 	int MNU_VISUALIZER = 200;
 

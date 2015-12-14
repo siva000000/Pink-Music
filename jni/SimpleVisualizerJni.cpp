@@ -484,7 +484,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
 	if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK)
 		return -1;
-	jclass clazz = env->FindClass("br/com/carlosrafaelgn/fplay/visualizer/SimpleVisualizerJni");
+	jclass clazz = env->FindClass("br/com/siva/pinkmusic/visualizer/SimpleVisualizerJni");
 	if (!clazz)
 		return -1;
 	env->RegisterNatives(clazz, methodTable, sizeof(methodTable) / sizeof(methodTable[0]));
