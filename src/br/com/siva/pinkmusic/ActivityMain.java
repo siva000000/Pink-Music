@@ -414,6 +414,9 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			lblTitleIcon.setIcon(icon);
 		if (songHasChanged) {
 			Player.lastCurrent = -1; //force current song into view next time the UI changes
+			
+			if (Player.followCurrentSong && list != null && !list.changingCurrentWouldScareUser())
+								bringCurrentIntoView();
 			if (lblTitle != null) {
 				lblTitle.setText((currentSong == null) ? getText(R.string.nothing_playing) : ((barSeek == null && Player.isPreparing()) ? (getText(R.string.loading) + " " + currentSong.title) : currentSong.title));
 				lblTitle.setSelected(true);
@@ -593,7 +596,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		s2.add(2, MNU_VISUALIZER_SPIN, 1, "Spinning Rainbow")
 			.setOnMenuItemClickListener(this)
 			.setIcon(new TextIconDrawable(UI.ICON_VISUALIZER));
-		s2.add(2, MNU_VISUALIZER_PARTICLE, 2, "Sound Particles")
+		s2.add(2, MNU_VISUALIZER_IMMERSIVE_PARTICLE_VR, 4, "Into the Particles (VR)")
 			.setOnMenuItemClickListener(this)
 			.setIcon(new TextIconDrawable(UI.ICON_VISUALIZER));
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
@@ -1127,6 +1130,18 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 					panelSecondary.setPadding(0, 0, UI.controlMargin + UI.thickDividerSize, UI.controlLargeMargin);
 				} else {
 					findViewById(R.id.panelTop).setBackgroundDrawable(new BorderDrawable(UI.color_highlight, UI.color_window, 0, 0, 0, UI.thickDividerSize));
+										final LinearLayout panelTop = (LinearLayout)findViewById(R.id.panelTop);
+										if (UI.placeTitleAtTheBottom) {
+											panelTop.removeView(lblTitle);
+											panelTop.removeView(lblMsgSelMove);
+											panelTop.addView(lblTitle);
+											panelTop.addView(lblMsgSelMove);
+											lblTitle.setPadding(UI.controlSmallMargin, 0, UI.controlSmallMargin, UI.controlMargin);
+											lblMsgSelMove.setPadding(UI.controlSmallMargin, 0, UI.controlSmallMargin, UI.controlMargin);
+											if (UI.extraSpacing)
+												panelTop.setPadding(0, UI.controlMargin, 0, 0);
+										}
+										panelTop.setBackgroundDrawable(new BorderDrawable(UI.color_highlight, UI.color_window, 0, 0, 0, UI.thickDividerSize));
 					panelSecondary.setPadding(0, 0, 0, UI.controlMargin +  UI.thickDividerSize); //UI.controlMargin + UI.thickDividerSize);
 				}
 				if (UI.extraSpacing) {

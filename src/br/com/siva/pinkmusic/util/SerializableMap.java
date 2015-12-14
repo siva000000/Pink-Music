@@ -213,9 +213,12 @@ public final class SerializableMap {
 		return null;
 	}
 	
-	public boolean hasBits() {
+	/*public boolean hasBits() {
 		return (bitCount > 0);
 	}
+	
+	}*/
+
 	
 	public void putBit(int bitIndex, boolean value) {
 		if (bitCount <= bitIndex)
@@ -258,17 +261,14 @@ public final class SerializableMap {
 		return ((bitStorage[bitIndex >>> 3] >> (bitIndex & 7)) & 1);
 	}
 	
-	public boolean containsKey(int key) {
+	/*public boolean containsKey(int key) {
 		return (dict.indexOfKey(key) >= 0);
-	}
+	}*/
 	
 	public void remove(int key) {
 		dict.remove(key);
 	}
 	
-	/*public void put(int key, boolean value) {
-		dict.put(key, (value ? (int)1 : (int)0));
-	}*/
 	
 	public void put(int key, int value) {
 		dict.put(key, value);
@@ -303,17 +303,8 @@ public final class SerializableMap {
 		return ((o == null) ? defaultValue : o);
 	}
 	
-	public boolean getBoolean(int key) {
-		final Object o = dict.get(key);
-		return (o != null) && (o instanceof Integer) && ((Integer)o != 0);
-	}
+
 	
-	public boolean getBoolean(int key, boolean defaultValue) {
-		final Object o = dict.get(key);
-		if (o == null || !(o instanceof Integer))
-			return defaultValue;
-		return ((Integer)o != 0);
-	}
 	
 	public int getInt(int key) {
 		final Object o = dict.get(key);
@@ -329,7 +320,7 @@ public final class SerializableMap {
 		return (Integer)o;
 	}
 	
-	public long getLong(int key) {
+	/*public long getLong(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Long))
 			return 0;
@@ -369,7 +360,7 @@ public final class SerializableMap {
 		if (o == null || !(o instanceof Double))
 			return defaultValue;
 		return (Double)o;
-	}
+	}*/
 	
 	public String getString(int key) {
 		final Object o = dict.get(key);
@@ -378,12 +369,12 @@ public final class SerializableMap {
 		return o.toString();
 	}
 	
-	public String getString(int key, String defaultValue) {
+	/*public String getString(int key, String defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof String))
 			return defaultValue;
 		return o.toString();
-	}
+	}*/
 	
 	public byte[] getBuffer(int key) {
 		final Object o = dict.get(key);
@@ -392,10 +383,10 @@ public final class SerializableMap {
 		return (byte[])o;
 	}
 	
-	public byte[] getBuffer(int key, byte[] defaultValue) {
+	/*public byte[] getBuffer(int key, byte[] defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof byte[]))
 			return defaultValue;
 		return (byte[])o;
-	}
+	}*/
 }

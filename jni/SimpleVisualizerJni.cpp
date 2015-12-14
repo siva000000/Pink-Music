@@ -472,8 +472,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 		{"processVoice", "([BLandroid/view/Surface;I)V", (void*)processVoice},
 
 		{"glGetOESTexture", "()I", (void*)glGetOESTexture},
-		{"glOnSurfaceCreated", "(IIIII)I", (void*)glOnSurfaceCreated},
-		{"glOnSurfaceChanged", "(IIII)V", (void*)glOnSurfaceChanged},
+		{"glOnSurfaceCreated", "(IIIIII)I", (void*)glOnSurfaceCreated},
+		{"glOnSurfaceChanged", "(IIIIII)V", (void*)glOnSurfaceChanged},
 		{"glLoadBitmapFromJava", "(Landroid/graphics/Bitmap;)I", (void*)glLoadBitmapFromJava},
 		{"glDrawFrame", "()V", (void*)glDrawFrame},
 		{"glOnSensorReset", "()V", (void*)glOnSensorReset},
@@ -484,7 +484,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 	JNIEnv* env;
 	if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK)
 		return -1;
-	jclass clazz = env->FindClass("br/com/siva/pinkmusic/visualizer/SimpleVisualizerJni");
+	jclass clazz = env->FindClass("br/com/carlosrafaelgn/fplay/visualizer/SimpleVisualizerJni");
 	if (!clazz)
 		return -1;
 	env->RegisterNatives(clazz, methodTable, sizeof(methodTable) / sizeof(methodTable[0]));
