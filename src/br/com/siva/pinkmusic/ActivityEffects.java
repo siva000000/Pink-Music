@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic;
 
 import android.content.Context;
@@ -42,6 +42,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import br.com.siva.pinkmusic.activity.ClientActivity;
+import br.com.siva.pinkmusic.list.FileSt;
 import br.com.siva.pinkmusic.list.Song;
 import br.com.siva.pinkmusic.playback.BassBoost;
 import br.com.siva.pinkmusic.playback.Equalizer;
@@ -101,7 +102,7 @@ public final class ActivityEffects extends ClientActivity implements Runnable, V
 	}
 
 	private String getAudioSinkDescription(int audioSink, boolean ellipsize) {
-		String description = ((Player.localAudioSinkUsedInEffects == audioSink) ? "Â» " : "");
+		String description = ((Player.localAudioSinkUsedInEffects == audioSink) ? "» " : "");
 		switch (audioSink) {
 		case Player.AUDIO_SINK_WIRE:
 			description += getText(R.string.earphones).toString();
@@ -114,7 +115,7 @@ public final class ActivityEffects extends ClientActivity implements Runnable, V
 			break;
 		}
 		if (Player.localAudioSinkUsedInEffects == audioSink)
-			description += " Â«";
+			description += " «";
 		if (ellipsize) {
 			final int availWidth = UI.usableScreenWidth -
 				(UI.extraSpacing ? (UI.controlMargin << 1) : 0) - //extra spacing in the header
@@ -170,10 +171,10 @@ public final class ActivityEffects extends ClientActivity implements Runnable, V
 			updateEffects();
 			break;
 		case MNU_LOADPRESET:
-			startActivity(new ActivityFileSelection(getText(R.string.load_preset), MNU_LOADPRESET, false, false, getText(R.string.item_preset).toString(), "#pset", this), 0, null, false);
+			startActivity(ActivityFileSelection.createPresetSelector(getHostActivity(), getText(R.string.load_preset), MNU_LOADPRESET, false, false, this), 0, null, false);
 			break;
 		case MNU_SAVEPRESET:
-			startActivity(new ActivityFileSelection(getText(R.string.save_preset), MNU_SAVEPRESET, true, false, getText(R.string.item_preset).toString(), "#pset", this), 0, null, false);
+			startActivity(ActivityFileSelection.createPresetSelector(getHostActivity(), getText(R.string.save_preset), MNU_SAVEPRESET, true, false, this), 0, null, false);
 			break;
 		case MNU_AUDIOSINK_DEVICE:
 			audioSink = Player.AUDIO_SINK_DEVICE;
@@ -631,9 +632,9 @@ public final class ActivityEffects extends ClientActivity implements Runnable, V
 	}
 	
 	@Override
-	public void onFileSelected(int id, String path, String name) {
+	public void onFileSelected(int id, FileSt file) {
 		if (id == MNU_LOADPRESET) {
-			final SerializableMap opts = SerializableMap.deserialize(getApplication(), path);
+			final SerializableMap opts = SerializableMap.deserialize(getApplication(), file.path);
 			if (opts != null) {
 				Equalizer.deserialize(opts, audioSink);
 				BassBoost.deserialize(opts, audioSink);
@@ -646,20 +647,29 @@ public final class ActivityEffects extends ClientActivity implements Runnable, V
 			Equalizer.serialize(opts, audioSink);
 			BassBoost.serialize(opts, audioSink);
 			Virtualizer.serialize(opts, audioSink);
-			opts.serialize(getApplication(), path);
+			opts.serialize(getApplication(), file.path);
 		}
 	}
-	
+
 	@Override
-	public void onAddClicked(int id, String path, String name) {
+	public void onAddClicked(int id, FileSt file) {
 	}
-	
+
 	@Override
-	public void onPlayClicked(int id, String path, String name) {
+	public void onPlayClicked(int id, FileSt file) {
+	}
+
+	@Override
+	public boolean onDeleteClicked(int id, FileSt file) {
+		return false;
 	}
 
 	@Override
 	public void onPlayerChanged(Song currentSong, boolean songHasChanged, boolean preparingHasChanged, Throwable ex) {
+	}
+
+	@Override
+	public void onPlayerMetadataChanged(Song currentSong) {
 	}
 
 	@Override

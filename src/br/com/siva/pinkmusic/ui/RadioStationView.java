@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.ui;
 
 import android.annotation.TargetApi;
@@ -48,6 +48,7 @@ import br.com.siva.pinkmusic.R;
 import br.com.siva.pinkmusic.list.RadioStation;
 import br.com.siva.pinkmusic.ui.drawable.TextIconDrawable;
 
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public final class RadioStationView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
 	private RadioStation station;
 	private BgButton btnFavorite;
@@ -94,7 +95,7 @@ public final class RadioStationView extends LinearLayout implements View.OnClick
 		setOnClickListener(this);
 		setOnLongClickListener(this);
 		setBaselineAligned(false);
-		setGravity(Gravity.RIGHT | Gravity.BOTTOM);
+		setGravity(Gravity.END | Gravity.BOTTOM);
 		getViewHeight();
 		descriptionLines = new String[4];
 		tagsLines = new String[3];
@@ -146,7 +147,7 @@ public final class RadioStationView extends LinearLayout implements View.OnClick
 		layout = new StaticLayout(station.description, UI.textPaint, width - hMargin, Alignment.ALIGN_NORMAL, 1, 0, false);
 		visibleLines = Math.min(3, layout.getLineCount());
 		for (i = 0; i < visibleLines; i++)
-			descriptionLines[i] = station.description.substring(layout.getLineStart(i), layout.getLineEnd(i));
+			descriptionLines[i] = station.description.substring(layout.getLineStart(i), layout.getLineEnd(i)).trim();
 		descriptionLines[i] = null;
 		if (layout.getLineCount() > 3) {
 			//ellipsize last line...
@@ -190,7 +191,6 @@ public final class RadioStationView extends LinearLayout implements View.OnClick
 		super.setBackground(null);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setBackgroundDrawable(Drawable background) {
@@ -210,15 +210,6 @@ public final class RadioStationView extends LinearLayout implements View.OnClick
 	@Override
 	public Drawable getBackground() {
 		return null;
-	}
-
-	@Override
-	public void invalidateDrawable(@NonNull Drawable drawable) {
-	}
-
-	@Override
-	protected boolean verifyDrawable(Drawable drawable) {
-		return false;
 	}
 
 	@Override
@@ -272,7 +263,7 @@ public final class RadioStationView extends LinearLayout implements View.OnClick
 		getDrawingRect(UI.rect);
 		UI.drawBgListItem(canvas, state | ((state & UI.STATE_SELECTED & BgListView.extraState) >>> 2), true, leftMargin, rightMargin);
 		UI.drawText(canvas, ellipsizedTitle, txtColor, UI._22sp, textX, topMargin + UI.verticalMargin + UI._22spYinBox);
-		TextIconDrawable.drawIcon(canvas, UI.ICON_pinkmusic, textX, iconY, UI._18sp, txtColor2);
+		TextIconDrawable.drawIcon(canvas, UI.ICON_PINKMUSIC, textX, iconY, UI._18sp, txtColor2);
 		UI.drawText(canvas, ellipsizedOnAir, txtColor2, UI._18sp, textX + UI._18sp + UI.controlSmallMargin, onAirY);
 		int i = 0, y = descriptionY;
 		while (descriptionLines[i] != null) {

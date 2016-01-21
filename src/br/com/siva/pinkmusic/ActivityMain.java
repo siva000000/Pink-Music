@@ -1,43 +1,45 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.Build;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils.TruncateAt;
@@ -51,17 +53,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import br.com.siva.pinkmusic.ActivityBrowser2;
-import br.com.siva.pinkmusic.ActivityEffects;
-import br.com.siva.pinkmusic.ActivityFileSelection;
-import br.com.siva.pinkmusic.ActivityItemView;
-import br.com.siva.pinkmusic.ActivitySettings;
-import br.com.siva.pinkmusic.R;
-import br.com.siva.pinkmusic.activity.ActivityHost;
+
 import br.com.siva.pinkmusic.activity.ActivityVisualizer;
+import br.com.siva.pinkmusic.list.FileSt;
 import br.com.siva.pinkmusic.list.Song;
 import br.com.siva.pinkmusic.list.SongList;
 import br.com.siva.pinkmusic.playback.Player;
@@ -70,6 +68,7 @@ import br.com.siva.pinkmusic.ui.BgButton;
 import br.com.siva.pinkmusic.ui.BgListView;
 import br.com.siva.pinkmusic.ui.BgSeekBar;
 import br.com.siva.pinkmusic.ui.CustomContextMenu;
+import br.com.siva.pinkmusic.ui.SongView;
 import br.com.siva.pinkmusic.ui.UI;
 import br.com.siva.pinkmusic.ui.drawable.BorderDrawable;
 import br.com.siva.pinkmusic.ui.drawable.ColorDrawable;
@@ -110,18 +109,17 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 	private TextIconDrawable lblTitleIcon;
 	private BgSeekBar barSeek, barVolume;
 	private ViewGroup panelControls, panelSecondary, panelSelection;
-	private BgButton btnAdd, btnPrev, btnPlay, btnNext, btnMenu, btnMoveSel, btnRemoveSel, btnCancelSel, btnDecreaseVolume, btnIncreaseVolume, btnVolume;
+	private BgButton btnAdd, btnPrev, btnPlay, btnNext, btnMenu, btnMoreInfo, btnMoveSel, btnRemoveSel, btnCancelSel, btnDecreaseVolume, btnIncreaseVolume, btnVolume;
 	private BgListView list;
 	private Timer tmrSong, tmrUpdateVolumeDisplay, tmrVolume;
-	private int firstSel, lastSel, lastTime, volumeButtonPressed, tmrVolumeInitialDelay, vwVolumeId;
+	private int firstSel, lastSel, lastTime, volumeButtonPressed, tmrVolumeInitialDelay, vwVolumeId, pendingListCommand;
 	private boolean selectCurrentWhenAttached, skipToDestruction, forceFadeOut, isCreatingLayout;//, ignoreAnnouncement;
 	private StringBuilder timeBuilder, volumeBuilder;
 	public static boolean localeHasBeenChanged;
 
 	@Override
 	public CharSequence getTitle() {
-		final Song currentSong = Player.localSong;
-		return "Pinkmusic: " + ((currentSong == null) ? getText(R.string.nothing_playing) : currentSong.title);
+		return "FPlay: " + Player.getCurrentTitle(getApplication(), false);
 	}
 
 	@Override
@@ -240,10 +238,76 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		}
 		if (barVolume != null) {
 			barVolume.setValue(value);
-     		barVolume.setText(volumeToString(volume));
+			barVolume.setText(volumeToString(volume));
 		} else {
 			setVolumeIcon(volume);
 		}
+	}
+
+	private void showMoreInfo() {
+		final int p;
+		if ((p = Player.songs.getSelection()) < 0 || p >= Player.songs.getCount())
+			return;
+		final Song song = Player.songs.getItemT(p);
+		if (song == null)
+			return;
+		final StringBuilder stringBuilder = new StringBuilder(1024);
+
+		stringBuilder.append(getText(R.string.path));
+		stringBuilder.append('\n');
+		stringBuilder.append(song.getHumanReadablePath());
+
+		stringBuilder.append("\n\n");
+		stringBuilder.append(getText(R.string.title));
+		stringBuilder.append('\n');
+		stringBuilder.append(song.title);
+
+		if (song.artist.length() > 0 && !song.artist.equals("-")) {
+			stringBuilder.append("\n\n");
+			stringBuilder.append(getText(R.string.artist));
+			stringBuilder.append('\n');
+			stringBuilder.append(song.artist);
+		}
+
+		if (song.album.length() > 0 && !song.album.equals("-")) {
+			stringBuilder.append("\n\n");
+			stringBuilder.append(song.isHttp ? getText(R.string.url) : getText(R.string.album));
+			stringBuilder.append('\n');
+			stringBuilder.append(song.album);
+		}
+
+		if (song.track > 0) {
+			stringBuilder.append("\n\n");
+			stringBuilder.append(getText(R.string.track));
+			stringBuilder.append('\n');
+			stringBuilder.append(song.track);
+		}
+
+		if (song.year > 0) {
+			stringBuilder.append("\n\n");
+			stringBuilder.append(getText(R.string.year));
+			stringBuilder.append('\n');
+			stringBuilder.append(song.year);
+		}
+
+		if (song.lengthMS > 0) {
+			stringBuilder.append("\n\n");
+			stringBuilder.append(getText(R.string.duration));
+			stringBuilder.append('\n');
+			stringBuilder.append(song.length);
+		}
+
+		final LinearLayout l = (LinearLayout)UI.createDialogView(getHostActivity(), null);
+		final EditText txt = new EditText(getHostActivity());
+		txt.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+		txt.setText(stringBuilder.toString());
+		txt.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
+		l.addView(txt);
+		UI.prepareDialogAndShow((new AlertDialog.Builder(getHostActivity()))
+			.setTitle(R.string.information)
+			.setView(l)
+			.setPositiveButton(R.string.ok, null)
+			.create());
 	}
 
 	private void startSelecting() {
@@ -263,6 +327,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 				}
 			}
 			UI.animationReset();
+			UI.animationAddViewToShow(btnMoreInfo);
 			UI.animationAddViewToShow(btnMoveSel);
 			UI.animationAddViewToShow(btnRemoveSel);
 			btnCancelSel.setText(R.string.cancel);
@@ -276,13 +341,13 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			lblMsgSelMove.setSelected(true);
 			if (UI.isLargeScreen) {
 				btnCancelSel.setNextFocusLeftId(R.id.btnRemoveSel);
-				UI.setNextFocusForwardId(list, R.id.btnMoveSel);
+				UI.setNextFocusForwardId(list, R.id.btnMoreInfo);
 			} else if (UI.isLandscape) {
 				btnCancelSel.setNextFocusUpId(R.id.btnRemoveSel);
-				UI.setNextFocusForwardId(list, R.id.btnMoveSel);
+				UI.setNextFocusForwardId(list, R.id.btnMoreInfo);
 			} else {
-				btnCancelSel.setNextFocusRightId(R.id.btnMoveSel);
-				UI.setNextFocusForwardId(btnCancelSel, R.id.btnMoveSel);
+				btnCancelSel.setNextFocusRightId(R.id.btnMoreInfo);
+				UI.setNextFocusForwardId(btnCancelSel, R.id.btnMoreInfo);
 				UI.setNextFocusForwardId(list, R.id.btnCancelSel);
 			}
 			Player.songs.selecting = true;
@@ -295,6 +360,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 	private void startMovingSelection() {
 		if (Player.songs.getFirstSelectedPosition() >= 0) {
 			UI.animationReset();
+			UI.animationAddViewToHide(btnMoreInfo);
 			UI.animationAddViewToHide(btnMoveSel);
 			UI.animationAddViewToHide(btnRemoveSel);
 			if (UI.animationEnabled) {
@@ -358,7 +424,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			UI.animationAddViewToShow(lblTitle);
 		lblTitle.setSelected(true);
 		UI.animationAddViewToHide(panelSelection);
-		UI.setNextFocusForwardId(list, UI.isLargeScreen ? vwVolumeId : R.id.btnPrev);
+		UI.setNextFocusForwardId(list, UI.isLargeScreen ? vwVolumeId : R.id.btnAdd);
 		UI.animationAddViewToShow(panelControls);
 		UI.animationAddViewToShow(panelSecondary);
 		UI.animationCommit(isCreatingLayout, null);
@@ -393,7 +459,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		}
 		return false;
 	}
-	
+
 	private boolean increaseVolume() {
 		final int volume = Player.increaseVolume();
 		if (volume != Integer.MIN_VALUE) {
@@ -402,7 +468,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void onPlayerChanged(Song currentSong, boolean songHasChanged, boolean preparingHasChanged, Throwable ex) {
 		final String icon = (Player.localPlaying ? UI.ICON_PAUSE : UI.ICON_PLAY);
@@ -414,11 +480,10 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			lblTitleIcon.setIcon(icon);
 		if (songHasChanged) {
 			Player.lastCurrent = -1; //force current song into view next time the UI changes
-			
 			if (Player.followCurrentSong && list != null && !list.changingCurrentWouldScareUser())
-								bringCurrentIntoView();
+				bringCurrentIntoView();
 			if (lblTitle != null) {
-				lblTitle.setText((currentSong == null) ? getText(R.string.nothing_playing) : ((barSeek == null && Player.isPreparing()) ? (getText(R.string.loading) + " " + currentSong.title) : currentSong.title));
+				lblTitle.setText(Player.getCurrentTitle(getApplication(), barSeek == null && Player.isPreparing()));
 				lblTitle.setSelected(true);
 				//if (ignoreAnnouncement)
 				//	ignoreAnnouncement = false;
@@ -440,11 +505,11 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 					barSeek.setValue(0);
 				}
 			} else if (lblTitle != null) {
-				lblTitle.setText((currentSong == null) ? getText(R.string.nothing_playing) : (Player.isPreparing() ? (getText(R.string.loading) + " " + currentSong.title) : currentSong.title));
+				lblTitle.setText(Player.getCurrentTitle(getApplication(), Player.isPreparing()));
 				lblTitle.setSelected(true);
 			}
 		}
-		if (Player.localPlaying && !Player.controlMode) {
+		if ((Player.localPlaying || Player.isPreparing()) && !Player.controlMode) {
 			if (!tmrSong.isAlive())
 				tmrSong.start(250);
 		} else {
@@ -453,7 +518,19 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		lastTime = -2;
 		handleTimer(tmrSong, null);
 	}
-	
+
+	@Override
+	public void onPlayerMetadataChanged(Song currentSong) {
+		onPlayerChanged(currentSong, true, true, null);
+		if (list != null) {
+			for (int i = list.getChildCount() - 1; i >= 0; i--) {
+				final View view = list.getChildAt(i);
+				if (view instanceof SongView)
+					((SongView)view).updateIfCurrent();
+			}
+		}
+	}
+
 	@Override
 	public void onPlayerControlModeChanged(boolean controlMode) {
 		if (Player.songs.selecting || Player.songs.moving)
@@ -497,7 +574,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 	}
 	
 	@Override
-	public View getNullContextMenuView() {
+ 	public View getNullContextMenuView() {
 		return ((!Player.songs.selecting && !Player.songs.moving && Player.state == Player.STATE_ALIVE) ? btnMenu : null);
 	}
 	
@@ -510,7 +587,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		UI.prepare(menu);
 		menu.add(0, MNU_ADDSONGS, 0, R.string.add_songs)
 			.setOnMenuItemClickListener(this)
-			.setIcon(new TextIconDrawable(UI.ICON_pinkmusic));
+			.setIcon(new TextIconDrawable(UI.ICON_PINKMUSIC));
 		UI.separator(menu, 0, 1);
 		Menu s2, s = menu.addSubMenu(1, 0, 0, R.string.list)
 				.setIcon(new TextIconDrawable(UI.ICON_LIST));
@@ -596,16 +673,16 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		s2.add(2, MNU_VISUALIZER_SPIN, 1, "Spinning Rainbow")
 			.setOnMenuItemClickListener(this)
 			.setIcon(new TextIconDrawable(UI.ICON_VISUALIZER));
-		s2.add(2, MNU_VISUALIZER_IMMERSIVE_PARTICLE_VR, 4, "Into the Particles (VR)")
+		s2.add(2, MNU_VISUALIZER_PARTICLE, 2, "Sound Particles")
 			.setOnMenuItemClickListener(this)
 			.setIcon(new TextIconDrawable(UI.ICON_VISUALIZER));
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-			s2.add(2, MNU_VISUALIZER_IMMERSIVE_PARTICLE_VR, 3, "Into the Particles (VR)")
-				.setOnMenuItemClickListener(this)
-				.setIcon(new TextIconDrawable(UI.ICON_3DPAN));
-		s2.add(2, MNU_VISUALIZER_IMMERSIVE_PARTICLE, 4, "Into the Particles")
+		s2.add(2, MNU_VISUALIZER_IMMERSIVE_PARTICLE, 3, "Into the Particles")
 			.setOnMenuItemClickListener(this)
 			.setIcon(new TextIconDrawable(UI.ICON_3DPAN));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+			s2.add(2, MNU_VISUALIZER_IMMERSIVE_PARTICLE_VR, 4, "Into the Particles (VR)")
+				.setOnMenuItemClickListener(this)
+				.setIcon(new TextIconDrawable(UI.ICON_3DPAN));
 		UI.separator(s2, 2, 5);
 		s2.add(2, MNU_VISUALIZER_ALBUMART, 6, R.string.album_art)
 			.setOnMenuItemClickListener(this)
@@ -632,15 +709,19 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 	@TargetApi(Build.VERSION_CODES.M)
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-		if (requestCode > 100 && requestCode < 200 && Player.state == Player.STATE_ALIVE && grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+		if (requestCode > 100 && requestCode < 200 && Player.state == Player.STATE_ALIVE && grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 			openVisualizer(requestCode);
+		} else if (requestCode == 2 && pendingListCommand != 0) {
+			if (Player.state == Player.STATE_ALIVE && grantResults != null && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+				selectPlaylist(pendingListCommand);
+			pendingListCommand = 0;
+		}
 	}
 
 	private void openVisualizer(int id) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			final ActivityHost activity = getHostActivity();
-			if (activity.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-				activity.requestPermissions(new String[]{ Manifest.permission.RECORD_AUDIO }, id);
+			if (getHostActivity().checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+				getHostActivity().requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, id);
 				return;
 			}
 		}
@@ -676,6 +757,15 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		}
 	}
 
+	private void selectPlaylist(int how) {
+		if (how == 1) {
+			Player.alreadySelected = false;
+			startActivity(ActivityFileSelection.createPlaylistSelector(getHostActivity(), getText(R.string.load_list), MNU_LOADLIST, false, true, this), 0, null, false);
+		} else {
+			startActivity(ActivityFileSelection.createPlaylistSelector(getHostActivity(), getText(R.string.save_list), MNU_SAVELIST, true, false, this), 0, null, false);
+		}
+	}
+
 	@Override
 	public boolean onMenuItemClick(MenuItem item) {
 		final int id = item.getItemId();
@@ -695,11 +785,24 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			Player.songs.clear();
 			break;
 		case MNU_LOADLIST:
-			Player.alreadySelected = false;
-			startActivity(new ActivityFileSelection(getText(R.string.load_list), MNU_LOADLIST, false, true, getText(R.string.item_list).toString(), "#lst", this), 0, null, false);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (!getHostActivity().isWriteStoragePermissionGranted()) {
+					pendingListCommand = 1;
+					getHostActivity().requestWriteStoragePermission();
+					break;
+				}
+			}
+			selectPlaylist(1);
 			break;
 		case MNU_SAVELIST:
-			startActivity(new ActivityFileSelection(getText(R.string.save_list), MNU_SAVELIST, true, false, getText(R.string.item_list).toString(), "#lst", this), 0, null, false);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (!getHostActivity().isWriteStoragePermissionGranted()) {
+					pendingListCommand = 2;
+					getHostActivity().requestWriteStoragePermission();
+					break;
+				}
+			}
+			selectPlaylist(2);
 			break;
 		case MNU_SORT_BY_TITLE:
 			Player.songs.sort(SongList.SORT_BY_TITLE);
@@ -762,6 +865,8 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 				bringCurrentIntoView();
 		} else if (view == btnMenu) {
 			CustomContextMenu.openContextMenu(btnMenu, this);
+		} else if (view == btnMoreInfo) {
+			showMoreInfo();
 		} else if (view == btnMoveSel) {
 			startMovingSelection();
 		} else if (view == btnRemoveSel) {
@@ -854,8 +959,6 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			addWindowFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		else
 			clearWindowFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		if (UI.notFullscreen)
-			clearWindowFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getHostActivity().setRequestedOrientation((UI.forcedOrientation == 0) ? ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED : ((UI.forcedOrientation < 0) ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT));
 		//whenever the activity is being displayed, the volume keys must control
 		//the music volume and nothing else!
@@ -870,6 +973,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		tmrSong = new Timer(this, "Song Timer", false, true, true);
 		tmrUpdateVolumeDisplay = new Timer(this, "Update Volume Display Timer", true, true, false);
 		tmrVolume = new Timer(this, "Volume Timer", false, true, true);
+		pendingListCommand = 0;
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -987,7 +1091,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			
 			btnAdd = (BgButton)findViewById(R.id.btnAdd);
 			btnAdd.setOnClickListener(this);
-			btnAdd.setIcon(UI.ICON_pinkmusic);
+			btnAdd.setIcon(UI.ICON_PINKMUSIC);
 			
 			if (!UI.marqueeTitle) {
 				lblTitle.setEllipsize(TruncateAt.END);
@@ -1000,7 +1104,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			lblTitle.setTextColor(UI.colorState_text_title_static);
 			
 			lblArtist = (TextView)findViewById(R.id.lblArtist);
-			if (UI.isLargeScreen != (lblArtist != null))
+			if (UI.isLargeScreen == (lblArtist == null))
 				UI.isLargeScreen = (lblArtist != null);
 			
 			lblMsgSelMove = (TextView)findViewById(R.id.lblMsgSelMove);
@@ -1027,7 +1131,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			final int iconIdx = originalText.indexOf('\u266B');
 			if (iconIdx > 0) {
 				final SpannableStringBuilder txt = new SpannableStringBuilder(originalText);
-				txt.setSpan(new ImageSpan(new TextIconDrawable(UI.ICON_pinkmusic, UI.color_text_disabled, UI._22sp, 0), DynamicDrawableSpan.ALIGN_BASELINE), iconIdx, iconIdx + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				txt.setSpan(new ImageSpan(new TextIconDrawable(UI.ICON_PINKMUSIC, UI.color_text_disabled, UI._22sp, 0), DynamicDrawableSpan.ALIGN_BASELINE), iconIdx, iconIdx + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				list.setCustomEmptyText(txt);
 			} else {
 				list.setCustomEmptyText(originalText);
@@ -1035,6 +1139,9 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			panelControls = (ViewGroup)findViewById(R.id.panelControls);
 			panelSecondary = (ViewGroup)findViewById(R.id.panelSecondary);
 			panelSelection = (ViewGroup)findViewById(R.id.panelSelection);
+			btnMoreInfo = (BgButton)findViewById(R.id.btnMoreInfo);
+			btnMoreInfo.setOnClickListener(this);
+			btnMoreInfo.setIcon(UI.ICON_INFORMATION, UI.isLargeScreen || !UI.isLandscape, true);
 			btnMoveSel = (BgButton)findViewById(R.id.btnMoveSel);
 			btnMoveSel.setOnClickListener(this);
 			btnMoveSel.setIcon(UI.ICON_MOVE, UI.isLargeScreen || !UI.isLandscape, true);
@@ -1073,7 +1180,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			if (Player.volumeControlType == Player.VOLUME_CONTROL_NONE) {
 				panelSecondary.removeView(barVolume);
 				barVolume = null;
-		    	btnVolume.setVisibility(View.VISIBLE);
+				btnVolume.setVisibility(View.VISIBLE);
 				btnVolume.setOnClickListener(this);
 				btnVolume.setIcon(UI.ICON_VOLUME4);
 				vwVolume = btnVolume;
@@ -1129,20 +1236,19 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 					list.setTopBorder();
 					panelSecondary.setPadding(0, 0, UI.controlMargin + UI.thickDividerSize, UI.controlLargeMargin);
 				} else {
-					findViewById(R.id.panelTop).setBackgroundDrawable(new BorderDrawable(UI.color_highlight, UI.color_window, 0, 0, 0, UI.thickDividerSize));
-										final LinearLayout panelTop = (LinearLayout)findViewById(R.id.panelTop);
-										if (UI.placeTitleAtTheBottom) {
-											panelTop.removeView(lblTitle);
-											panelTop.removeView(lblMsgSelMove);
-											panelTop.addView(lblTitle);
-											panelTop.addView(lblMsgSelMove);
-											lblTitle.setPadding(UI.controlSmallMargin, 0, UI.controlSmallMargin, UI.controlMargin);
-											lblMsgSelMove.setPadding(UI.controlSmallMargin, 0, UI.controlSmallMargin, UI.controlMargin);
-											if (UI.extraSpacing)
-												panelTop.setPadding(0, UI.controlMargin, 0, 0);
-										}
-										panelTop.setBackgroundDrawable(new BorderDrawable(UI.color_highlight, UI.color_window, 0, 0, 0, UI.thickDividerSize));
-					panelSecondary.setPadding(0, 0, 0, UI.controlMargin +  UI.thickDividerSize); //UI.controlMargin + UI.thickDividerSize);
+					final LinearLayout panelTop = (LinearLayout)findViewById(R.id.panelTop);
+					if (UI.placeTitleAtTheBottom) {
+						panelTop.removeView(lblTitle);
+						panelTop.removeView(lblMsgSelMove);
+						panelTop.addView(lblTitle);
+						panelTop.addView(lblMsgSelMove);
+						lblTitle.setPadding(UI.controlSmallMargin, 0, UI.controlSmallMargin, UI.controlMargin);
+						lblMsgSelMove.setPadding(UI.controlSmallMargin, 0, UI.controlSmallMargin, UI.controlMargin);
+						if (UI.extraSpacing)
+							panelTop.setPadding(0, UI.controlMargin, 0, 0);
+					}
+					panelTop.setBackgroundDrawable(new BorderDrawable(UI.color_highlight, UI.color_window, 0, 0, 0, UI.thickDividerSize));
+					panelSecondary.setPadding(0, 0, 0, UI.controlMargin + UI.thickDividerSize);
 				}
 				if (UI.extraSpacing) {
 					panelControls.setPadding(UI.controlMargin, 0, UI.controlMargin, UI.controlMargin);
@@ -1174,9 +1280,9 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 	public boolean onBgListViewKeyDown(BgListView list, int keyCode) {
 		switch (keyCode) {
 		case UI.KEY_LEFT:
-			if (btnCancelSel != null && btnMoveSel != null && btnRemoveSel != null && btnMenu != null && vwVolume != null) {
+			if (btnCancelSel != null && btnMoreInfo != null && btnMoveSel != null && btnRemoveSel != null && btnMenu != null && vwVolume != null) {
 				if (Player.songs.selecting)
-					(UI.isLargeScreen ? btnCancelSel : (UI.isLandscape ? btnMoveSel : btnRemoveSel)).requestFocus();
+					(UI.isLargeScreen ? btnCancelSel : (UI.isLandscape ? btnMoreInfo : btnRemoveSel)).requestFocus();
 				else if (Player.songs.moving)
 					btnCancelSel.requestFocus();
 				else if (UI.isLargeScreen)
@@ -1186,15 +1292,13 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			}
 			return true;
 		case UI.KEY_RIGHT:
-			if (btnCancelSel != null && btnMoveSel != null && btnAdd != null && btnPrev != null && vwVolume != null) {
+			if (btnCancelSel != null && btnMoreInfo != null && btnMoveSel != null && btnAdd != null && vwVolume != null) {
 				if (Player.songs.selecting)
-					((UI.isLargeScreen || UI.isLandscape) ? btnMoveSel : btnCancelSel).requestFocus();
+					((UI.isLargeScreen || UI.isLandscape) ? btnMoreInfo : btnCancelSel).requestFocus();
 				else if (Player.songs.moving)
 					btnCancelSel.requestFocus();
 				else if (UI.isLargeScreen)
 					(UI.isLandscape ? btnAdd : vwVolume).requestFocus();
-				else if (UI.isLandscape)
-					btnPrev.requestFocus();
 				else
 					btnAdd.requestFocus();
 			}
@@ -1304,6 +1408,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		Player.songs.setObserver(null);
 		Player.observer = null;
 		lastTime = -2;
+		pendingListCommand = 0;
 		if (!Player.controlMode)
 			Player.lastCurrent = Player.songs.getCurrentPosition();
 		if (UI.forcedLocale != UI.LOCALE_NONE && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN && !localeHasBeenChanged) {
@@ -1334,6 +1439,7 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		panelControls = null;
 		panelSecondary = null;
 		panelSelection = null;
+		btnMoreInfo = null;
 		btnMoveSel = null;
 		btnRemoveSel = null;
 		btnCancelSel = null;
@@ -1393,9 +1499,22 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			updateVolumeDisplay(Integer.MIN_VALUE);
 			return;
 		}
+		final Song s = Player.localSong;
 		if (Player.isPreparing()) {
 			if (barSeek != null && !barSeek.isTracking()) {
-				barSeek.setText(R.string.loading);
+				if (s.isHttp) {
+					final int m = Player.getHttpPosition();
+					barSeek.setText((m == -1) ? getText(R.string.connecting).toString() : ((Player.getHttpPosition() >>> 10) + " kiB " + getText(R.string.loading)));
+				} else {
+					barSeek.setText(R.string.loading);
+				}
+				barSeek.setValue(0);
+			}
+			return;
+		} else if (s != null && s.isHttp) {
+			if (barSeek != null) {
+				final int m = Player.getHttpPosition();
+				barSeek.setText((m == -1) ? "-" : ((m >>> 10) + " kiB"));
 				barSeek.setValue(0);
 			}
 			return;
@@ -1412,7 +1531,6 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 		} else {
 			Song.formatTimeSec(t, timeBuilder);
 			if (barSeek != null && !barSeek.isTracking()) {
-				final Song s = Player.localSong;
 				int v = 0;
 				if (s != null && s.lengthMS > 0) {
 					//avoid overflow! ;)
@@ -1484,34 +1602,41 @@ public final class ActivityMain extends ActivityItemView implements Timer.TimerH
 			}
 		}
 	}
-	
+
 	@Override
-	public void onFileSelected(int id, String path, String name) {
+	public void onFileSelected(int id, FileSt file) {
 		if (id == MNU_LOADLIST) {
 			Player.songs.clear();
-			Player.songs.startDeserializing(getApplication(), path, true, false, false);
+			Player.songs.startDeserializingOrImportingFrom(getApplication(), file, true, false, false);
 			BackgroundActivityMonitor.start(getHostActivity());
 		} else {
-			Player.songs.serialize(getApplication(), path);
-		}
-	}
-	
-	@Override
-	public void onAddClicked(int id, String path, String name) {
-		if (id == MNU_LOADLIST) {
-			Player.songs.startDeserializing(getApplication(), path, false, true, false);
+			Player.songs.startExportingTo(getApplication(), file);
 			BackgroundActivityMonitor.start(getHostActivity());
 		}
 	}
-	
+
 	@Override
-	public void onPlayClicked(int id, String path, String name) {
+	public void onAddClicked(int id, FileSt file) {
 		if (id == MNU_LOADLIST) {
-			Player.songs.startDeserializing(getApplication(), path, false, !Player.clearListWhenPlayingFolders, true);
+			Player.songs.startDeserializingOrImportingFrom(getApplication(), file, false, true, false);
 			BackgroundActivityMonitor.start(getHostActivity());
 		}
 	}
-	
+
+	@Override
+	public void onPlayClicked(int id, FileSt file) {
+		if (id == MNU_LOADLIST) {
+			Player.songs.startDeserializingOrImportingFrom(getApplication(), file, false, !Player.clearListWhenPlayingFolders, true);
+			BackgroundActivityMonitor.start(getHostActivity());
+		}
+	}
+
+	@Override
+	public boolean onDeleteClicked(int id, FileSt file) {
+		SongList.delete(getApplication(), file);
+		return true;
+	}
+
 	@Override
 	public void onPressingChanged(BgButton button, boolean pressed) {
 		if (button == btnDecreaseVolume) {

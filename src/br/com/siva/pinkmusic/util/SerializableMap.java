@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.util;
 
 import android.content.Context;
@@ -47,19 +47,19 @@ public final class SerializableMap {
 	private static final int TYPE_STRING = 4;
 	private static final int TYPE_BUFFER = 5;
 	private static final int TYPE_BITS = 6;
-	
+
 	private final SparseArray<Object> dict;
 	private byte[] bitStorage;
 	private int bitCount;
-	
+
 	public SerializableMap() {
 		dict = new SparseArray<>();
 	}
-	
+
 	public SerializableMap(int initialCapacity) {
 		dict = new SparseArray<>(initialCapacity);
 	}
-	
+
 	public boolean serialize(Context context, String fileName) {
 		FileOutputStream fs = null;
 		BufferedOutputStream bs = null;
@@ -136,7 +136,7 @@ public final class SerializableMap {
 		}
 		return false;
 	}
-	
+
 	public static SerializableMap deserialize(Context context, String fileName) {
 		FileInputStream fs = null;
 		BufferedInputStream bs = null;
@@ -212,14 +212,11 @@ public final class SerializableMap {
 		}
 		return null;
 	}
-	
+
 	/*public boolean hasBits() {
 		return (bitCount > 0);
-	}
-	
 	}*/
 
-	
 	public void putBit(int bitIndex, boolean value) {
 		if (bitCount <= bitIndex)
 			bitCount = bitIndex + 1;
@@ -238,151 +235,141 @@ public final class SerializableMap {
 		else
 			bitStorage[i] &= ~bitIndex;
 	}
-	
+
 	public boolean getBit(int bitIndex) {
 		return (bitIndex < bitCount) && ((bitStorage[bitIndex >>> 3] & (1 << (bitIndex & 7))) != 0);
 	}
-	
+
 	public boolean getBit(int bitIndex, boolean defaultValue) {
 		if (bitIndex >= bitCount)
 			return defaultValue;
 		return ((bitStorage[bitIndex >>> 3] & (1 << (bitIndex & 7))) != 0);
 	}
-	
-	public int getBitI(int bitIndex) {
-		if (bitIndex >= bitCount)
-			return 0;
-		return ((bitStorage[bitIndex >>> 3] >> (bitIndex & 7)) & 1);
-	}
-	
+
 	public int getBitI(int bitIndex, int defaultValue) {
 		if (bitIndex >= bitCount)
 			return defaultValue;
 		return ((bitStorage[bitIndex >>> 3] >> (bitIndex & 7)) & 1);
 	}
-	
+
 	/*public boolean containsKey(int key) {
 		return (dict.indexOfKey(key) >= 0);
 	}*/
-	
+
 	public void remove(int key) {
 		dict.remove(key);
 	}
-	
-	
+
 	public void put(int key, int value) {
 		dict.put(key, value);
 	}
-	
+
 	public void put(int key, long value) {
 		dict.put(key, value);
 	}
-	
+
 	public void put(int key, float value) {
 		dict.put(key, value);
 	}
-	
+
 	public void put(int key, double value) {
 		dict.put(key, value);
 	}
-	
+
 	public void put(int key, String value) {
 		dict.put(key, value);
 	}
-	
+
 	public void put(int key, byte[] value) {
 		dict.put(key, value);
 	}
-	
+
 	public Object get(int key) {
 		return dict.get(key);
 	}
-	
+
 	public Object get(int key, Object defaultValue) {
 		final Object o = dict.get(key);
 		return ((o == null) ? defaultValue : o);
 	}
-	
 
-	
-	
 	public int getInt(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Integer))
 			return 0;
 		return (Integer)o;
 	}
-	
+
 	public int getInt(int key, int defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Integer))
 			return defaultValue;
 		return (Integer)o;
 	}
-	
+
 	/*public long getLong(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Long))
 			return 0;
 		return (Long)o;
 	}
-	
+
 	public long getLong(int key, long defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Long))
 			return defaultValue;
 		return (Long)o;
 	}
-	
+
 	public float getFloat(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Float))
 			return 0;
 		return (Float)o;
 	}
-	
+
 	public float getFloat(int key, float defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Float))
 			return defaultValue;
 		return (Float)o;
 	}
-	
+
 	public double getDouble(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Double))
 			return 0;
 		return (Double)o;
 	}
-	
+
 	public double getDouble(int key, double defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof Double))
 			return defaultValue;
 		return (Double)o;
 	}*/
-	
+
 	public String getString(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof String))
 			return null;
 		return o.toString();
 	}
-	
+
 	/*public String getString(int key, String defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof String))
 			return defaultValue;
 		return o.toString();
 	}*/
-	
+
 	public byte[] getBuffer(int key) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof byte[]))
 			return null;
 		return (byte[])o;
 	}
-	
+
 	/*public byte[] getBuffer(int key, byte[] defaultValue) {
 		final Object o = dict.get(key);
 		if (o == null || !(o instanceof byte[]))

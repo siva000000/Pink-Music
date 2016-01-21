@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.list;
 
 import android.annotation.TargetApi;
@@ -43,7 +43,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,8 +51,8 @@ import java.util.Locale;
 import br.com.siva.pinkmusic.R;
 import br.com.siva.pinkmusic.activity.MainHandler;
 import br.com.siva.pinkmusic.playback.Player;
-import br.com.siva.pinkmusic.ui.UI;
 import br.com.siva.pinkmusic.util.ArraySorter;
+import br.com.siva.pinkmusic.util.TypedRawArrayList;
 
 //
 //Supported Media Formats
@@ -87,10 +86,10 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 			return fs_specLC.equals(((RootItem)o).fs_specLC);
 		}
 	}
-	
+
 	private static final int LIST_DELTA = 32;
 	private static final HashSet<String> supportedTypes;
-	public final String path;
+	public final String path, unknownArtist;
 	public FileSt[] files;
 	public String[] sections;
 	public int[] sectionPositions;
@@ -101,7 +100,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 	private boolean recursive;
 	private final boolean notifyFromMain, recursiveIfFirstEmpty;
 	private volatile boolean cancelled;
-	
+
 	static {
 		//http://developer.android.com/guide/appendix/media-formats.html
 		supportedTypes = new HashSet<>(21);
@@ -157,6 +156,13 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 	private FileFetcher(String path, Listener listener, boolean notifyFromMain, boolean recursive, boolean recursiveIfFirstEmpty, boolean playAfterFetching, boolean isInTouchMode, boolean createSections) {
 		this.files = new FileSt[LIST_DELTA];
 		this.path = path;
+		String unk;
+		try {
+			unk = Player.getService().getText(R.string.unknownArtist).toString();
+		} catch (Throwable ex) {
+			unk = "(???)";
+		}
+		unknownArtist = unk;
 		this.listener = listener;
 		this.notifyFromMain = notifyFromMain;
 		this.recursive = recursive;
@@ -254,7 +260,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		
 		files = Player.getFavoriteFolders(16);
 		count = files.length - 16;
-		
+
 		String desc = s.getText(R.string.artists).toString();
 		files[count] = new FileSt(FileSt.ARTIST_ROOT + FileSt.FAKE_PATH_ROOT + desc, desc, null, FileSt.TYPE_ARTIST_ROOT);
 		count++;
@@ -262,7 +268,13 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		desc = s.getText(R.string.albums).toString();
 		files[count] = new FileSt(FileSt.ALBUM_ROOT + FileSt.FAKE_PATH_ROOT + desc, desc, null, FileSt.TYPE_ALBUM_ROOT);
 		count++;
-		
+
+		files[count] = new FileSt("", "SHOUTcast", null, FileSt.TYPE_SHOUTCAST);
+		count++;
+
+		files[count] = new FileSt("", "Icecast", null, FileSt.TYPE_ICECAST);
+		count++;
+
 		File f;
 		try {
 			f = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
@@ -301,7 +313,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		//http://sapienmobile.com/?p=204
 		//http://stackoverflow.com/questions/11281010/how-can-i-get-external-sd-card-path-for-android-4-0
 		
-		try {
+		/*try {
 			path = System.getenv("SECONDARY_STORAGE");
 			if (path != null && path.length() > 0) {
 				//this file helps clarifying this ':' a little bit...
@@ -324,7 +336,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		}
 		
 		if (cancelled)
-			return;
+			return;*/
 		
 		InputStream is = null;
 		InputStreamReader isr = null;
@@ -464,7 +476,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 			files = new FileSt[0];
 			return;
 		}
-		final ArrayList<FileSt> tmp = new ArrayList<>(64);
+		final TypedRawArrayList<FileSt> tmp = new TypedRawArrayList<>(FileSt.class, 64);
 		while (c.moveToNext()) {
 			if (cancelled || Player.state >= Player.STATE_TERMINATING) {
 				count = 0;
@@ -473,7 +485,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 			}
 			String name = c.getString(1);
 			if (name == null || name.equals("<unknown>"))
-				name = UI.unknownArtist;
+				name = unknownArtist;
 			final long id = c.getLong(0);
 			final FileSt f = new FileSt(root + id + fakeRoot + name, name, null, FileSt.TYPE_ARTIST);
 			f.artistIdForAlbumArt = id;
@@ -484,20 +496,17 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		c.close();
 
 		count = tmp.size();
-		files = new FileSt[count];
-		tmp.toArray(files);
-		ArraySorter.sort(files, 0, files.length, new ArraySorter.Comparer<FileSt>() {
+		files = tmp.getRawArray();
+		ArraySorter.sort(files, 0, count, new ArraySorter.Comparer<FileSt>() {
 			@Override
 			public int compare(FileSt a, FileSt b) {
-				if (a.name == UI.unknownArtist)
+				if (a.name == unknownArtist)
 					return -1;
-				else if (b.name == UI.unknownArtist)
+				else if (b.name == unknownArtist)
 					return 1;
 				return a.name.compareToIgnoreCase(b.name);
 			}
 		});
-		
-		tmp.clear();
 	}
 	
 	private void fetchAlbums(String path) {
@@ -534,7 +543,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 			files = new FileSt[0];
 			return;
 		}
-		final ArrayList<FileSt> tmp = new ArrayList<>(64);
+		final TypedRawArrayList<FileSt> tmp = new TypedRawArrayList<>(FileSt.class, 64);
 		while (c.moveToNext()) {
 			if (cancelled || Player.state >= Player.STATE_TERMINATING) {
 				count = 0;
@@ -549,11 +558,8 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		c.close();
 
 		count = tmp.size();
-		files = new FileSt[count];
-		tmp.toArray(files);
-		ArraySorter.sort(files, 0, files.length, this);
-		
-		tmp.clear();
+		files = tmp.getRawArray();
+		ArraySorter.sort(files, 0, count, this);
 	}
 	
 	private void fetchTracks(String path) {
@@ -592,7 +598,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 			files = new FileSt[0];
 			return;
 		}
-		final ArrayList<FileSt> tmp = new ArrayList<>(64);
+		final TypedRawArrayList<FileSt> tmp = new TypedRawArrayList<>(FileSt.class, 64);
 		while (c.moveToNext()) {
 			if (cancelled || Player.state >= Player.STATE_TERMINATING) {
 				count = 0;
@@ -605,9 +611,8 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		c.close();
 
 		count = tmp.size();
-		files = new FileSt[count];
-		tmp.toArray(files);
-		ArraySorter.sort(files, 0, files.length, new ArraySorter.Comparer<FileSt>() {
+		files = tmp.getRawArray();
+		ArraySorter.sort(files, 0, count, new ArraySorter.Comparer<FileSt>() {
 			@Override
 			public int compare(FileSt a, FileSt b) {
 				if (a.specialType != b.specialType)
@@ -615,10 +620,8 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 				return a.name.compareToIgnoreCase(b.name);
 			}
 		});
-		for (int i = files.length - 1; i >= 0; i--)
+		for (int i = count - 1; i >= 0; i--)
 			files[i].specialType = 0;
-		
-		tmp.clear();
 	}
 
 	private void fetchFiles(String path, boolean first) {
@@ -664,20 +667,62 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 				fetchFiles(this.files[i].path, false);
 		}
 	}
-	
+
+	private TypedRawArrayList<FileSt> fetchPublicPlaylists() {
+		final Service s = Player.getService();
+		if (s == null)
+			return null;
+
+		final String[] proj = { "_id", "name" };
+		final Cursor c = s.getContentResolver().query(Uri.parse("content://media/external/audio/playlists"), proj, null, null, null);
+		if (c == null)
+			return null;
+		final TypedRawArrayList<FileSt> tmp = new TypedRawArrayList<>(FileSt.class, 64);
+		while (c.moveToNext()) {
+			if (cancelled || Player.state >= Player.STATE_TERMINATING) {
+				c.close();
+				return null;
+			}
+			final FileSt f = new FileSt(null, c.getString(1), 0);
+			f.artistIdForAlbumArt = c.getLong(0); //reuse the field to save a couple of parses
+			tmp.add(f);
+		}
+		c.close();
+
+		return tmp;
+	}
+
 	private void fetchPrivateFiles(String fileType) {
+		final Service s = Player.getService();
+		if (s == null)
+			return;
+
 		if (cancelled || Player.state >= Player.STATE_TERMINATING) {
 			count = 0;
 			return;
 		}
-		final String[] files = Player.getService().fileList();
+
+		final TypedRawArrayList<FileSt> playlists = (FileSt.FILETYPE_PLAYLIST.equals(fileType) ? fetchPublicPlaylists() : null);
+		final String[] files = s.fileList();
 		if (files == null || files.length == 0) {
+			if (playlists != null) {
+				count = playlists.size();
+				this.files = playlists.getRawArray();
+				ArraySorter.sort(this.files, 0, count, this);
+				return;
+			}
+			count = 0;
 			if (this.files == null)
 				this.files = new FileSt[0];
 			return;
 		}
-		ensureCapacity(files.length);
-		int i, c = 0;
+		int i, c;
+		if (playlists == null) {
+			ensureCapacity(files.length);
+			c = 0;
+		} else {
+			c = playlists.size();
+		}
 		final int l = fileType.length();
 		for (i = files.length - 1; i >= 0; i--) {
 			if (cancelled || Player.state >= Player.STATE_TERMINATING) {
@@ -685,11 +730,17 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 				return;
 			}
 			final String f = files[i];
-			if (files[i].endsWith(fileType)) {
-				this.files[c] = new FileSt(f, f.substring(0, f.length() - l), null, 0);
+			if (f.endsWith(fileType)) {
+				final FileSt fileSt = new FileSt(f, f.substring(0, f.length() - l), 0);
+				if (playlists == null)
+					this.files[c] = fileSt;
+				else
+					playlists.add(fileSt);
 				c++;
 			}
 		}
+		if (playlists != null)
+			this.files = playlists.getRawArray();
 		count = c;
 		ArraySorter.sort(this.files, 0, c, this);
 	}
@@ -705,7 +756,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 		int[] pos = new int[100];
 		char[] chars = new char[100];
 		char current, last = (char)Character.toUpperCase((int)files[0].name.charAt(0));
-		if (last < '@' || files[0].name == UI.unknownArtist)
+		if (last < '@' || files[0].name == unknownArtist)
 			last = '#';
 		chars[0] = last;
 		pos[0] = 0;
@@ -814,7 +865,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 						fetchAlbums(path);
 						//we actually need to fetch all tracks from all this artist's albums...
 						final FileSt[] albums = files;
-						final ArrayList<FileSt> tracks = new ArrayList<>(albums.length * 11);
+						final TypedRawArrayList<FileSt> tracks = new TypedRawArrayList<>(FileSt.class, albums.length * 11);
 						for (int i = 0; i < albums.length; i++) {
 							if (cancelled || Player.state >= Player.STATE_TERMINATING) {
 								count = 0;
@@ -842,9 +893,7 @@ public final class FileFetcher implements Runnable, ArraySorter.Comparer<FileSt>
 							//ignore any errors if at least one track was fetched
 							e = null;
 							count = tracks.size();
-							files = new FileSt[count];
-							tracks.toArray(files);
-							tracks.clear();
+							files = tracks.getRawArray();
 						} else {
 							count = 0;
 							if (files == null)

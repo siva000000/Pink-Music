@@ -21,7 +21,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="got_it">Got it!</string>
-   <string name="volume">Volume</string>
+    <string name="volume">Volume</string>
     <string name="go_to">Go to</string>
     <string name="msg_sel">Click to select more items</string>
     <string name="msg_move">Click to move selected items</string>
@@ -162,15 +162,17 @@
     <string name="external_storage">External storage</string>
     <string name="usb_storage">USB storage</string>
     <string name="error_connection">No Internet connection :(</string>
-    <string name="error_gen">Sorry, but something went wrong :(</string>
-    <string name="error_playback">Sorry, but something went wrong during the playback :(</string>
-    <string name="error_msg">Sorry, but something went wrong during the playback:</string>
-    <string name="error_state">Sorry, but the playback had to be stopped because the player has misbehaved :(</string>
-    <string name="error_io">Sorry, but a data access problem has happened during the playback :(</string>
-    <string name="error_file_not_found">Sorry, but the file could not be found :(</string>
-    <string name="error_timeout">Sorry, but the time to access song data has expired during the playback :(</string>
-    <string name="error_server_died">Sorry, but the media server suddenly died during the playback :(</string>
-    <string name="error_security">Sorry, but a security problem has happened during the playback :(</string>
+    <string name="error_gen">Sorry! Something went wrong :(</string>
+    <string name="error_playback">Sorry! Something went wrong with the playback :(</string>
+    <string name="error_msg">Sorry! Something went wrong with the playback:</string>
+    <string name="error_state">Sorry! The playback was stopped because the player has misbehaved :(</string>
+    <string name="error_io">Sorry! There was a problem reading the audio data :(</string>
+    <string name="error_file_not_found">Sorry! The file could not be found :(</string>
+    <string name="error_server_not_found">Sorry! The server could not be found :(</string>
+    <string name="error_timeout">Sorry! The time to access the audio data has expired :(</string>
+    <string name="error_server_died">Sorry! The media server suddenly died :(</string>
+    <string name="error_security">Sorry! A security problem has happened :(</string>
+    <string name="error_unsupported_format">Sorry! This audio codec is not supported :(</string>
     <string name="coming_soon">Coming soon&#8230; ;)</string>
     <string name="blue_orange">Blue/Orange</string>
     <string name="blue">Blue</string>
@@ -245,7 +247,7 @@
     <string name="opengl_error">OpenGL error</string>
     <string name="opengl_not_supported">No support for OpenGL ES 2.0</string>
     <string name="speed">Speed</string>
-    <string name="add_radio">Radio</string>
+    <string name="radio">Radio</string>
     <string name="search">Search</string>
     <string name="genre">Genre</string>
     <string name="search_term">Search term</string>
@@ -255,7 +257,7 @@
     <string name="no_favorites">No favorites yet!\n\nMark radio stations as favorite so you can find them here :)</string>
     <string name="no_stations">No radio stations found :(\n\nTouch here to view your favorite radio stations :)</string>
     <string name="expand_seek_bar">Expand the seek bar before seeking</string>
-    <string name="by_dir_xiph_org">By Icecast - &lt;a href=\"http://dir.xiph.org\"&gt;dir.xiph.org&lt;/a&gt;</string>
+    <string name="provided_by">Provided by</string>
     <string name="creamy">Creamy</string>
     <string name="transition">Transition:</string>
     <string name="animations">Animations</string>
@@ -308,11 +310,25 @@
     <string name="bt_not_paired">No Bluetooth devices were paired :(</string>
     <string name="bt_not_found">No Bluetooth devices were found :(</string>
     <string name="bt_null_device_name">(BT Device)</string>
+
     <string name="loudspeaker">Loudspeaker</string>
     <string name="earphones">Earphones</string>
     <string name="bluetooth">Bluetooth</string>
     <string name="follow_current_song">Follow current song on main screen</string>
     <string name="announce_current_song">Announce when current song changes</string>
     <string name="place_title_at_the_bottom">Place the title at the bottom</string>
+    <string name="headset_hook_1">One click on the headset button:</string>
+    <string name="headset_hook_2">Two clicks on the headset button:</string>
+    <string name="headset_hook_3">Three clicks on the headset button:</string>
+    <string name="nothing">Nothing</string>
+    <string name="path">Path</string>
+    <string name="radio_directory">Online radio directory</string>
+    <string name="all_kinds">All kinds</string>
+    <string name="listeners">Listeners</string>
+    <string name="connecting">Connecting…</string>
+    <string name="bytes_before_decoding">Bytes to download before starting to decode:</string>
+    <string name="seconds_before_playback">Seconds to decode before starting the playback:</string>
+    <string name="second">second</string>
+    <string name="seconds">seconds</string>
 
 </resources>

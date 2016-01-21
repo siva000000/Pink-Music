@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.visualizer;
 
 import android.annotation.TargetApi;
@@ -64,6 +64,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -80,6 +81,8 @@ import br.com.siva.pinkmusic.ui.drawable.ColorDrawable;
 import br.com.siva.pinkmusic.ui.drawable.TextIconDrawable;
 import br.com.siva.pinkmusic.util.ArraySorter;
 
+@SuppressWarnings("deprecation")
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfaceView.Renderer, GLSurfaceView.EGLContextFactory, GLSurfaceView.EGLWindowSurfaceFactory, Visualizer, MenuItem.OnMenuItemClickListener, MainHandler.Callback {
 	private static final int MNU_COLOR = MNU_VISUALIZER + 1, MNU_SPEED0 = MNU_VISUALIZER + 2, MNU_SPEED1 = MNU_VISUALIZER + 3, MNU_SPEED2 = MNU_VISUALIZER + 4, MNU_CHOOSE_IMAGE = MNU_VISUALIZER + 5, MNU_DIFFUSION0 = MNU_VISUALIZER + 6, MNU_DIFFUSION1 = MNU_VISUALIZER + 7, MNU_DIFFUSION2 = MNU_VISUALIZER + 8, MNU_DIFFUSION3 = MNU_VISUALIZER + 9, MNU_RISESPEED0 = MNU_VISUALIZER + 10, MNU_RISESPEED1 = MNU_VISUALIZER + 11, MNU_RISESPEED2 = MNU_VISUALIZER + 12, MNU_RISESPEED3 = MNU_VISUALIZER + 13;
 
@@ -108,7 +111,6 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 	private Activity activity;
 	private WindowManager windowManager;
 	private OpenGLVisualizerSensorManager sensorManager;
-	@SuppressWarnings("deprecation")
 	private Camera camera;
 	private SurfaceTexture cameraTexture;
 	private int cameraNativeOrientation;
@@ -151,7 +153,7 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 		}
 
 		if (type == TYPE_IMMERSIVE_PARTICLE || type == TYPE_IMMERSIVE_PARTICLE_VR) {
-			sensorManager = new OpenGLVisualizerSensorManager(context);
+			sensorManager = new OpenGLVisualizerSensorManager(context, false);
 			if (!sensorManager.isCapable) {
 				sensorManager = null;
 				UI.toast(activity, R.string.msg_no_sensors);
@@ -387,6 +389,7 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 				ex2.printStackTrace();
 			}
 			camera = null;
+			cameraOK = false;
 		}
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			if (cameraTexture != null) {
@@ -400,37 +403,81 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 
 	//Runs on a SECONDARY thread (A)
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		if (type == TYPE_SPECTRUM)
 			SimpleVisualizerJni.commonSetColorIndex(colorIndex);
 		SimpleVisualizerJni.commonSetSpeed(speed);
 		if (GLVersion == -1) {
 			supported = true;
-			Process ifc = null;
-			BufferedReader bis = null;
 			try {
-				ifc = Runtime.getRuntime().exec("getprop ro.opengles.version");
-				bis = new BufferedReader(new InputStreamReader(ifc.getInputStream()));
-				String line = bis.readLine();
-				GLVersion = Integer.parseInt(line);
-				supported = (GLVersion >= 0x00020000);
-				if (!supported)
-					MainHandler.sendMessage(this, MSG_OPENGL_ERROR);
-			} catch (Throwable ex) {
-				ex.printStackTrace();
-			} finally {
-				try {
-					if (bis != null)
-						bis.close();
-				} catch (Throwable ex) {
-					ex.printStackTrace();
+				//https://www.khronos.org/opengles/sdk/docs/man/xhtml/glGetString.xml
+				final String version = gl.glGetString(GL10.GL_VERSION).toLowerCase(Locale.US);
+				if (version.indexOf("opengl es ") == 0 &&
+					version.length() > 12 &&
+					version.charAt(10) >= '0' &&
+					version.charAt(10) <= '9') {
+					final int len = version.length();
+					GLVersion = 0;
+					int i = 10;
+					char c = 0;
+					for (; i < len; i++) {
+						c = version.charAt(i);
+						if (c < '0' || c > '9')
+							break;
+						GLVersion = (GLVersion << 4) | ((c - '0') << 16);
+					}
+					if (GLVersion == 0) {
+						GLVersion = -1;
+					} else {
+						if (c == '.') {
+							i++;
+							int shift = 12;
+							for (; i < len; i++) {
+								if (shift < 0)
+									break;
+								c = version.charAt(i);
+								if (c < '0' || c > '9')
+									break;
+								GLVersion |= ((c - '0') << shift);
+								shift -= 4;
+							}
+						}
+						supported = (GLVersion >= 0x00020000);
+						if (!supported)
+							MainHandler.sendMessage(this, MSG_OPENGL_ERROR);
+					}
 				}
+			} catch (Throwable ex) {
+				GLVersion = -1;
+				ex.printStackTrace();
+			}
+			if (GLVersion == -1) {
+				//if the method above fails, try to get opengl version the hard way!
+				Process ifc = null;
+				BufferedReader bis = null;
 				try {
-					if (ifc != null)
-						ifc.destroy();
+					ifc = Runtime.getRuntime().exec("getprop ro.opengles.version");
+					bis = new BufferedReader(new InputStreamReader(ifc.getInputStream()));
+					String line = bis.readLine();
+					GLVersion = Integer.parseInt(line);
+					supported = (GLVersion >= 0x00020000);
+					if (!supported)
+						MainHandler.sendMessage(this, MSG_OPENGL_ERROR);
 				} catch (Throwable ex) {
 					ex.printStackTrace();
+				} finally {
+					try {
+						if (bis != null)
+							bis.close();
+					} catch (Throwable ex) {
+						ex.printStackTrace();
+					}
+					try {
+						if (ifc != null)
+							ifc.destroy();
+					} catch (Throwable ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
 		}
@@ -476,7 +523,7 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 				}
 			}
 		}
-		if ((error = SimpleVisualizerJni.glOnSurfaceCreated(UI.color_visualizer, type, UI.screenWidth, UI.screenHeight, (UI._1dp < 2) ? 1 : 0)) != 0) {
+		if ((error = SimpleVisualizerJni.glOnSurfaceCreated(UI.color_visualizer, type, UI.screenWidth, UI.screenHeight, (UI._1dp < 2) ? 1 : 0, (sensorManager != null && sensorManager.hasGyro) ? 1 : 0)) != 0) {
 			supported = false;
 			MainHandler.sendMessage(this, MSG_OPENGL_ERROR);
 		} else if (type == TYPE_IMMERSIVE_PARTICLE_VR && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -502,7 +549,6 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 	
 	//Runs on a SECONDARY thread (A)
 	@Override
-	@SuppressWarnings("deprecation")
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		if (!supported)
 			return;
@@ -520,6 +566,7 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 			rotation = ((width >= height) ? Surface.ROTATION_90 : Surface.ROTATION_0);
 		}
 
+		int cameraPreviewW = 0, cameraPreviewH = 0;
 		if (camera != null) {
 			synchronized (this) {
 				try {
@@ -538,17 +585,43 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 						degrees = 270;
 						break;
 					}
-					camera.setDisplayOrientation((cameraNativeOrientation - degrees + 360) % 360);
+					final int cameraDisplayOrientation = (cameraNativeOrientation - degrees + 360) % 360;
+					camera.setDisplayOrientation(cameraDisplayOrientation);
 					final Camera.Parameters parameters = camera.getParameters();
 
 					//try to find the ideal preview size...
-					List<Camera.Size> localSizes = parameters.getSupportedPreviewSizes();
+					final List<Camera.Size> localSizes = parameters.getSupportedPreviewSizes();
 					int largestW = 0, largestH = 0;
-					for (int i = localSizes.size() - 1; i >= 0; i--) {
-						final int w = localSizes.get(i).width, h = localSizes.get(i).height;
-						if (w < width && h < height && w >= largestW && h >= largestH) {
-							largestW = w;
-							largestH = h;
+					float smallestRatioError = 10000.0f;
+					final float viewRatio = (float)width / (float)height;
+					if (cameraDisplayOrientation == 0 || cameraDisplayOrientation == 180) {
+						for (int i = localSizes.size() - 1; i >= 0; i--) {
+							final int w = localSizes.get(i).width, h = localSizes.get(i).height;
+							final float ratioError = Math.abs(((float)w / (float)h) - viewRatio);
+							if (w < width && h < height && w >= largestW && h >= largestH && ratioError <= (smallestRatioError + 0.001f)) {
+								smallestRatioError = ratioError;
+								largestW = w;
+								largestH = h;
+								cameraPreviewW = w;
+								cameraPreviewH = h;
+							}
+						}
+					} else {
+						//getSupportedPreviewSizes IS NOT AFFECTED BY setDisplayOrientation
+						//therefore, w and h MUST BE SWAPPED in 3 places
+						for (int i = localSizes.size() - 1; i >= 0; i--) {
+							final int w = localSizes.get(i).width, h = localSizes.get(i).height;
+							//SWAP HERE
+							final float ratioError = Math.abs(((float)h / (float)w) - viewRatio);
+							if (h < width && w < height //SWAP HERE
+								&& w >= largestW && h >= largestH && ratioError <= (smallestRatioError + 0.001f)) {
+								smallestRatioError = ratioError;
+								largestW = w;
+								largestH = h;
+								//SWAP HERE
+								cameraPreviewW = h;
+								cameraPreviewH = w;
+							}
 						}
 					}
 					if (largestW == 0) {
@@ -557,11 +630,23 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 					}
 
 					parameters.setPreviewSize(largestW, largestH);
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-						parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-					else
-						parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-					parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+
+					final List<String> localFocusModes = parameters.getSupportedFocusModes();
+					if (localFocusModes != null) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH &&
+							localFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+							parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+						} else if (localFocusModes.contains(Camera.Parameters.FOCUS_MODE_EDOF)) {
+							parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_EDOF);
+						} else if (localFocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+							parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+						}
+					}
+
+					final List<String> localWhiteBalance = parameters.getSupportedWhiteBalance();
+					if (localWhiteBalance != null && localWhiteBalance.contains(Camera.Parameters.WHITE_BALANCE_AUTO))
+						parameters.setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+
 					camera.setParameters(parameters);
 					camera.startPreview();
 				} catch (Throwable ex) {
@@ -572,12 +657,8 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 
 		viewWidth = width;
 		viewHeight = height;
-		SimpleVisualizerJni.glOnSurfaceChanged(width, height, rotation, (UI._1dp < 2) ? 1 : 0);
+		SimpleVisualizerJni.glOnSurfaceChanged(width, height, rotation, cameraPreviewW, cameraPreviewH, (UI._1dp < 2) ? 1 : 0);
 		okToRender = true;
-		/*if (type == TYPE_LIQUID && !imageChoosenAtLeastOnce) {
-			imageChoosenAtLeastOnce = true;
-			MainHandler.sendMessage(this, MSG_CHOOSE_IMAGE);
-		}*/
 	}
 	
 	//Runs on the MAIN thread
@@ -722,7 +803,6 @@ public final class OpenGLVisualizerJni extends GLSurfaceView implements GLSurfac
 		//Based on: http://stackoverflow.com/a/4105966/3569421
 		if (activity != null && selectedUri == null && !browsing && okToRender) {
 			browsing = true;
-			//imageChoosenAtLeastOnce = true;
 			final Intent intent = new Intent();
 			intent.setType("image/*");
 			intent.setAction(Intent.ACTION_GET_CONTENT);

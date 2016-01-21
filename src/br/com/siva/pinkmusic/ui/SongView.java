@@ -1,33 +1,35 @@
-//
+
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 
 package br.com.siva.pinkmusic.ui;
 
@@ -36,7 +38,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewDebug.ExportedProperty;
 
@@ -76,15 +77,20 @@ public final class SongView extends View implements View.OnClickListener, View.O
 			rightMargin = 0;
 			bottomMargin = 0;
 		}
-//		height = (UI._1dp << 1) + (UI.verticalMargin << 1) + UI._22spBox + UI._14spBox + topMargin + bottomMargin;
-		height =  UI._14spBox + UI._14spBox + topMargin + bottomMargin;
+	//	height = (UI._1dp << 1) + (UI.verticalMargin << 1) + UI._22spBox + UI._14spBox + topMargin + bottomMargin;
 	//	textX = leftMargin + UI.controlMargin;
+	//	titleY = UI.verticalMargin + UI._22spYinBox + topMargin;
+	//	extraY = UI.verticalMargin + UI._1dp + UI._22spBox + UI._14spYinBox + topMargin;
+	//	currentY = height - UI.defaultControlContentsSize - UI.controlXtraSmallMargin - bottomMargin;
+	//	return height;
+    	height = (UI._1dp << 1) + (UI.verticalMargin << 1) + UI._14spBox + topMargin + bottomMargin;
+		height =  UI._14spBox + UI._14spBox + topMargin + bottomMargin;
 		textX = leftMargin + UI.controlMargin;
-	//	titleY = UI.verticalMargin + UI._14spYinBox + topMargin;
-		titleY =15 + UI._14spYinBox + topMargin;
+		titleY = UI.verticalMargin + UI._14spYinBox + topMargin;
+		titleY = 30 + UI._14spYinBox + topMargin;
 		extraY = UI.verticalMargin + UI._1dp + UI._22spBox + UI._14spYinBox + topMargin;
 		currentY = height - UI.defaultControlContentsSize - UI.controlXtraSmallMargin - bottomMargin;
-		return height;
+		return height;	
 	}
 
 	public SongView(Context context) {
@@ -99,6 +105,13 @@ public final class SongView extends View implements View.OnClickListener, View.O
 		final int w = lengthX - textX - UI.controlMargin;
 		ellipsizedTitle = UI.ellipsizeText(song.title, UI._22sp, w, false);
 		ellipsizedExtraInfo = UI.ellipsizeText(song.extraInfo, UI._14sp, w, false);
+	}
+
+	public void updateIfCurrent() {
+		if ((state & UI.STATE_CURRENT) != 0) {
+			processEllipsis();
+			invalidate();
+		}
 	}
 
 	@Override
@@ -126,7 +139,6 @@ public final class SongView extends View implements View.OnClickListener, View.O
 		super.setBackground(null);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setBackgroundDrawable(Drawable background) {
@@ -146,15 +158,6 @@ public final class SongView extends View implements View.OnClickListener, View.O
 	@Override
 	public Drawable getBackground() {
 		return null;
-	}
-
-	@Override
-	public void invalidateDrawable(@NonNull Drawable drawable) {
-	}
-
-	@Override
-	protected boolean verifyDrawable(Drawable drawable) {
-		return false;
 	}
 
 	@Override
@@ -194,7 +197,23 @@ public final class SongView extends View implements View.OnClickListener, View.O
 			processEllipsis();
 		}
 	}
-
+//List Text size
+	//@Override
+	//protected void onDraw(Canvas canvas) {
+	//	if (ellipsizedTitle == null)
+	//		return;
+	//	final int txtColor = (((state & ~UI.STATE_CURRENT) == 0) ? UI.color_text_listitem : UI.color_text_selected);
+	//	getDrawingRect(UI.rect);
+	//	UI.drawBgListItem(canvas, state | ((state & UI.STATE_SELECTED & BgListView.extraState) >>> 2), true, leftMargin, rightMargin);
+	//	if ((state & UI.STATE_CURRENT) != 0)
+	//		TextIconDrawable.drawIcon(canvas, UI.ICON_PINKMUSIC, currentX, currentY, UI.defaultControlContentsSize, ((state & ~UI.STATE_CURRENT) == 0) ? UI.color_text_listitem_secondary : UI.color_text_selected);
+	//	UI.drawText(canvas, ellipsizedTitle, txtColor, UI._22sp, textX, titleY);
+	//	if (song.isHttp)
+	//		TextIconDrawable.drawIcon(canvas, UI.ICON_RADIO, lengthX, UI.verticalMargin + topMargin, UI._14spBox, txtColor);
+	//	else
+	//		UI.drawText(canvas, song.length, txtColor, UI._14sp, lengthX, UI.verticalMargin + UI._14spYinBox + topMargin);
+	//	UI.drawText(canvas, ellipsizedExtraInfo, txtColor, UI._14sp, textX, extraY);
+	//}
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (ellipsizedTitle == null)
@@ -203,14 +222,15 @@ public final class SongView extends View implements View.OnClickListener, View.O
 		getDrawingRect(UI.rect);
 		UI.drawBgListItem(canvas, state | ((state & UI.STATE_SELECTED & BgListView.extraState) >>> 2), true, leftMargin, rightMargin);
 		if ((state & UI.STATE_CURRENT) != 0)
-			TextIconDrawable.drawIcon(canvas, UI.ICON_pinkmusic, currentX-100, currentY, UI.defaultControlContentsSize, ((state & ~UI.STATE_CURRENT) == 0) ? UI.color_text_listitem_secondary : UI.color_text_selected);
+			TextIconDrawable.drawIcon(canvas, UI.ICON_PINKMUSIC, currentX - 150, currentY +10, UI.defaultControlContentsSize, ((state & ~UI.STATE_CURRENT) == 0) ? UI.color_text_listitem_secondary : UI.color_text_selected);
 		UI.drawText(canvas, ellipsizedTitle, txtColor, UI._14sp, textX, titleY);
 		if (song.isHttp)
 			TextIconDrawable.drawIcon(canvas, UI.ICON_LINK, lengthX, UI.verticalMargin + topMargin, UI._14spBox, txtColor);
 		else
 			UI.drawText(canvas, song.length, txtColor, UI._14sp, lengthX, UI.verticalMargin + UI._14spYinBox + topMargin);
-		UI.drawText(canvas, ellipsizedExtraInfo, txtColor, UI._14sp, textX, extraY);
+		    UI.drawText(canvas, ellipsizedExtraInfo, txtColor, UI._14sp, textX , extraY);
 	}
+
 
 	@Override
 	protected void dispatchSetPressed(boolean pressed) {

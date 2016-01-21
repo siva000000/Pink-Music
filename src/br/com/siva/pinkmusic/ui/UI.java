@@ -1,36 +1,39 @@
-//
+
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 
 package br.com.siva.pinkmusic.ui;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -97,14 +100,16 @@ import br.com.siva.pinkmusic.util.ColorUtils;
 import br.com.siva.pinkmusic.util.SerializableMap;
 
 //
+@SuppressLint({ "RtlHardcoded", "InlinedApi" })
 //Unit conversions are based on:
 //http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.3.3_r1/android/util/TypedValue.java
 //
+@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 public final class UI implements DialogInterface.OnShowListener, Animation.AnimationListener {
 	//VERSION_CODE must be kept in sync with AndroidManifest.xml
-	public static final int VERSION_CODE = 82;
+	public static final int VERSION_CODE = 83;
 	//VERSION_NAME must be kept in sync with AndroidManifest.xml
-	public static final String VERSION_NAME = "V1.47";
+	public static final String VERSION_NAME = "v1.48";
 
 	public static final int STATE_PRESSED = 1;
 	public static final int STATE_FOCUSED = 2;
@@ -124,15 +129,16 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static final int THEME_LIGHT = 4;
 	public static final int THEME_DARK_LIGHT = 5;
 	public static final int THEME_CREAMY = 6;
-	//present the new pinkmusic theme to all those using the creamy theme ;)
+	//present the new Pinkmusic theme to all those using the pink theme ;)
 	public static final int THEME_pinkmusic = 3;
 
 	public static final int TRANSITION_NONE = 0;
 	public static final int TRANSITION_FADE = 1;
 	public static final int TRANSITION_ZOOM = 2;
 	public static final int TRANSITION_DISSOLVE = 3;
-	public static final int TRANSITION_DURATION_FOR_ACTIVITIES = 300;
-	public static final int TRANSITION_DURATION_FOR_VIEWS = 300;
+	public static final int TRANSITION_DURATION_FOR_ACTIVITIES_SLOW = 300;
+	public static final int TRANSITION_DURATION_FOR_ACTIVITIES = 200; //used to be 300
+	public static final int TRANSITION_DURATION_FOR_VIEWS = 200; //used to be 300
 
 	public static final int MSG_ADD = 0x0001;
 	public static final int MSG_PLAY = 0x0002;
@@ -177,7 +183,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static final String ICON_OPTCHK = "q";
 	public static final String ICON_OPTUNCHK = "Q";
 	public static final String ICON_GRIP = "G";
-	public static final String ICON_pinkmusic = "7";
+	public static final String ICON_PINKMUSIC = "7";
 	public static final String ICON_SLIDERTOP = "\"";
 	public static final String ICON_SLIDERBOTTOM = "\'";
 	public static final String ICON_RIGHT = "6";
@@ -212,6 +218,13 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static final String ICON_ROOT = "(";
 	public static final String ICON_3DPAN = ")";
 	public static final String ICON_REPEATNONE = "Y";
+	public static final String ICON_HEADSETHOOK1 = "i";
+	public static final String ICON_HEADSETHOOK2 = "j";
+	public static final String ICON_HEADSETHOOK3 = "k";
+	public static final String ICON_ICECAST = "K";
+	public static final String ICON_ICECASTTEXT = "O"; //height = 3.587 / 16
+	public static final String ICON_SHOUTCAST = "J";
+	public static final String ICON_SHOUTCASTTEXT = "T"; //height = 2.279 / 16
 
 	public static final int KEY_UP = KeyEvent.KEYCODE_DPAD_UP;
 	public static final int KEY_DOWN = KeyEvent.KEYCODE_DPAD_DOWN;
@@ -249,13 +262,22 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static final int IDX_COLOR_FOCUSED_GRAD_DK = 21;
 	public static final int IDX_COLOR_FOCUSED_BORDER = 22;
 	public static final int IDX_COLOR_FOCUSED_PRESSED = 23;
-	
+
+	public static final int PLACEMENT_WINDOW = 0;
+	public static final int PLACEMENT_MENU = 1;
+	public static final int PLACEMENT_ALERT = 2;
+
+	//keep in sync with v21/styles.xml
+	public static final int color_fplay_dk = 0xff444abf;
+	public static final int color_fplay_lt = 0xff9ea6ff;
+
 	public static int color_window;
 	public static int color_control_mode;
 	public static int color_visualizer, color_visualizer565;
 	public static int color_list;
 	public static int color_list_bg;
 	public static int color_list_original;
+	public static int color_list_shadow;
 	public static int color_menu;
 	public static int color_menu_icon;
 	public static int color_menu_border;
@@ -409,7 +431,6 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		scrollBarToTheLeft, expandSeekBar, notFullscreen, controlsToTheLeft, hasBorders, placeTitleAtTheBottom;
 	public static int _1dp, _4dp, _22sp, _18sp, _14sp, _22spBox, defaultCheckIconSize, _18spBox, _14spBox, _22spYinBox, _18spYinBox, _14spYinBox, _LargeItemsp, _LargeItemspBox, _LargeItemspYinBox, controlLargeMargin, controlMargin, controlSmallMargin, controlXtraSmallMargin, dialogTextSize, dialogMargin, dialogDropDownVerticalMargin, verticalMargin, menuMargin,
 		strokeSize, thickDividerSize, defaultControlContentsSize, defaultControlSize, usableScreenWidth, usableScreenHeight, screenWidth, screenHeight, densityDpi, forcedOrientation, msgs, msgStartup, widgetTextColor, widgetIconColor, lastVersionCode, browserScrollBarType, songListScrollBarType;
-	public static String unknownArtist;
 	public static int[] lastViewCenterLocation = new int[2];
 	public static Bitmap icPrev, icPlay, icPause, icNext, icPrevNotif, icPlayNotif, icPauseNotif, icNextNotif, icExitNotif;
 	public static byte[] customColors;
@@ -449,7 +470,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		textPaint.setTypeface(Typeface.DEFAULT);
 		textPaint.setTextAlign(Paint.Align.LEFT);
 		textPaint.setColor(color_text);
-		textPaint.measureText("pinkmusic");
+		textPaint.measureText("FPlay");
 		//hide the edge!!! ;)
 		//if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
 		//  edgeFilter = new PorterDuffColorFilter(0, PorterDuff.Mode.CLEAR);
@@ -511,7 +532,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			if (defaultTypeface == null || !alternateTypefaceActive) {
 				alternateTypefaceActive = true;
 				try {
-					defaultTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/ChamsBold.ttf");
+					defaultTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/OpenDyslexicRegular.otf");
 				} catch (Throwable ex) {
 					UI.isUsingAlternateTypeface = false;
 					alternateTypefaceActive = false;
@@ -533,6 +554,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		textPaint.getFontMetrics(fm);
 		_18spBox = (int)(fm.descent - fm.ascent + 0.5f);
 		_18spYinBox = _18spBox - (int)(fm.descent);
+		textPaint.setTextSize(_14sp);
 		textPaint.getFontMetrics(fm);
 		_14spBox = (int)(fm.descent - fm.ascent + 0.5f);
 		_14spYinBox = _14spBox - (int)(fm.descent);
@@ -562,6 +584,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		}
 		return l;
 	}
+	
 	
 	public static String getLocaleDescriptionFromCode(Context context, int localeCode) {
 		switch (localeCode) {
@@ -598,7 +621,6 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			decimalSeparator = '.';
 		}
 	}
-
 	public static void reapplyForcedLocale(Context context, Activity activityContext) {
 		setForcedLocale(context, activityContext, forcedLocale, false);
 	}
@@ -607,7 +629,6 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		if (localeCode < 0 || localeCode > LOCALE_MAX)
 			localeCode = LOCALE_NONE;
 		if (forcedLocale == 0 && localeCode == 0) {
-			unknownArtist = context.getText(R.string.unknownArtist).toString();
 			currentLocale = getCurrentLocale(context);
 			updateDecimalSeparator();
 			return false;
@@ -632,7 +653,6 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		} catch (Throwable ex) {
 			currentLocale = getCurrentLocale(context);
 		}
-		unknownArtist = context.getText(R.string.unknownArtist).toString();
 		updateDecimalSeparator();
 		if (fullyInitialized && isUsingAlternateTypeface && wasCyrillic != isCurrentLocaleCyrillic()) {
 			setUsingAlternateTypeface(context, true);
@@ -662,7 +682,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static void initialize(Context context, Activity activityContext) {
 		accessibilityManager = (AccessibilityManager)context.getSystemService(Context.ACCESSIBILITY_SERVICE);
 		if (iconsTypeface == null)
-			iconsTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/Pinkmusic.ttf");
+			iconsTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/icons.ttf");
 		if (!fullyInitialized) {
 			try {
 				isTV = ((((UiModeManager)context.getSystemService(Context.UI_MODE_SERVICE)).getCurrentModeType() & Configuration.UI_MODE_TYPE_TELEVISION) != 0);
@@ -814,7 +834,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		//reset to the original state
 		textPaint.setTypeface(defaultTypeface);
 		textPaint.setColor(color_text);
-		textPaint.measureText("pinkmusic");
+		textPaint.measureText("FPlay");
 	}
 	
 	public static float pxToDp(float px) {
@@ -914,7 +934,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		serializeThemeColor(colors, 3 * IDX_COLOR_WINDOW, color_window);
 		serializeThemeColor(colors, 3 * IDX_COLOR_CONTROL_MODE, color_control_mode);
 		serializeThemeColor(colors, 3 * IDX_COLOR_VISUALIZER, color_visualizer);
-		serializeThemeColor(colors, 3 * IDX_COLOR_LIST, color_list);
+		serializeThemeColor(colors, 3 * IDX_COLOR_LIST, color_list_original);
 		serializeThemeColor(colors, 3 * IDX_COLOR_MENU, color_menu);
 		serializeThemeColor(colors, 3 * IDX_COLOR_MENU_ICON, color_menu_icon);
 		serializeThemeColor(colors, 3 * IDX_COLOR_MENU_BORDER, color_menu_border);
@@ -944,7 +964,8 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		color_window = deserializeThemeColor(colors, 3 * IDX_COLOR_WINDOW);
 		color_control_mode = deserializeThemeColor(colors, 3 * IDX_COLOR_CONTROL_MODE);
 		color_visualizer = deserializeThemeColor(colors, 3 * IDX_COLOR_VISUALIZER);
-		color_list = deserializeThemeColor(colors, 3 * IDX_COLOR_LIST);
+		color_list_original = deserializeThemeColor(colors, 3 * IDX_COLOR_LIST);
+		color_list = color_list_original;
 		color_menu = deserializeThemeColor(colors, 3 * IDX_COLOR_MENU);
 		color_menu_icon = deserializeThemeColor(colors, 3 * IDX_COLOR_MENU_ICON);
 		color_menu_border = deserializeThemeColor(colors, 3 * IDX_COLOR_MENU_BORDER);
@@ -978,13 +999,16 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			if (ColorUtils.relativeLuminance(color_list_original) >= 0.5) {
 				color_list = color_list_original;
 				color_list_bg = ColorUtils.blend(color_list_original, 0xff000000, 0.9286f);
+				color_list_shadow = ColorUtils.blend(color_list_original, 0xff000000, 0.77777777f);
 			} else {
 				color_list = ColorUtils.blend(color_list_original, 0xffffffff, 0.9286f);
 				color_list_bg = color_list_original;
+				color_list_shadow = ColorUtils.blend(color_list_original, 0xffffffff, 0.77777777f);
 			}
 		} else {
 			color_list = color_list_original;
 			color_list_bg = color_list_original;
+			color_list_shadow = color_divider;
 		}
 	}
 
@@ -1233,7 +1257,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		case THEME_CREAMY:
 			return context.getText(R.string.creamy).toString();
 		default:
-			return "pinkmusic";
+			return "Pinkmusic";
 		}
 	}
 
@@ -1277,35 +1301,13 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	}
 
 	public static void setAndroidThemeAccordingly(ActivityHost activityHost) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-			setAndroidThemeAccordingly21(activityHost);
-		else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2)
-			setAndroidThemeAccordingly13(activityHost);
-	}
-
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private static void setAndroidThemeAccordingly13(ActivityHost activityHost) {
-		//Even though android.R.style.Theme_Light_NoTitleBar_Fullscreen
-		//is available on API 10, 11 and 12, it DOES NOT make dialogs's
-		//background light :(
-		//
-		//Theme.DeviceDefault.Light.NoActionBar.Fullscreen appeared
-		//only on API 14... :(
-		//
-		//http://android-developers.blogspot.com.br/2012/01/holo-everywhere.html
-		if (isAndroidThemeLight())
-			activityHost.setTheme(android.R.style.Theme_Holo_Light_NoActionBar_Fullscreen);
-		else
-			activityHost.setTheme(android.R.style.Theme_Holo_NoActionBar_Fullscreen);
-	}
-
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	private static void setAndroidThemeAccordingly21(ActivityHost activityHost) {
-		if (isAndroidThemeLight())
-			activityHost.setTheme(android.R.style.Theme_Material_Light_NoActionBar_Fullscreen);
-		else
-			activityHost.setTheme(android.R.style.Theme_Material_NoActionBar_Fullscreen);
-		activityHost.updateSystemColors(true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			activityHost.setTheme(isAndroidThemeLight() ? R.style.AppTheme : R.style.AppThemeDark);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+				activityHost.updateSystemColors(true);
+		}
+		if (UI.notFullscreen)
+			activityHost.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 
 	public static int getAndroidThemeColor(Context context, int style, int attribute) {
@@ -1356,9 +1358,9 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		//final String content = activity.getText(R.string.startup_message).toString() + "!\n\n" + activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.expand_seek_bar).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
 		//final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.fullscreen).toString() + "\n- " + activity.getText(R.string.transition).toString() + "\n- " + activity.getText(R.string.color_theme).toString() + ": " + activity.getText(R.string.creamy).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
 		//final String content = activity.getText(R.string.startup_message).toString();
-		//final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.color_theme).toString() + ": pinkmusic\n\n" + activity.getText(R.string.visualizer).toString() + "! :D\n- Liquid Spectrum\n- Spinning Rainbow\n\n" + activity.getText(R.string.check_it_out).toString();
-		//final String content = "- " + activity.getText(R.string.visualizer).toString() + ":\n" +  activity.getText(R.string.album_art).toString() + "\nInto the Particles! :D\n\n- " + activity.getText(R.string.color_theme).toString() + ":\npinkmusic\n\n" + activity.getText(R.string.check_it_out).toString();
-		final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- 3D\n\n" + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) ? activity.getText(R.string.visualizer) + ":\n- Into the Particles (VR)\n\n" : "") + activity.getText(R.string.startup_message).toString() + "\n- " + activity.getText(R.string.loudspeaker).toString() + "\n- " + activity.getText(R.string.earphones).toString() + "\n- " + activity.getText(R.string.bluetooth).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
+		//final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.color_theme).toString() + ": FPlay\n\n" + activity.getText(R.string.visualizer).toString() + "! :D\n- Liquid Spectrum\n- Spinning Rainbow\n\n" + activity.getText(R.string.check_it_out).toString();
+		//final String content = "- " + activity.getText(R.string.visualizer).toString() + ":\n" +  activity.getText(R.string.album_art).toString() + "\nInto the Particles! :D\n\n- " + activity.getText(R.string.color_theme).toString() + ":\nFPlay\n\n" + activity.getText(R.string.check_it_out).toString();
+		final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.accessibility) + "\n- 3D\n\n" + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) ? activity.getText(R.string.visualizer) + ":\n- Into the Particles (VR)\n\n" : "") + activity.getText(R.string.startup_message).toString() + "\n- " + activity.getText(R.string.loudspeaker).toString() + "\n- " + activity.getText(R.string.earphones).toString() + "\n- " + activity.getText(R.string.bluetooth).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
 		prepareDialogAndShow((new AlertDialog.Builder(activity))
 			.setTitle(activity.getText(title))
 			.setView(createDialogView(activity, content))
@@ -1435,14 +1437,14 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		fillPaint.setShader(null);
 	}
 
-	//public static void strokeRect(Canvas canvas, int strokeColor, int thickness) {
-	//	fillPaint.setColor(strokeColor);
-	//	final int l = rect.left, t = rect.top, r = rect.right, b = rect.bottom;
-	//	canvas.drawRect(l, t, r, t + thickness, fillPaint);
-	//	canvas.drawRect(l, b - thickness, r, b, fillPaint);
-	//	canvas.drawRect(l, t + thickness, l + thickness, b - thickness, fillPaint);
-	//	canvas.drawRect(r - thickness, t + thickness, r, b - thickness, fillPaint);
-//	}
+	public static void strokeRect(Canvas canvas, int strokeColor, int thickness) {
+		fillPaint.setColor(strokeColor);
+		final int l = rect.left, t = rect.top, r = rect.right, b = rect.bottom;
+		canvas.drawRect(l, t, r, t + thickness, fillPaint);
+		canvas.drawRect(l, b - thickness, r, b, fillPaint);
+		canvas.drawRect(l, t + thickness, l + thickness, b - thickness, fillPaint);
+		canvas.drawRect(r - thickness, t + thickness, r, b - thickness, fillPaint);
+	}
 	
 	public static int getBorderColor(int state) {
 		if ((state & STATE_PRESSED) != 0)
@@ -1474,7 +1476,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		}
 	}
 
-	public static void drawBgListItem2D(Canvas canvas, int state, boolean dividerAllowed, int dividerMarginLeft, int dividerMarginRight) {
+	private static void drawBgListItem2D(Canvas canvas, int state, boolean dividerAllowed, int dividerMarginLeft, int dividerMarginRight) {
 		dividerAllowed &= isDividerVisible;
 		if (dividerAllowed)
 			rect.bottom -= strokeSize;
@@ -1507,7 +1509,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			drawBgListItem2D(canvas, state, dividerAllowed, leftMargin, rightMargin);
 			return;
 		}
-		fillPaint.setColor(color_divider);
+		fillPaint.setColor(color_list_shadow);
 		//right shadow
 		canvas.drawRect(rect.right - rightMargin, controlSmallMargin + strokeSize, rect.right - rightMargin + strokeSize, rect.bottom, fillPaint);
 		//bottom shadow
@@ -1590,23 +1592,23 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	}
 	
 	public static void mediumText(TextView view) {
-		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _14sp);
+		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _18sp);
 		view.setTypeface(defaultTypeface);
 	}
 	
 	public static void mediumTextAndColor(TextView view) {
-		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _14sp);
+		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _18sp);
 		view.setTextColor(colorState_text_static);
 		view.setTypeface(defaultTypeface);
 	}
 	
 	public static void largeText(TextView view) {
-		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _14sp);
+		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _22sp);
 		view.setTypeface(defaultTypeface);
 	}
 	
 	public static void largeTextAndColor(TextView view) {
-		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _14sp);
+		view.setTextSize(TypedValue.COMPLEX_UNIT_PX, _22sp);
 		view.setTextColor(colorState_text_static);
 		view.setTypeface(defaultTypeface);
 	}
@@ -1705,15 +1707,19 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
 				removeSplitTouch(l);
 			l.setOrientation(LinearLayout.VERTICAL);
-			l.setPadding(dialogMargin, dialogMargin, dialogMargin, dialogMargin);
+			final int hMargin = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? (dialogMargin + controlMargin) : dialogMargin);
+			final int topMargin = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? (dialogMargin + controlLargeMargin) : dialogMargin);
+			l.setPadding(hMargin, topMargin, hMargin, dialogMargin);
 			l.setBaselineAligned(false);
 			return l;
 		}
+		final ObservableScrollView scrollView = new ObservableScrollView(context, PLACEMENT_ALERT);
 		final TextView txt = new TextView(context);
 		txt.setText(messageOnly);
 		txt.setTextSize(TypedValue.COMPLEX_UNIT_PX, dialogTextSize);
 		txt.setPadding(dialogMargin << 1, dialogMargin << 1, dialogMargin << 1, dialogMargin << 1);
-		return txt;
+		scrollView.addView(txt);
+		return scrollView;
 	}
 	
 	public static void storeViewCenterLocationForFade(View view) {
@@ -1734,22 +1740,26 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	}
 
 	public static AlertDialog prepareDialogAndShow(AlertDialog dialog) {
-		if (alternateTypefaceActive || Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+		//if (alternateTypefaceActive || Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			//https://code.google.com/p/android/issues/detail?id=6360
 			dialog.setOnShowListener(Player.theUI);
-		}
+		//}
 		prepareDialogAnimations(dialog);
 		dialog.show();
 		return dialog;
 	}
 
-	private static void prepareDialogAndShowScanChildren(ViewGroup parent) {
+	private static void prepareDialogAndShowScanChildren(ViewGroup parent, int buttonColor) {
 		for (int i = parent.getChildCount(); i >= 0; i--) {
 			final View v = parent.getChildAt(i);
-			if (v instanceof ViewGroup)
-				prepareDialogAndShowScanChildren((ViewGroup)v);
-			else if (v instanceof TextView)
-				((TextView)v).setTypeface(defaultTypeface);
+			if (v instanceof ViewGroup) {
+				prepareDialogAndShowScanChildren((ViewGroup)v, buttonColor);
+			} else if (v instanceof TextView) {
+				if (alternateTypefaceActive)
+					((TextView)v).setTypeface(defaultTypeface);
+				if (buttonColor != 0 && (v instanceof Button))
+					((Button)v).setTextColor(buttonColor);
+			}
 		}
 	}
 
@@ -1757,6 +1767,11 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public void onShow(DialogInterface dlg) {
 		final AlertDialog dialog = ((dlg instanceof AlertDialog) ? (AlertDialog)dlg : null);
 		if (dialog == null)
+			return;
+		if (dialog.getWindow() != null)
+			dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		if (!alternateTypefaceActive && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+			//https://code.google.com/p/android/issues/detail?id=6360
 			return;
 		Button btn;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -1770,18 +1785,31 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			if (parent != null && (parent instanceof ViewGroup))
 				removeSplitTouch((ViewGroup)parent);
 		}
-		if (alternateTypefaceActive) {
+		if (alternateTypefaceActive || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			final View v = dialog.findViewById(android.R.id.content);
+			final int buttonColor = (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP ? 0 : (isAndroidThemeLight() ? color_fplay_dk : color_fplay_lt));
 			if (v != null && (v instanceof ViewGroup)) {
-				prepareDialogAndShowScanChildren((ViewGroup)v);
+				prepareDialogAndShowScanChildren((ViewGroup)v, buttonColor);
 			} else {
 				//at least try to change the buttons...
-				if ((btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)) != null)
-					btn.setTypeface(defaultTypeface);
-				if ((btn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)) != null)
-					btn.setTypeface(defaultTypeface);
-				if ((btn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)) != null)
-					btn.setTypeface(defaultTypeface);
+				if ((btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)) != null) {
+					if (alternateTypefaceActive)
+						btn.setTypeface(defaultTypeface);
+					if (buttonColor != 0)
+						btn.setTextColor(buttonColor);
+				}
+				if ((btn = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)) != null) {
+					if (alternateTypefaceActive)
+						btn.setTypeface(defaultTypeface);
+					if (buttonColor != 0)
+						btn.setTextColor(buttonColor);
+				}
+				if ((btn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)) != null) {
+					if (alternateTypefaceActive)
+						btn.setTypeface(defaultTypeface);
+					if (buttonColor != 0)
+						btn.setTextColor(buttonColor);
+				}
 			}
 		}
 	}
@@ -1799,12 +1827,12 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	}
 
 	@SuppressWarnings("deprecation")
-	public static void prepareEdgeEffect(View view, boolean insideMenu) {
+	public static void prepareEdgeEffect(View view, int placement) {
 		final Context context = view.getContext();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			try {
 				if (glowFilter == null) {
-					final int color = (insideMenu ? color_menu_icon : color_glow);
+					final int color = (placement == PLACEMENT_ALERT ? (isAndroidThemeLight() ? 0xff000000 : 0xffffffff) : (placement == PLACEMENT_MENU ? color_menu_icon : color_glow));
 					final Class<?> clazz = ((view instanceof ScrollView) ? ScrollView.class : AbsListView.class);
 					Field mEdgeGlow;
 					//EdgeEffect edgeEffect;
@@ -1867,7 +1895,6 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void offsetTopEdgeEffect(View view) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			try {

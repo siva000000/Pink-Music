@@ -1,42 +1,40 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.text.InputType;
 import android.util.TypedValue;
@@ -50,13 +48,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Locale;
 
-import br.com.siva.pinkmusic.ActivityBrowserRadio;
-import br.com.siva.pinkmusic.ActivityBrowserView;
-import br.com.siva.pinkmusic.R;
-import br.com.siva.pinkmusic.activity.ActivityHost;
 import br.com.siva.pinkmusic.activity.ClientActivity;
 import br.com.siva.pinkmusic.activity.MainHandler;
 import br.com.siva.pinkmusic.list.AlbumArtFetcher;
@@ -74,8 +67,8 @@ import br.com.siva.pinkmusic.ui.FileView;
 import br.com.siva.pinkmusic.ui.UI;
 import br.com.siva.pinkmusic.ui.drawable.ColorDrawable;
 import br.com.siva.pinkmusic.ui.drawable.TextIconDrawable;
+import br.com.siva.pinkmusic.util.TypedRawArrayList;
 
-@TargetApi(23)
 public final class ActivityBrowser2 extends ActivityBrowserView implements View.OnClickListener, DialogInterface.OnClickListener, DialogInterface.OnCancelListener, BgListView.OnBgListViewKeyDownObserver {
 	private static final int MNU_REMOVEFAVORITE = 100;
 	private FileSt lastClickedFavorite;
@@ -84,7 +77,7 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 	private FileList fileList;
 	private RelativeLayout panelSecondary;
 	private EditText txtURL, txtTitle;
-	private BgButton btnGoBack, btnRadio, btnURL, chkFavorite, chkAlbumArt, btnHome, chkAll, btnGoBackToPlayer, btnAdd, btnPlay;
+	private BgButton btnGoBack, btnURL, chkFavorite, chkAlbumArt, btnHome, chkAll, btnGoBackToPlayer, btnAdd, btnPlay;
 	private AlbumArtFetcher albumArtFetcher;
 	private int checkedCount;
 	private boolean loading, isAtHome, verifyAlbumWhenChecking, isCreatingLayout;
@@ -225,7 +218,7 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 				@Override
 				public void run() {
 					boolean addingFolder = false;
-					final ArrayList<FileSt> filesToAdd = new ArrayList<>(256);
+					final TypedRawArrayList<FileSt> filesToAdd = new TypedRawArrayList<>(FileSt.class, 256);
 					try {
 						Throwable firstException = null;
 						for (int i = 0; i < fs.length; i++) {
@@ -420,6 +413,14 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 			final FileSt file = fileList.getItemT(position);
 			if (file == null) //same as above
 				return;
+			switch (file.specialType) {
+			case FileSt.TYPE_ICECAST:
+				startActivity(new ActivityBrowserRadio(false), 1, list.getViewForPosition(position), true);
+				return;
+			case FileSt.TYPE_SHOUTCAST:
+				startActivity(new ActivityBrowserRadio(true), 1, list.getViewForPosition(position), true);
+				return;
+			}
 			if (file.isDirectory && file.specialType != FileSt.TYPE_ALBUM_ITEM) {
 				navigateTo(file.path, null, false);
 			} else {
@@ -497,7 +498,6 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 		final boolean fav = ((to.length() > 1) && (to.charAt(0) == File.separatorChar));
 		final boolean others = !isAtHome;
 		if (fav) {
-			UI.animationAddViewToHide(btnRadio);
 			UI.animationAddViewToHide(btnURL);
 			btnGoBack.setNextFocusRightId(R.id.chkFavorite);
 			UI.setNextFocusForwardId(btnGoBack, R.id.chkFavorite);
@@ -508,7 +508,6 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 			UI.animationAddViewToShow(btnHome);
 		} else if (others) {
 			final boolean albumArtArea = ((to.length() > 0) && ((to.charAt(0) == FileSt.ALBUM_ROOT_CHAR) || (to.charAt(0) == FileSt.ARTIST_ROOT_CHAR)));// (to.startsWith(FileSt.ALBUM_PREFIX) || to.startsWith(FileSt.ARTIST_ALBUM_PREFIX));
-			UI.animationAddViewToHide(btnRadio);
 			UI.animationAddViewToHide(btnURL);
 			if (albumArtArea) {
 				btnGoBack.setNextFocusRightId(R.id.chkAlbumArt);
@@ -526,10 +525,9 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 				UI.animationAddViewToHide(chkAlbumArt);
 			UI.animationAddViewToShow(btnHome);
 		} else {
-			UI.animationAddViewToShow(btnRadio);
 			UI.animationAddViewToShow(btnURL);
-			btnGoBack.setNextFocusRightId(R.id.btnRadio);
-			UI.setNextFocusForwardId(btnGoBack, R.id.btnRadio);
+			btnGoBack.setNextFocusRightId(R.id.btnURL);
+			UI.setNextFocusForwardId(btnGoBack, R.id.btnURL);
 			UI.animationAddViewToHide(chkFavorite);
 			UI.animationAddViewToHide(chkAlbumArt);
 			UI.animationAddViewToHide(btnHome);
@@ -620,8 +618,6 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 			} else {
 				finish(0, view, true);
 			}
-		} else if (view == btnRadio) {
-			startActivity(new ActivityBrowserRadio(), 1, view, true);
 		} else if (view == btnURL) {
 			final Context ctx = getHostActivity();
 			final LinearLayout l = (LinearLayout)UI.createDialogView(ctx, null);
@@ -700,7 +696,7 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 	
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		if (which == AlertDialog.BUTTON_POSITIVE) {
+		if (which == AlertDialog.BUTTON_POSITIVE && txtURL != null && txtTitle != null) {
 			String url = txtURL.getText().toString().trim();
 			if (url.length() >= 4) {
 				int s = 7;
@@ -792,10 +788,6 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 		btnGoBack = (BgButton)findViewById(R.id.btnGoBack);
 		btnGoBack.setOnClickListener(this);
 		btnGoBack.setIcon(UI.ICON_GOBACK);
-		btnRadio = (BgButton)findViewById(R.id.btnRadio);
-		btnRadio.setOnClickListener(this);
-		btnRadio.setDefaultHeight();
-		btnRadio.setCompoundDrawables(new TextIconDrawable(UI.ICON_RADIO, UI.color_text, UI.defaultControlContentsSize), null, null, null);
 		btnURL = (BgButton)findViewById(R.id.btnURL);
 		btnURL.setOnClickListener(this);
 		btnURL.setDefaultHeight();
@@ -879,10 +871,9 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 	@Override
 	protected void onPostCreateLayout(boolean firstCreation) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			final ActivityHost activity = getHostActivity();
-			if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+			if (!getHostActivity().isReadStoragePermissionGranted()) {
 				pendingTo = ((Player.path == null) ? "" : Player.path);
-				activity.requestStoragePermission();
+				getHostActivity().requestReadStoragePermission();
 				return;
 			}
 		}
@@ -923,7 +914,6 @@ public final class ActivityBrowser2 extends ActivityBrowserView implements View.
 		list = null;
 		panelSecondary = null;
 		btnGoBack = null;
-		btnRadio = null;
 		btnURL = null;
 		chkFavorite = null;
 		chkAlbumArt = null;

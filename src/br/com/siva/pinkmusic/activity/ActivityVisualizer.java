@@ -1,35 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-// 
-//
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.activity;
 
 import android.annotation.SuppressLint;
@@ -212,15 +211,15 @@ public final class ActivityVisualizer extends Activity implements FxVisualizer.F
 		return false;
 	}
 
-	private void updateTitle(Song currentSong) {
+	private void updateTitle() {
 		if (lblTitle == null)
 			return;
-		if (currentSong == null) {
+		if (Player.localSong == null) {
 			lblTitle.setText(getText(R.string.nothing_playing));
 		} else {
-			String txt = (Player.isPreparing() ? (getText(R.string.loading) + " " + currentSong.title) : currentSong.title);
-			if (currentSong.extraInfo != null && currentSong.extraInfo.length() > 0 && (currentSong.extraInfo.length() > 1 || currentSong.extraInfo.charAt(0) != '-'))
-				txt += "\n" + currentSong.extraInfo;
+			String txt = Player.getCurrentTitle(getApplication(), Player.isPreparing());
+			if (Player.localSong.extraInfo != null && Player.localSong.extraInfo.length() > 0 && (Player.localSong.extraInfo.length() > 1 || Player.localSong.extraInfo.charAt(0) != '-'))
+				txt += "\n" + Player.localSong.extraInfo;
 			lblTitle.setText(txt);
 		}
 	}
@@ -304,7 +303,7 @@ public final class ActivityVisualizer extends Activity implements FxVisualizer.F
 		//http://android-developers.blogspot.com.br/2010/06/allowing-applications-to-play-nicer.html
 		//
 		//...In a media playback application, this is used to react to headset button
-		//presses when your activity doesnâ€™t have the focus. For when it does, we override
+		//presses when your activity doesn’t have the focus. For when it does, we override
 		//the Activity.onKeyDown() or onKeyUp() methods for the user interface to trap the
 		//headset button-related events...
 		switch (keyCode) {
@@ -439,7 +438,7 @@ public final class ActivityVisualizer extends Activity implements FxVisualizer.F
 		btnMenu.setOnClickListener(this);
 		lblTitle = (TextView)findViewById(R.id.lblTitle);
 		UI.mediumText(lblTitle);
-		updateTitle(Player.localSong);
+		updateTitle();
 
 		//if (UI.extraSpacing)
 		//	panelTop.setPadding(UI._8dp, UI._8dp, UI._8dp, UI._8dp);
@@ -613,12 +612,17 @@ public final class ActivityVisualizer extends Activity implements FxVisualizer.F
 			btnPlay.setContentDescription(getText(Player.localPlaying ? R.string.pause : R.string.play));
 		}
 		if (songHasChanged || preparingHasChanged)
-			updateTitle(currentSong);
+			updateTitle();
 		final Visualizer v = visualizer;
 		if (v != null)
 			v.onPlayerChanged(currentSong, songHasChanged, ex);
 	}
-	
+
+	@Override
+	public void onPlayerMetadataChanged(Song currentSong) {
+		updateTitle();
+	}
+
 	@Override
 	public void onPlayerControlModeChanged(boolean controlMode) {
 	}
@@ -705,6 +709,7 @@ public final class ActivityVisualizer extends Activity implements FxVisualizer.F
 		super.onWindowFocusChanged(hasFocus);
 	}
 	
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getActionMasked()) {
@@ -805,12 +810,5 @@ public final class ActivityVisualizer extends Activity implements FxVisualizer.F
 			if (lblTitle != null)
 				lblTitle.setTextColor(lblColor);
 		}
-	}
-
-	@SuppressLint("Override")
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-		// TODO Auto-generated method stub
-		
 	}
 }

@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.ui;
 
 import android.annotation.SuppressLint;
@@ -49,6 +49,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import br.com.siva.pinkmusic.ui.drawable.TextIconDrawable;
 
+@SuppressLint("ClickableViewAccessibility")
 public final class BgSeekBar extends View {
 	public interface OnBgSeekBarChangeListener {
 		void onValueChanged(BgSeekBar seekBar, int value, boolean fromUser, boolean usingKeys);
@@ -127,14 +128,14 @@ public final class BgSeekBar extends View {
 		switch (index) {
 		case 2:
 			textSizeIdx = 2;
-			textSize = UI._14sp;
-			textBgY = (UI.defaultControlSize - UI._14spBox) >> 1;
+			textSize = UI._22sp;
+			textBgY = (UI.defaultControlSize - UI._22spBox) >> 1;
 			textY = textBgY + UI._22spYinBox;
 			break;
 		case 1:
 			textSizeIdx = 1;
-			textSize = UI._14sp;
-			textBgY = (UI.defaultControlSize - UI._14spBox) >> 1;
+			textSize = UI._18sp;
+			textBgY = (UI.defaultControlSize - UI._18spBox) >> 1;
 			textY = textBgY + UI._18spYinBox;
 			break;
 		default:
@@ -284,7 +285,6 @@ public final class BgSeekBar extends View {
 		super.setBackground(null);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setBackgroundDrawable(Drawable background) {
@@ -500,8 +500,7 @@ public final class BgSeekBar extends View {
 			canvas.save();
 			canvas.translate(0, height);
 			canvas.rotate(-90);
-			final int 
-			tmp = UI.rect.right;
+			final int tmp = UI.rect.right;
 			UI.rect.right = UI.rect.bottom;
 			UI.rect.bottom = tmp;
 		}
@@ -513,11 +512,11 @@ public final class BgSeekBar extends View {
 			final int color = UI.getBorderColor(state);
 			UI.rect.top = UI.controlMargin;
 			UI.rect.bottom -= UI.controlMargin;
-	//		UI.strokeRect(canvas, color, UI.strokeSize);
+			UI.strokeRect(canvas, color, UI.strokeSize);
 			if (UI.hasBorders) {
 				UI.rect.left = UI.strokeSize;
 				UI.rect.top += UI.strokeSize;
-				UI.rect.bottom -= 60;//UI.strokeSize;
+				UI.rect.bottom -= UI.strokeSize;
 				UI.rect.right = UI.strokeSize + filledSize;
 			} else {
 				UI.rect.right = filledSize;
@@ -534,10 +533,10 @@ public final class BgSeekBar extends View {
 				TextIconDrawable.drawIcon(canvas, UI.ICON_SLIDERBOTTOM, filledSize + (thumbWidth >> 1) - UI.controlMargin, bottom - UI.controlMargin, UI.controlLargeMargin, color);
 			} else {
 				if (UI.hasBorders) {
-					UI.rect.top = 0;//0
-					UI.rect.bottom = bottom;//bottom;
-					UI.rect.left = 0;//filledSize;
-					UI.rect.right = 0 + 0;//filledSize + thumbWidth;
+					UI.rect.top = 0;
+					UI.rect.bottom = bottom;
+					UI.rect.left = filledSize;
+					UI.rect.right = filledSize + thumbWidth;
 					UI.fillRect(canvas, color);
 					UI.rect.left += UI.strokeSize;
 					UI.rect.top += UI.strokeSize;
@@ -552,8 +551,8 @@ public final class BgSeekBar extends View {
 					UI.rect.left = filledSize;
 					UI.rect.right = filledSize + thumbWidth;
 				}
-				//UI.drawBgBorderless(canvas, state);
-				//TextIconDrawable.drawIcon(canvas, UI.ICON_GRIP, filledSize, (bottom - thumbWidth) >> 1, thumbWidth, color);
+				UI.drawBgBorderless(canvas, state);
+				TextIconDrawable.drawIcon(canvas, UI.ICON_GRIP, filledSize, (bottom - thumbWidth) >> 1, thumbWidth, color);
 			}
 		}
 		if (vertical)

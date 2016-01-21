@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.ui;
 
 import android.app.Activity;
@@ -62,12 +62,12 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 
 import br.com.siva.pinkmusic.R;
 import br.com.siva.pinkmusic.activity.MainHandler;
 import br.com.siva.pinkmusic.util.ArraySorter;
 import br.com.siva.pinkmusic.util.ArraySorter.Comparer;
+import br.com.siva.pinkmusic.util.TypedRawArrayList;
 
 public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, Comparer<CustomContextMenu.Item>, View.OnClickListener, OnCancelListener, OnDismissListener {
 	static final class Item implements MenuItem {
@@ -337,7 +337,7 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 	}
 	
 	private Context context;
-	private ArrayList<Item> items;
+	private TypedRawArrayList<Item> items;
 	private View.OnCreateContextMenuListener listener;
 	private Activity closeListener;
 	private View view;
@@ -352,7 +352,7 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 	
 	private CustomContextMenu(View view, View.OnCreateContextMenuListener listener, Activity closeListener, Item parentItem, CustomContextMenu parentMenu) {
 		this.context = view.getContext();
-		this.items = new ArrayList<>(8);
+		this.items = new TypedRawArrayList<>(Item.class, 8);
 		this.listener = listener;
 		this.closeListener = closeListener;
 		this.view = view;
@@ -402,9 +402,9 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 		}
 		
 		if (menu == null) {
-			final Item[] items = new Item[this.items.size()];
-			this.items.toArray(items);
-			ArraySorter.sort(items, 0, items.length, this);
+			final int itemsLength = this.items.size();
+			final Item[] items = this.items.getRawArray();
+			ArraySorter.sort(items, 0, itemsLength, this);
 			
 			final LinearLayout list = new LinearLayout(context);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
@@ -416,7 +416,7 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 			
 			final int minWidth = ((context instanceof Activity) ? (((Activity)context).getWindowManager().getDefaultDisplay().getWidth() >> ((UI.isLargeScreen || UI.isLandscape) ? 2 : 1)) : 0);
 			int first = -1, last = -1;
-			for (int i = 0; i < items.length; i++) {
+			for (int i = 0; i < itemsLength; i++) {
 				final Item it = items[i];
 				if (it.visible) {
 					if (it.actionView == null) {
@@ -476,7 +476,7 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 				items[last].actionView.setId(2);
 				items[last].actionView.setNextFocusDownId(1);
 			}
-			final ObservableScrollView scroll = new ObservableScrollView(context, true);
+			final ObservableScrollView scroll = new ObservableScrollView(context, UI.PLACEMENT_MENU);
 			final FrameLayout.LayoutParams fp = new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 			fp.leftMargin = UI.controlMargin;
 			fp.topMargin = UI.controlMargin;
@@ -496,8 +496,9 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 		} else {
 			//we must manually reset the drawbles here, because they are always removed
 			//from the views in their onDetachedFromWindow()
-			for (int i = items.size() - 1; i >= 0; i--) {
-				final Item it = items.get(i);
+			final Item[] items = this.items.getRawArray();
+			for (int i = this.items.size() - 1; i >= 0; i--) {
+				final Item it = items[i];
 				if (it.icon != null && it.actionView != null && (it.actionView instanceof TextView))
 					((TextView)it.actionView).setCompoundDrawables(it.icon, null, null, null);
 			}
@@ -541,8 +542,9 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 		//as there are really few elements, and clicks happen only once in a while,
 		//it was not worth keeping an extra HashMap in this class ;)
 		Item it = null;
-		for (int i = items.size() - 1; i >= 0; i--) {
-			final Item iti = items.get(i);
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			final Item iti = items[i];
 			if (iti != null && iti.actionView == view) {
 				it = iti;
 				break;
@@ -773,8 +775,9 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 		//help the gc
 		context = null;
 		if (items != null) {
-			for (int i = items.size() - 1; i >= 0; i--) {
-				final Item it = items.get(i);
+			final Item[] items = this.items.getRawArray();
+			for (int i = this.items.size() - 1; i >= 0; i--) {
+				final Item it = items[i];
 				it.context = null;
 				it.menuItemClickListener = null;
 				it.icon = null;
@@ -789,8 +792,8 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 					it.subMenu = null;
 				}
 			}
-			items.clear();
-			items = null;
+			this.items.clear();
+			this.items = null;
 		}
 		listener = null;
 		closeListener = null;
@@ -807,8 +810,10 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 	
 	@Override
 	public MenuItem findItem(int id) {
-		for (int i = items.size() - 1; i >= 0; i--) {
-			if (items.get(i).itemId == id) return items.get(i);
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			final Item it = items[i];
+			if (it.itemId == id) return it;
 		}
 		return null;
 	}
@@ -820,8 +825,9 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 	
 	@Override
 	public boolean hasVisibleItems() {
-		for (int i = items.size() - 1; i >= 0; i--) {
-			if (items.get(i).visible) return true;
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			if (items[i].visible) return true;
 		}
 		return false;
 	}
@@ -853,9 +859,10 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 	
 	@Override
 	public void removeItem(int id) {
-		for (int i = 0; i < items.size(); i++) {
-			if (items.get(i).itemId == id) {
-				items.remove(i);
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			if (items[i].itemId == id) {
+				this.items.remove(i);
 				return;
 			}
 		}
@@ -863,22 +870,28 @@ public final class CustomContextMenu implements SubMenu, ContextMenu, Runnable, 
 	
 	@Override
 	public void setGroupCheckable(int group, boolean checkable, boolean exclusive) {
-		for (int i = items.size() - 1; i >= 0; i--) {
-			if (items.get(i).groupId == group) items.get(i).checkable = checkable;
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			final Item it = items[i];
+			if (it.groupId == group) it.checkable = checkable;
 		}
 	}
 	
 	@Override
 	public void setGroupEnabled(int group, boolean enabled) {
-		for (int i = items.size() - 1; i >= 0; i--) {
-			if (items.get(i).groupId == group) items.get(i).enabled = enabled;
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			final Item it = items[i];
+			if (it.groupId == group) it.enabled = enabled;
 		}
 	}
 	
 	@Override
 	public void setGroupVisible(int group, boolean visible) {
-		for (int i = items.size() - 1; i >= 0; i--) {
-			if (items.get(i).groupId == group) items.get(i).visible = visible;
+		final Item[] items = this.items.getRawArray();
+		for (int i = this.items.size() - 1; i >= 0; i--) {
+			final Item it = items[i];
+			if (it.groupId == group) it.visible = visible;
 		}
 	}
 	

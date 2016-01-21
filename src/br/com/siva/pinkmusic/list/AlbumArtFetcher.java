@@ -1,7 +1,7 @@
 //
-// Pink Music Android is distributed under the FreeBSD License
+// FPlayAndroid is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
+// Copyright (c) 2013-2014, Carlos Rafael Gimenes das Neves
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 // of the authors and should not be interpreted as representing official policies,
 // either expressed or implied, of the FreeBSD Project.
 //
-
+// https://github.com/carlosrafaelgn/FPlayAndroid
+//
 package br.com.siva.pinkmusic.list;
 
 import android.app.Service;

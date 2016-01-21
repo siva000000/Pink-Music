@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic;
 
 import android.app.AlertDialog;
@@ -36,33 +36,34 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
+import android.net.Uri;
 import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ImageSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-
 import br.com.siva.pinkmusic.activity.MainHandler;
 import br.com.siva.pinkmusic.list.BaseList;
 import br.com.siva.pinkmusic.list.FileSt;
+import br.com.siva.pinkmusic.list.IcecastRadioStationList;
 import br.com.siva.pinkmusic.list.RadioStation;
+import br.com.siva.pinkmusic.list.RadioStationGenre;
 import br.com.siva.pinkmusic.list.RadioStationList;
+import br.com.siva.pinkmusic.list.ShoutcastRadioStationList;
 import br.com.siva.pinkmusic.playback.Player;
+import br.com.siva.pinkmusic.playback.RadioStationResolver;
 import br.com.siva.pinkmusic.ui.BackgroundActivityMonitor;
 import br.com.siva.pinkmusic.ui.BgButton;
 import br.com.siva.pinkmusic.ui.BgColorStateList;
@@ -74,28 +75,124 @@ import br.com.siva.pinkmusic.ui.drawable.ColorDrawable;
 import br.com.siva.pinkmusic.ui.drawable.TextIconDrawable;
 import br.com.siva.pinkmusic.util.SafeURLSpan;
 
-public final class ActivityBrowserRadio extends ActivityBrowserView implements View.OnClickListener, DialogInterface.OnClickListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, BgListView.OnBgListViewKeyDownObserver, RadioStationList.OnBaseListSelectionChangedListener<RadioStation>, SpinnerAdapter, RadioStationList.RadioStationAddedObserver, FastAnimator.Observer {
+public final class ActivityBrowserRadio extends ActivityBrowserView implements View.OnClickListener, DialogInterface.OnClickListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, BgListView.OnBgListViewKeyDownObserver, RadioStationList.OnBaseListSelectionChangedListener<RadioStation>, RadioStationList.RadioStationAddedObserver, FastAnimator.Observer, AdapterView.OnItemSelectedListener {
+	private static final class RadioStationAdapter implements SpinnerAdapter {
+		private Context context;
+		private ColorStateList defaultTextColors;
+		public RadioStationGenre[] genres;
+
+		public RadioStationAdapter(Context context, ColorStateList defaultTextColors, RadioStationGenre[] genres) {
+			this.context = context;
+			this.defaultTextColors = defaultTextColors;
+			this.genres = genres;
+		}
+
+		public void release() {
+			context = null;
+			defaultTextColors = null;
+			genres = null;
+		}
+
+		@Override
+		public int getCount() {
+			return (genres == null ? 0 : genres.length);
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return (genres == null ? null : genres[position]);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public int getItemViewType(int position) {
+			return 0;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			TextView txt = (TextView)convertView;
+			if (txt == null) {
+				txt = new TextView(context);
+				txt.setPadding(UI.dialogMargin, UI.dialogMargin, UI.dialogMargin, UI.dialogMargin);
+				txt.setTypeface(UI.defaultTypeface);
+				txt.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
+				txt.setTextColor(defaultTextColors);
+			}
+			txt.setText(genres == null ? "" : genres[position].name);
+			return txt;
+		}
+
+		@Override
+		public int getViewTypeCount() {
+			return 1;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			return true;
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return false;
+		}
+
+		@Override
+		public void registerDataSetObserver(DataSetObserver observer) {
+		}
+
+		@Override
+		public void unregisterDataSetObserver(DataSetObserver observer) {
+		}
+
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			TextView txt = (TextView)convertView;
+			if (txt == null) {
+				txt = new TextView(context);
+				txt.setPadding(UI.dialogMargin, UI.dialogDropDownVerticalMargin, UI.dialogMargin, UI.dialogDropDownVerticalMargin);
+				txt.setTypeface(UI.defaultTypeface);
+				txt.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
+				txt.setTextColor(defaultTextColors);
+			}
+			txt.setText(genres == null ? "" : genres[position].name);
+			return txt;
+		}
+	}
+
+	private final boolean useShoutcast;
+	private Uri externalUri;
+	private SpannableStringBuilder message;
 	private TextView sep2;
 	private BgListView list;
+	private RadioStationGenre[] genres;
+	private RadioStationAdapter adapterType, adapter, adapterSecondary;
 	private RadioStationList radioStationList;
 	private RelativeLayout panelSecondary, panelLoading;
-	private RadioButton chkGenre, chkTerm;
-	private ColorStateList defaultTextColors;
-	private Spinner btnGenre;
+	private Spinner btnType, btnGenre, btnGenreSecondary;
 	private EditText txtTerm;
 	private BgButton btnGoBack, btnFavorite, btnSearch, btnGoBackToPlayer, btnAdd, btnPlay;
-	private boolean loading, isAtFavorites, isCreatingLayout, isHidingLoadingPanel;
+	private boolean loading, isAtFavorites, isCreatingLayout, isHidingLoadingPanel, ignoreFirstNotification;
 	private FastAnimator animator, loadingPanelAnimatorHide, loadingPanelAnimatorShow;
 	private CharSequence msgNoFavorites, msgNoStations, msgLoading;
 
+	public ActivityBrowserRadio(boolean useShoutcast) {
+		this.useShoutcast = useShoutcast;
+	}
+
 	@Override
 	public CharSequence getTitle() {
-		return getText(R.string.add_radio);
+		return getText(R.string.radio);
 	}
 
 	private void updateButtons() {
 		UI.animationReset();
-		if (!isAtFavorites != (btnFavorite.getVisibility() == View.VISIBLE)) {
+		if (isAtFavorites == (btnFavorite.getVisibility() == View.VISIBLE)) {
 			if (isAtFavorites) {
 				UI.animationAddViewToHide(btnFavorite);
 				UI.animationAddViewToHide(btnSearch);
@@ -133,7 +230,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		if (radioStationList.getSelection() < 0)
 			return;
 		final RadioStation radioStation = radioStationList.getItemT(radioStationList.getSelection());
-		if (radioStation.m3uUri == null || radioStation.m3uUri.length() < 0) {
+		if (radioStation.m3uUrl == null || radioStation.m3uUrl.length() < 0) {
 			UI.toast(getApplication(), R.string.error_file_not_found);
 			return;
 		}
@@ -143,69 +240,19 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			(new Thread("Checked Radio Station Adder Thread") {
 				@Override
 				public void run() {
-					InputStream is = null;
-					InputStreamReader isr = null;
-					BufferedReader br = null;
-					HttpURLConnection urlConnection = null;
 					try {
 						if (Player.state >= Player.STATE_TERMINATING)
 							return;
-						urlConnection = (HttpURLConnection)(new URL(radioStation.m3uUri)).openConnection();
-						final int s = urlConnection.getResponseCode();
-						if (s == 200) {
-							is = urlConnection.getInputStream();
-							isr = new InputStreamReader(is, "UTF-8");
-							br = new BufferedReader(isr, 1024);
-							ArrayList<String> lines = new ArrayList<>(8);
-							String line;
-							while ((line = br.readLine()) != null) {
-								line = line.trim();
-								if (line.length() > 0 && line.charAt(0) != '#' &&
-									(line.regionMatches(true, 0, "http://", 0, 7) ||
-									line.regionMatches(true, 0, "https://", 0, 8)))
-									lines.add(line);
-							}
-							if (Player.state >= Player.STATE_TERMINATING)
-								return;
-							if (lines.size() == 0) {
-								MainHandler.toast(R.string.error_gen);
-							} else {
-								//instead of just using the first available address, let's use
-								//one from the middle ;)
-								Player.songs.addFiles(new FileSt[] { new FileSt(lines.get(lines.size() >> 1), radioStation.title, null, 0) }, null, 1, play, false, true, false);
-							}
-						} else {
-							MainHandler.toast((s >= 400 && s < 500) ? R.string.error_file_not_found : R.string.error_gen);
-						}
-					} catch (Throwable ex) {
-						MainHandler.toast(ex);
+						final int[] resultCode = { 0 };
+						final String streamUrl = RadioStationResolver.resolveStreamUrlFromM3uUrl(radioStation.m3uUrl, resultCode);
+						if (Player.state >= Player.STATE_TERMINATING)
+							return;
+						if (streamUrl == null)
+							MainHandler.toast(((resultCode[0] >= 300 && resultCode[0] < 500) || resultCode[0] == 0) ? R.string.error_file_not_found : (resultCode[0] < 0 ? R.string.error_io : R.string.error_gen));
+						else
+							Player.songs.addFiles(new FileSt[]{new FileSt(radioStation.buildFullPath(streamUrl), radioStation.title, null, 0)}, null, 1, play, false, true, false);
 					} finally {
 						Player.songs.addingEnded();
-						try {
-							if (urlConnection != null)
-								urlConnection.disconnect();
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						try {
-							if (is != null)
-								is.close();
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						try {
-							if (isr != null)
-								isr.close();
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						try {
-							if (br != null)
-								br.close();
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						System.gc();
 					}
 				}
 			}).start();
@@ -275,23 +322,67 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		if (radioStationList.getSelection() != position)
 			radioStationList.setSelection(position, true);
 	}
-	
-	private static int getValidGenre(int genre) {
-		return ((genre < 0) ? 0 : ((genre >= RadioStationList.GENRES.length) ? (RadioStationList.GENRES.length - 1) : genre));
+
+	private int validateGenreIndex(int index) {
+		if (genres == null)
+			return 0;
+		int parent = index & 0xffff;
+		if (parent >= genres.length)
+			parent = genres.length - 1;
+		if (index <= 0xffff)
+			return parent;
+		final RadioStationGenre genre = genres[parent];
+		if (genre.children == null || genre.children.length == 0)
+			return parent;
+		int child = (index >>> 16);
+		if (child >= genre.children.length)
+			child = genre.children.length - 1;
+		return parent | (child << 16);
 	}
-	
-	private static String getGenreString(int genre) {
-		return RadioStationList.GENRES[getValidGenre(genre)];
+
+	private int getPrimaryGenreIndex() {
+		if (genres == null)
+			return -1;
+		final int index = (useShoutcast ? Player.radioLastGenreShoutcast : Player.radioLastGenre);
+		final int parent = index & 0xffff;
+		return ((parent >= genres.length) ? (genres.length - 1) : parent);
 	}
-	
+
+	private int getSecondaryGenreIndex() {
+		if (genres == null)
+			return -1;
+		int index = (useShoutcast ? Player.radioLastGenreShoutcast : Player.radioLastGenre);
+		final int parent = index & 0xffff;
+		final RadioStationGenre genre = genres[(parent >= genres.length) ? (genres.length - 1) : parent];
+		if (index <= 0xffff || genre.children == null || genre.children.length == 0)
+			return 0;
+		index = (index >>> 16);
+		return ((index >= genre.children.length) ? (genre.children.length - 1) : index);
+	}
+
+	private RadioStationGenre getGenre() {
+		if (genres == null)
+			return null;
+		int index = (useShoutcast ? Player.radioLastGenreShoutcast : Player.radioLastGenre);
+		final int parent = index & 0xffff;
+		final RadioStationGenre genre = genres[(parent >= genres.length) ? (genres.length - 1) : parent];
+		if (index <= 0xffff || genre.children == null || genre.children.length == 0)
+			return genre;
+		index = (index >>> 16);
+		return genre.children[(index >= genre.children.length) ? (genre.children.length - 1) : index];
+	}
+
 	private void doSearch() {
 		final int selection = radioStationList.getSelection();
-		if (Player.radioSearchTerm != null && Player.radioSearchTerm.length() < 1)
-			Player.radioSearchTerm = null;
+		if (Player.radioSearchTerm != null) {
+			Player.radioSearchTerm = Player.radioSearchTerm.trim();
+			if (Player.radioSearchTerm.length() < 1)
+				Player.radioSearchTerm = null;
+		}
 		if (Player.lastRadioSearchWasByGenre || Player.radioSearchTerm == null)
-			radioStationList.fetchIcecast(getApplication(), getGenreString(Player.radioLastGenre), null);
+			radioStationList.fetchStations(getApplication(), getGenre(), null, true);
 		else
-			radioStationList.fetchIcecast(getApplication(), null, Player.radioSearchTerm);
+			radioStationList.fetchStations(getApplication(), null, Player.radioSearchTerm, true);
 		//do not call updateButtons() if onSelectionChanged() got called before!
 		if (selection < 0)
 			updateButtons();
@@ -365,28 +456,27 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			final LinearLayout l = (LinearLayout)UI.createDialogView(ctx, null);
 			
 			LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			chkGenre = new RadioButton(ctx);
-			chkGenre.setText(R.string.genre);
-			chkGenre.setChecked(Player.lastRadioSearchWasByGenre);
-			chkGenre.setOnClickListener(this);
-			chkGenre.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
-			chkGenre.setLayoutParams(p);
-			
+			btnType = new Spinner(ctx);
+			btnType.setLayoutParams(p);
+
 			p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			p.topMargin = UI.dialogMargin;
 			btnGenre = new Spinner(ctx);
 			btnGenre.setContentDescription(ctx.getText(R.string.genre));
 			btnGenre.setLayoutParams(p);
-			
-			p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			p.topMargin = UI.dialogMargin << 1;
-			chkTerm = new RadioButton(ctx);
-			chkTerm.setText(R.string.search_term);
-			chkTerm.setChecked(!Player.lastRadioSearchWasByGenre);
-			chkTerm.setOnClickListener(this);
-			chkTerm.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
-			chkTerm.setLayoutParams(p);
-			
+			btnGenre.setVisibility(Player.lastRadioSearchWasByGenre ? View.VISIBLE : View.GONE);
+
+			if (useShoutcast) {
+				p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+				p.topMargin = UI.dialogMargin;
+				btnGenreSecondary = new Spinner(ctx);
+				btnGenreSecondary.setContentDescription(ctx.getText(R.string.genre));
+				btnGenreSecondary.setLayoutParams(p);
+				btnGenreSecondary.setVisibility(Player.lastRadioSearchWasByGenre ? View.VISIBLE : View.GONE);
+			} else {
+				btnGenreSecondary = null;
+			}
+
 			p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			p.topMargin = UI.dialogMargin;
 			txtTerm = new EditText(ctx);
@@ -397,30 +487,73 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			txtTerm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 			txtTerm.setSingleLine();
 			txtTerm.setLayoutParams(p);
-			
+			txtTerm.setVisibility(!Player.lastRadioSearchWasByGenre ? View.VISIBLE : View.GONE);
+
 			p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			p.topMargin = UI.dialogMargin;
 			p.bottomMargin = UI.dialogMargin;
 			final TextView lbl = new TextView(ctx);
+			lbl.setSingleLine(false);
+			lbl.setMaxLines(4);
 			lbl.setAutoLinkMask(0);
 			lbl.setLinksClickable(true);
+			//lbl.setTextColor(new BgColorStateList(UI.isAndroidThemeLight() ? 0xff000000 : 0xffffffff));
 			//http://developer.android.com/design/style/color.html
 			lbl.setLinkTextColor(new BgColorStateList(UI.isAndroidThemeLight() ? 0xff0099cc : 0xff33b5e5));
 			lbl.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI._14sp);
 			lbl.setGravity(Gravity.CENTER_HORIZONTAL);
-			lbl.setText(SafeURLSpan.parseSafeHtml(getText(R.string.by_dir_xiph_org)));
+			if (externalUri == null) {
+				final String providedBy = getText(R.string.provided_by).toString(), msg, iconA, iconB;
+				final int w;
+				if (useShoutcast) {
+					externalUri = Uri.parse("http://shoutcast.com");
+					msg = "<br/>A B <small>(<a href=\"http://shoutcast.com\">shoutcast.com</a>)</small>";
+					w = (int)((UI._18sp << 4) / 2.279f);
+					iconA = UI.ICON_SHOUTCAST;
+					iconB = UI.ICON_SHOUTCASTTEXT;
+				} else {
+					externalUri = Uri.parse("http://dir.xiph.org");
+					msg = "<br/>A B <small>(<a href=\"http://dir.xiph.org\">dir.xiph.org</a>)</small>";
+					w = (int)((UI._18sp << 4) / 3.587f);
+					iconA = UI.ICON_ICECAST;
+					iconB = UI.ICON_ICECASTTEXT;
+				}
+				message = new SpannableStringBuilder(SafeURLSpan.parseSafeHtml(providedBy + msg));
+				message.setSpan(new ImageSpan(new TextIconDrawable(iconA, lbl.getTextColors().getDefaultColor(), UI.spToPxI(22), 0), ImageSpan.ALIGN_BASELINE), providedBy.length() + 1, providedBy.length() + 2, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+				message.setSpan(new ImageSpan(new TextIconDrawable(iconB, lbl.getTextColors().getDefaultColor(), w, UI._18sp, w), ImageSpan.ALIGN_BASELINE), providedBy.length() + 3, providedBy.length() + 4, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
+			}
+			lbl.setText(message);
 			lbl.setMovementMethod(LinkMovementMethod.getInstance());
 			lbl.setLayoutParams(p);
-			
-			l.addView(chkGenre);
+
+			l.addView(btnType);
 			l.addView(btnGenre);
-			l.addView(chkTerm);
+			if (btnGenreSecondary != null)
+				l.addView(btnGenreSecondary);
 			l.addView(txtTerm);
 			l.addView(lbl);
-			
-			btnGenre.setAdapter(this);
-			btnGenre.setSelection(getValidGenre(Player.radioLastGenre));
-			defaultTextColors = txtTerm.getTextColors();
+
+			final ColorStateList defaultTextColors = txtTerm.getTextColors();
+
+			adapterType = new RadioStationAdapter(getApplication(), defaultTextColors, new RadioStationGenre[] {
+				new RadioStationGenre(getText(R.string.genre).toString()),
+				new RadioStationGenre(getText(R.string.search_term).toString())
+			});
+			btnType.setAdapter(adapterType);
+			btnType.setSelection(Player.lastRadioSearchWasByGenre ? 0 : 1);
+			btnType.setOnItemSelectedListener(this);
+
+			final int primaryGenreIndex = getPrimaryGenreIndex();
+			adapter = new RadioStationAdapter(getApplication(), defaultTextColors, genres);
+			btnGenre.setAdapter(adapter);
+			btnGenre.setSelection(primaryGenreIndex);
+			if (btnGenreSecondary != null) {
+				ignoreFirstNotification = true;
+				btnGenre.setOnItemSelectedListener(this);
+				adapterSecondary = new RadioStationAdapter(getApplication(), defaultTextColors, genres[primaryGenreIndex].children);
+				btnGenreSecondary.setAdapter(adapterSecondary);
+				btnGenreSecondary.setSelection(getSecondaryGenreIndex());
+			}
 
 			UI.disableEdgeEffect(ctx);
 			AlertDialog dialog = (new AlertDialog.Builder(ctx))
@@ -438,12 +571,6 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			addPlaySelectedItem(false);
 		} else if (view == btnPlay) {
 			addPlaySelectedItem(true);
-		} else if (view == chkGenre || view == btnGenre) {
-			chkGenre.setChecked(true);
-			chkTerm.setChecked(false);
-		} else if (view == chkTerm || view == txtTerm) {
-			chkGenre.setChecked(false);
-			chkTerm.setChecked(true);
 		} else if (view == list) {
 			if (!isAtFavorites && !loading && (radioStationList == null || radioStationList.getCount() == 0))
 				onClick(btnFavorite);
@@ -453,16 +580,37 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		if (which == AlertDialog.BUTTON_POSITIVE) {
-			Player.lastRadioSearchWasByGenre = chkGenre.isChecked();
-			Player.radioLastGenre = btnGenre.getSelectedItemPosition();
-			Player.radioSearchTerm = txtTerm.getText().toString().trim();
+			if (btnType != null)
+				Player.lastRadioSearchWasByGenre = (btnType.getSelectedItemPosition() == 0);
+			if (btnGenre != null) {
+				if (useShoutcast) {
+					Player.radioLastGenreShoutcast = btnGenre.getSelectedItemPosition();
+					if (btnGenreSecondary != null)
+						Player.radioLastGenreShoutcast |= (btnGenreSecondary.getSelectedItemPosition() << 16);
+				} else {
+					Player.radioLastGenre = btnGenre.getSelectedItemPosition();
+				}
+			}
+			if (txtTerm != null)
+				Player.radioSearchTerm = txtTerm.getText().toString();
 			doSearch();
 		}
-		chkGenre = null;
+		btnType = null;
 		btnGenre = null;
-		chkTerm = null;
+		btnGenreSecondary = null;
+		if (adapterType != null) {
+			adapterType.release();
+			adapterType = null;
+		}
+		if (adapter != null) {
+			adapter.release();
+			adapter = null;
+		}
+		if (adapterSecondary != null) {
+			adapterSecondary.release();
+			adapterSecondary = null;
+		}
 		txtTerm = null;
-		defaultTextColors = null;
 	}
 	
 	@Override
@@ -490,7 +638,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 	@Override
 	protected void onCreate() {
 		UI.browserActivity = this;
-		radioStationList = new RadioStationList(getText(R.string.tags).toString(), "-", getText(R.string.no_description).toString(), getText(R.string.no_tags).toString());
+		radioStationList = (useShoutcast ? new ShoutcastRadioStationList(getText(R.string.tags).toString(), getText(R.string.listeners).toString(), "-", getText(R.string.no_description).toString()) : new IcecastRadioStationList(getText(R.string.tags).toString(), "-", getText(R.string.no_description).toString(), getText(R.string.no_tags).toString()));
 		radioStationList.setOnBaseListSelectionChangedListener(this);
 	}
 	
@@ -562,7 +710,14 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 
 	@Override
 	protected void onPostCreateLayout(boolean firstCreation) {
-		isCreatingLayout = true;
+		genres = RadioStationGenre.loadGenres(getHostActivity(), useShoutcast);
+		if (genres == null)
+			genres = new RadioStationGenre[] { new RadioStationGenre() };
+		if (useShoutcast)
+			Player.radioLastGenreShoutcast = validateGenreIndex(Player.radioLastGenreShoutcast);
+		else
+			Player.radioLastGenre = validateGenreIndex(Player.radioLastGenre);
+
 		doSearch();
 		isCreatingLayout = false;
 	}
@@ -603,6 +758,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			loadingPanelAnimatorShow = null;
 		}
 		list = null;
+		genres = null;
 		panelLoading = null;
 		panelSecondary = null;
 		btnGoBack = null;
@@ -627,77 +783,6 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			radioStationList = null;
 		}
 	}
-	
-	@Override
-	public int getCount() {
-		return RadioStationList.GENRES.length;
-	}
-
-	@Override
-	public Object getItem(int position) {
-		return getGenreString(position);
-	}
-
-	@Override
-	public long getItemId(int position) {
-		return position;
-	}
-
-	@Override
-	public int getItemViewType(int position) {
-		return 0;
-	}
-
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		TextView txt = (TextView)convertView;
-		if (txt == null) {
-			txt = new TextView(getApplication());
-			txt.setPadding(UI.dialogMargin, UI.dialogMargin, UI.dialogMargin, UI.dialogMargin);
-			txt.setTypeface(UI.defaultTypeface);
-			txt.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
-			txt.setTextColor(defaultTextColors);
-		}
-		txt.setText(getGenreString(position));
-		return txt;
-	}
-
-	@Override
-	public int getViewTypeCount() {
-		return 1;
-	}
-
-	@Override
-	public boolean hasStableIds() {
-		return true;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return false;
-	}
-
-	@Override
-	public void registerDataSetObserver(DataSetObserver observer) {
-	}
-
-	@Override
-	public void unregisterDataSetObserver(DataSetObserver observer) {
-	}
-
-	@Override
-	public View getDropDownView(int position, View convertView, ViewGroup parent) {
-		TextView txt = (TextView)convertView;
-		if (txt == null) {
-			txt = new TextView(getApplication());
-			txt.setPadding(UI.dialogMargin, UI.dialogDropDownVerticalMargin, UI.dialogMargin, UI.dialogDropDownVerticalMargin);
-			txt.setTypeface(UI.defaultTypeface);
-			txt.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
-			txt.setTextColor(defaultTextColors);
-		}
-		txt.setText(getGenreString(position));
-		return txt;
-	}
 
 	@Override
 	public void onRadioStationAdded() {
@@ -719,5 +804,38 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			isHidingLoadingPanel = false;
 			panelLoading.setVisibility(View.GONE);
 		}
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+		if (parent == btnGenre && btnGenre != null && btnGenreSecondary != null && adapterSecondary != null && genres != null && position >= 0 && position < genres.length) {
+			if (ignoreFirstNotification) {
+				ignoreFirstNotification = false;
+				return;
+			}
+			adapterSecondary.genres = genres[position].children;
+			btnGenreSecondary.setSelection(0);
+			//since RadioStationAdapter does not keep track of its DataSetObservers,
+			//we must reset the adapter here
+			btnGenreSecondary.setAdapter(adapterSecondary);
+		} else if (parent == btnType && btnGenre != null && txtTerm != null) {
+			if (position == 0) {
+				txtTerm.setVisibility(View.GONE);
+				btnGenre.setVisibility(View.VISIBLE);
+				if (btnGenreSecondary != null)
+					btnGenreSecondary.setVisibility(View.VISIBLE);
+			} else {
+				btnGenre.setVisibility(View.GONE);
+				if (btnGenreSecondary != null)
+					btnGenreSecondary.setVisibility(View.GONE);
+				txtTerm.setVisibility(View.VISIBLE);
+				txtTerm.requestFocus();
+			}
+		}
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> parent) {
+
 	}
 }

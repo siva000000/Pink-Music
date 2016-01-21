@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.playback;
 
 import android.Manifest;
@@ -65,9 +65,11 @@ import android.telephony.TelephonyManager;
 import android.view.KeyEvent;
 import android.widget.RemoteViews;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashSet;
 
 import br.com.siva.pinkmusic.ExternalReceiver;
@@ -83,6 +85,7 @@ import br.com.siva.pinkmusic.ui.BgListView;
 import br.com.siva.pinkmusic.ui.UI;
 import br.com.siva.pinkmusic.util.ArraySorter;
 import br.com.siva.pinkmusic.util.SerializableMap;
+import br.com.siva.pinkmusic.util.TypedRawArrayList;
 import br.com.siva.pinkmusic.visualizer.BluetoothVisualizerControllerJni;
 
 //
@@ -126,10 +129,12 @@ import br.com.siva.pinkmusic.visualizer.BluetoothVisualizerControllerJni;
 //when adding breakpoints to Player Core Thread
 //************************************************************************************
 
+@SuppressWarnings("deprecation")
 @TargetApi(23)
 public final class Player extends Service implements AudioManager.OnAudioFocusChangeListener, MediaPlayer.OnErrorListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnInfoListener, ArraySorter.Comparer<FileSt> {
 	public interface PlayerObserver {
 		void onPlayerChanged(Song currentSong, boolean songHasChanged, boolean preparingHasChanged, Throwable ex);
+		void onPlayerMetadataChanged(Song currentSong);
 		void onPlayerControlModeChanged(boolean controlMode);
 		void onPlayerGlobalVolumeChanged(int volume);
 		void onPlayerAudioSinkChanged();
@@ -162,6 +167,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		private static final long serialVersionUID = 8743650824658438278L;
 	}
 
+	private static final class UnsupportedFormatException extends IOException {
+		private static final long serialVersionUID = 7845932937323727492L;
+	}
+
 	private static final int MSG_UPDATE_STATE = 0x0100;
 	private static final int MSG_PAUSE = 0x0101;
 	private static final int MSG_PLAYPAUSE = 0x0102;
@@ -189,6 +198,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static final int MSG_COMMIT_VIRTUALIZER = 0x0118;
 	private static final int MSG_COMMIT_ALL_EFFECTS = 0x0119;
 	private static final int MSG_TURN_OFF_NOW = 0x011A;
+	private static final int MSG_HTTP_STREAM_RECEIVER_ERROR = 0x011B;
+	private static final int MSG_HTTP_STREAM_RECEIVER_PREPARED = 0x011C;
+	private static final int MSG_HTTP_STREAM_RECEIVER_METADATA_UPDATE = 0x011D;
+	private static final int MSG_HTTP_STREAM_RECEIVER_URL_UPDATED = 0x011E;
 
 	public static final int STATE_NEW = 0;
 	public static final int STATE_INITIALIZING = 1;
@@ -214,6 +227,11 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static final int SILENCE_NORMAL = 0;
 	private static final int SILENCE_FOCUS = 1;
 	private static final int SILENCE_NONE = -1;
+
+	public static final int ERROR_NOT_FOUND = 1001; //1001 = internal constant (not used by original MediaPlayer class) used to indicate that the file has not been found
+	public static final int ERROR_UNSUPPORTED_FORMAT = -1010; //MediaPlayer.MEDIA_ERROR_UNSUPPORTED
+	public static final int ERROR_IO = -1004; //MediaPlayer.MEDIA_ERROR_IO
+	public static final int ERROR_TIMED_OUT = -110; //MediaPlayer.MEDIA_ERROR_TIMED_OUT
 
 	public static final String ACTION_PREVIOUS = "br.com.siva.pinkmusic.PREVIOUS";
 	public static final String ACTION_PLAY_PAUSE = "br.com.siva.pinkmusic.PLAY_PAUSE";
@@ -241,7 +259,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	public static final Virtualizer theVirtualizer = new Virtualizer();
 
 	public static boolean hasFocus;
-	public static int volumeStreamMax = 30, volumeControlType;
+	public static int volumeStreamMax = 15, volumeControlType;
 	private static boolean volumeDimmed;
 	private static int volumeDB, volumeDBFading, silenceMode;
 	private static float volumeMultiplier;
@@ -251,7 +269,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	public static int localAudioSinkUsedInEffects;
 
 	private static int storedSongTime, howThePlayerStarted, playerState, nextPlayerState;
-	private static boolean resumePlaybackAfterFocusGain, postPlayPending, playing, playerBuffering, playAfterSeeking, prepareNextAfterSeeking, nextAlreadySetForPlaying, reviveAlreadyTried;
+	private static boolean resumePlaybackAfterFocusGain, postPlayPending, playing, playerBuffering, playAfterSeeking, prepareNextAfterSeeking, nextAlreadySetForPlaying, reviveAlreadyTried, httpStreamReceiverActsLikePlayer;
 	private static Song song, nextSong, songScheduledForPreparation, nextSongScheduledForPreparation, songWhenFirstErrorHappened;
 	private static MediaPlayer player, nextPlayer;
 
@@ -340,6 +358,20 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			case MSG_SONG_LIST_DESERIALIZED:
 				_songListDeserialized(msg.obj);
 				break;
+			case MSG_HTTP_STREAM_RECEIVER_ERROR:
+				_httpStreamReceiverError(msg.arg1, msg.arg2);
+				break;
+			case MSG_HTTP_STREAM_RECEIVER_PREPARED:
+				_httpStreamReceiverPrepared(msg.arg1);
+				break;
+			case MSG_HTTP_STREAM_RECEIVER_METADATA_UPDATE:
+				if (localHandler != null)
+					localHandler.sendMessageAtTime(Message.obtain(localHandler, MSG_HTTP_STREAM_RECEIVER_METADATA_UPDATE, msg.arg1, 0, msg.obj), SystemClock.uptimeMillis());
+				break;
+			case MSG_HTTP_STREAM_RECEIVER_URL_UPDATED:
+				if (msg.obj != null)
+					_httpStreamReceiverUrlUpdated(msg.arg1, msg.obj.toString());
+				break;
 			}
 		}
 	}
@@ -347,6 +379,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static class CoreLocalHandler extends Handler {
 		@Override
 		public void dispatchMessage(@NonNull Message msg) {
+			if (thePlayer == null || state > STATE_ALIVE)
+				return;
 			switch (msg.what) {
 			case MSG_PRE_PLAY:
 				prePlay(msg.arg1);
@@ -388,6 +422,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 				break;
 			case MSG_TURN_OFF_NOW:
 				stopService(false);
+				break;
+			case MSG_HTTP_STREAM_RECEIVER_METADATA_UPDATE:
+				if (msg.obj != null)
+					httpStreamReceiverMetadataUpdate(msg.arg1, msg.obj.toString());
 				break;
 			}
 		}
@@ -467,7 +505,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			notificationManager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
 			audioManager = (AudioManager)context.getSystemService(AUDIO_SERVICE);
 			telephonyManager = (TelephonyManager)context.getSystemService(TELEPHONY_SERVICE);
-			destroyedObservers = new ArrayList<>(4);
+			destroyedObservers = new TypedRawArrayList<>(PlayerDestroyedObserver.class, 4);
 			stickyBroadcast = new Intent();
 			loadConfig(context);
 		}
@@ -550,7 +588,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			while (handler == null)
 				Thread.yield();
 
-			songs.startDeserializing(thePlayer, null, true, false, false);
+			songs.startDeserializingOrImportingFrom(thePlayer, null, true, false, false);
 		}
 		//fix the initial selection when the app is started from the widget
 		alreadySelected = false;
@@ -562,6 +600,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		if (state != STATE_ALIVE)
 			return;
 		state = STATE_TERMINATING;
+
+		_releaseInternetObjects();
 
 		looper.quit();
 
@@ -727,10 +767,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			//http://stackoverflow.com/a/4413073/3569421
 			//(a/b)*b+(a%b) is equal to a
 			//-350 % 200 = -150
-			
-			//siva 400 actual 200
-			final int leftover = (Player.volumeDB % 400);
-			return setVolume(Player.volumeDB + ((leftover == 0) ? -400 : (-400 - leftover)));
+			final int leftover = (Player.volumeDB % 200);
+			return setVolume(Player.volumeDB + ((leftover == 0) ? -200 : (-200 - leftover)));
 		}
 		showStreamVolumeUI();
 		return Integer.MIN_VALUE;
@@ -745,8 +783,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			//http://stackoverflow.com/a/4413073/3569421
 			//(a/b)*b+(a%b) is equal to a
 			//-350 % 200 = -150
-			final int leftover = (Player.volumeDB % 400);
-			return setVolume(Player.volumeDB + ((leftover == 0) ? 400 : -leftover));
+			final int leftover = (Player.volumeDB % 200);
+			return setVolume(Player.volumeDB + ((leftover == 0) ? 200 : -leftover));
 		}
 		showStreamVolumeUI();
 		return Integer.MIN_VALUE;
@@ -761,27 +799,27 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		}
 		return 0;
 	}
-/// siva volume 200 actual 100
+
 	public static void setVolumeInPercentage(int percentage) {
 		switch (volumeControlType) {
 		case VOLUME_CONTROL_STREAM:
-			setVolume((percentage * volumeStreamMax) / 200);
+			setVolume((percentage * volumeStreamMax) / 100);
 			break;
 		case VOLUME_CONTROL_DB:
 		case VOLUME_CONTROL_PERCENT:
-			setVolume((percentage >= 200) ? 0 : ((percentage <= 0) ? VOLUME_MIN_DB : (((200 - percentage) * VOLUME_MIN_DB) / 200)));
+			setVolume((percentage >= 100) ? 0 : ((percentage <= 0) ? VOLUME_MIN_DB : (((100 - percentage) * VOLUME_MIN_DB) / 100)));
 			break;
 		}
 	}
-	/// siva volume 200 actual 100
+
 	public static int getVolumeInPercentage() {
 		switch (volumeControlType) {
 		case VOLUME_CONTROL_STREAM:
 			final int vol = getSystemStreamVolume();
-			return ((vol <= 0) ? 0 : ((vol >= volumeStreamMax) ? 200 : ((vol * 200) / volumeStreamMax)));
+			return ((vol <= 0) ? 0 : ((vol >= volumeStreamMax) ? 100 : ((vol * 100) / volumeStreamMax)));
 		case VOLUME_CONTROL_DB:
 		case VOLUME_CONTROL_PERCENT:
-			return ((localVolumeDB >= 0) ? 200 : ((localVolumeDB <= VOLUME_MIN_DB) ? 0 : (((VOLUME_MIN_DB - localVolumeDB) * 200) / VOLUME_MIN_DB)));
+			return ((localVolumeDB >= 0) ? 100 : ((localVolumeDB <= VOLUME_MIN_DB) ? 0 : (((VOLUME_MIN_DB - localVolumeDB) * 100) / VOLUME_MIN_DB)));
 		}
 		return 0;
 	}
@@ -846,13 +884,28 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		return (localPlayerState == PLAYER_STATE_PREPARING || playerBuffering);
 	}
 
+	public static String getCurrentTitle(Context context, boolean preparing) {
+		return ((context == null) ? "" :
+			((localSong == null) ? context.getText(R.string.nothing_playing).toString() :
+				(!preparing ? localSong.title :
+					(context.getText(R.string.loading) + " " + localSong.title))));
+	}
+
 	public static int getPosition() {
 		try {
-			return (((localPlayer != null) && playerState == PLAYER_STATE_LOADED) ? localPlayer.getCurrentPosition() : ((localSong == null) ? -1 : storedSongTime));
+			return ((httpStreamReceiver != null) ? -1 :
+				((localPlayer != null && playerState == PLAYER_STATE_LOADED) ? localPlayer.getCurrentPosition() :
+					((localSong == null) ? -1 : storedSongTime)));
 		} catch (Throwable ex) {
 			//localPlayer could throw a InvalidStateException (*very, very* rarely)
 			return -1;
 		}
+	}
+
+	public static int getHttpPosition() {
+		//by doing like this, we do not need to synchronize the access to httpStreamReceiver
+		final HttpStreamReceiver receiver = httpStreamReceiver;
+		return ((receiver != null) ? receiver.bytesReceivedSoFar : -1);
 	}
 
 	public static int getAudioSessionId() {
@@ -877,7 +930,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		//when dimmed, decreased the volume by 20dB
 		float multiplier = (volumeDimmed ? (volumeMultiplier * 0.1f) : volumeMultiplier);
 		if (silenceMode != SILENCE_NONE) {
-			final int increment = ((silenceMode == SILENCE_FOCUS) ? fadeInIncrementOnFocus : ((howThePlayerStarted == SongList.HOW_CURRENT) ? fadeInIncrementOnPause : fadeInIncrementOnOther));
+			final int increment = ((silenceMode == SILENCE_FOCUS) ? fadeInIncrementOnFocus : ((howThePlayerStarted == SongList.HOW_CURRENT || (song != null && song.isHttp)) ? fadeInIncrementOnPause : fadeInIncrementOnOther));
 			if (increment > 30) {
 				volumeDBFading = VOLUME_MIN_DB;
 				multiplier = 0;
@@ -885,7 +938,11 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			}
 			silenceMode = SILENCE_NONE;
 		}
-		if (player != null) {
+		if (httpStreamReceiverActsLikePlayer) {
+			httpStreamReceiver.setVolume(multiplier, multiplier);
+			//httpStreamReceiver starts playing automatically (we just need to fix the volume, as
+			//it always starts playing muted)
+		} else if (player != null) {
 			player.setVolume(multiplier, multiplier);
 			player.start();
 		}
@@ -943,12 +1000,12 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		resumePlaybackAfterFocusGain = false;
 		songScheduledForPreparation = null;
 		nextSongScheduledForPreparation = null;
+		_releaseInternetObjects();
 		if (handler != null) {
 			handler.removeMessages(MSG_FOCUS_GAIN_TIMER);
 			handler.removeMessages(MSG_FADE_IN_VOLUME_TIMER);
 		}
-		if (localHandler != null)
-			localHandler.removeMessages(MSG_HEADSET_HOOK_TIMER);
+		resetHeadsetHook();
 	}
 
 	private static void _fullCleanup() {
@@ -1080,9 +1137,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			postPlayPending = false;
 			if (nextSong == song && how != SongList.HOW_CURRENT) {
 				storedSongTime = -1;
-				if (nextPlayerState == PLAYER_STATE_LOADED) {
+				final MediaPlayer p = player;
+				switch (nextPlayerState) {
+				case PLAYER_STATE_LOADED:
 					playerState = PLAYER_STATE_LOADED;
-					final MediaPlayer p = player;
 					player = nextPlayer;
 					nextPlayer = p;
 					nextSong = songArray[1];
@@ -1092,29 +1150,31 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 						playing = true;
 						//when dimmed, decreased the volume by 20dB
 						final float multiplier = (volumeDimmed ? (volumeMultiplier * 0.1f) : volumeMultiplier);
+						//do not call httpStreamReceiver.setVolume() here
 						player.setVolume(multiplier, multiplier);
 					}
 					songWhenFirstErrorHappened = null;
+					_releaseInternetObjects();
 					_scheduleNextPlayerForPreparation();
 					_updateState(false, null);
 					return;
-				} else {
+				case PLAYER_STATE_PREPARING:
 					//just wait for the next song to finish preparing
-					if (nextPlayerState == PLAYER_STATE_PREPARING) {
-						playing = false;
-						playerState = PLAYER_STATE_PREPARING;
-						nextPlayerState = PLAYER_STATE_NEW;
-						final MediaPlayer p = player;
-						player = nextPlayer;
-						nextPlayer = p;
-						nextSong = songArray[1];
-						_updateState(false, null);
-						return;
-					}
+					playing = false;
+					playerState = PLAYER_STATE_PREPARING;
+					nextPlayerState = PLAYER_STATE_NEW;
+					player = nextPlayer;
+					nextPlayer = p;
+					nextSong = songArray[1];
+					_releaseInternetObjects();
+					_updateState(false, null);
+					return;
 				}
 			}
 			playing = false;
 			playerState = PLAYER_STATE_PREPARING;
+
+			_releaseInternetObjects();
 
 			if (how != SongList.HOW_CURRENT)
 				storedSongTime = -1;
@@ -1122,10 +1182,15 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			if (song.path == null || song.path.length() == 0)
 				throw new IOException();
 			songScheduledForPreparation = song;
-			//Even though it happens very rarely, a few devices will freeze and produce an ANR
-			//when calling setDataSource from the main thread :(
-			player.setDataSource(song.path);
-			player.prepareAsync();
+
+			if (!song.isHttp) {
+				//Even though it happens very rarely, a few devices will freeze and produce an ANR
+				//when calling setDataSource from the main thread :(
+				player.setDataSource(song.path);
+				player.prepareAsync();
+			} else {
+				_createInternetObjects();
+			}
 
 			nextPlayerState = PLAYER_STATE_NEW;
 			nextPlayer.reset();
@@ -1151,7 +1216,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			resumePlaybackAfterFocusGain = false;
 			if (playing) {
 				playing = false;
-				player.pause();
+				if (httpStreamReceiverActsLikePlayer)
+					httpStreamReceiver.pause();
+				else
+					player.pause();
 				silenceMode = SILENCE_NORMAL;
 				_storeSongTime();
 				_updateState(false, null);
@@ -1160,7 +1228,14 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 					localHandler.sendMessageAtTime(Message.obtain(localHandler, MSG_PRE_PLAY, SongList.HOW_CURRENT, 0), SystemClock.uptimeMillis());
 				} else {
 					howThePlayerStarted = SongList.HOW_CURRENT;
-					_startPlayer();
+					if (httpStreamReceiverActsLikePlayer) {
+						//every time httpStreamReceiver starts, it is a preparation!
+						playerBuffering = true;
+						songScheduledForPreparation = song;
+						httpStreamReceiver.start();
+					} else {
+						_startPlayer();
+					}
 					_updateState(false, null);
 				}
 			}
@@ -1206,10 +1281,14 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		if (volumeDimmed)
 			multiplier *= 0.1f;
 		if (handler != null && hasFocus && player != null && playerState == PLAYER_STATE_LOADED) {
-			try {
-				player.setVolume(multiplier, multiplier);
-			} catch (Throwable ex) {
-				ex.printStackTrace();
+			if (httpStreamReceiverActsLikePlayer) {
+				httpStreamReceiver.setVolume(multiplier, multiplier);
+			} else {
+				try {
+					player.setVolume(multiplier, multiplier);
+				} catch (Throwable ex) {
+					ex.printStackTrace();
+				}
 			}
 			if (send)
 				handler.sendMessageAtTime(Message.obtain(handler, MSG_FADE_IN_VOLUME_TIMER, increment, 0), SystemClock.uptimeMillis() + 50);
@@ -1235,6 +1314,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		volumeMultiplier = ((volumeDB <= VOLUME_MIN_DB) ? 0.0f : ((volumeDB >= 0) ? 1.0f : (float)Math.exp((double)volumeDB * 2.3025850929940456840179914546844 / 2000.0)));
 		//when dimmed, decreased the volume by 20dB
 		final float multiplier = (volumeDimmed ? (volumeMultiplier * 0.1f) : volumeMultiplier);
+		if (httpStreamReceiverActsLikePlayer)
+			httpStreamReceiver.setVolume(multiplier, multiplier);
 		if (player != null) {
 			try {
 				player.setVolume(multiplier, multiplier);
@@ -1257,6 +1338,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		volumeMultiplier = ((toMax || (volumeDB >= 0)) ? 1.0f : ((volumeDB <= VOLUME_MIN_DB) ? 0.0f : (float)Math.exp((double)volumeDB * 2.3025850929940456840179914546844 / 2000.0)));
 		//when dimmed, decreased the volume by 20dB
 		final float multiplier = (volumeDimmed ? (volumeMultiplier * 0.1f) : volumeMultiplier);
+		if (httpStreamReceiverActsLikePlayer)
+			httpStreamReceiver.setVolume(multiplier, multiplier);
 		if (player != null) {
 			try {
 				player.setVolume(multiplier, multiplier);
@@ -1364,8 +1447,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			handler.removeMessages(MSG_FOCUS_GAIN_TIMER);
 			handler.removeMessages(MSG_FADE_IN_VOLUME_TIMER);
 		}
-		if (localHandler != null)
-			localHandler.removeMessages(MSG_HEADSET_HOOK_TIMER);
+		resetHeadsetHook();
 		volumeDimmed = false;
 		switch (focusChange) {
 		case AudioManager.AUDIOFOCUS_GAIN:
@@ -1375,7 +1457,9 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 					handler.sendMessageAtTime(Message.obtain(handler, MSG_FOCUS_GAIN_TIMER), SystemClock.uptimeMillis() + 1500);
 			} else {
 				//came here from AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
-				if (player != null && playerState == PLAYER_STATE_LOADED) {
+				if (httpStreamReceiverActsLikePlayer) {
+					httpStreamReceiver.setVolume(volumeMultiplier, volumeMultiplier);
+				} else if (player != null && playerState == PLAYER_STATE_LOADED) {
 					try {
 						player.setVolume(volumeMultiplier, volumeMultiplier);
 					} catch (Throwable ex) {
@@ -1414,7 +1498,9 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 				//when dimmed, decreased the volume by 20dB
 				final float multiplier = volumeMultiplier * 0.1f;
 				volumeDimmed = true;
-				if (player != null && playerState == PLAYER_STATE_LOADED) {
+				if (httpStreamReceiverActsLikePlayer) {
+					httpStreamReceiver.setVolume(multiplier, multiplier);
+				} else if (player != null && playerState == PLAYER_STATE_LOADED) {
 					try {
 						player.setVolume(multiplier, multiplier);
 					} catch (Throwable ex) {
@@ -1454,12 +1540,16 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 				nextPlayerState = PLAYER_STATE_NEW;
 			} else {
 				_fullCleanup();
+				final Throwable result = ((extra == ERROR_NOT_FOUND) ? new FileNotFoundException() :
+					((extra == ERROR_TIMED_OUT) ? new TimeoutException() :
+						((extra == ERROR_UNSUPPORTED_FORMAT) ? new UnsupportedFormatException() :
+							new IOException())));
 				//_handleFailure used to be called only when howThePlayerStarted == SongList.HOW_NEXT_AUTO
 				//and the song was being prepared
 				if (howThePlayerStarted != SongList.HOW_CURRENT && howThePlayerStarted < 0)
-					_handleFailure((extra == MediaPlayer.MEDIA_ERROR_TIMED_OUT) ? new TimeoutException() : new IOException(), false);
+					_handleFailure(result, false);
 				else
-					_updateState(false, (extra == MediaPlayer.MEDIA_ERROR_TIMED_OUT) ? new TimeoutException() : new IOException());
+					_updateState(false, result);
 			}
 		} else {
 			_fullCleanup();
@@ -1512,7 +1602,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 					}
 					//when dimmed, decreased the volume by 20dB
 					float multiplier = (volumeDimmed ? (volumeMultiplier * 0.1f) : volumeMultiplier);
-					player.setVolume(multiplier, multiplier);
+					if (httpStreamReceiverActsLikePlayer)
+						httpStreamReceiver.setVolume(multiplier, multiplier);
+					else
+						player.setVolume(multiplier, multiplier);
 					if (storedSongTime < 0 || song.isHttp) {
 						storedSongTime = -1;
 						_startPlayer();
@@ -1552,6 +1645,154 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 				_fullCleanup();
 				_updateState(false, ex);
 			}
+		}
+	}
+
+	private static int httpStreamReceiverVersion, httpOptions;
+	private static HttpStreamReceiver httpStreamReceiver;
+
+	public static int getBytesBeforeDecoding(int index) {
+		switch (index) {
+		case 0:
+			return (4 << 10);
+		case 2:
+			return (16 << 10);
+		case 3:
+			return (32 << 10);
+		case 4:
+			return (48 << 10);
+		case 5:
+			return (64 << 10);
+		case 6:
+			return (128 << 10);
+		case 7:
+			return (256 << 10);
+		default:
+			return (8 << 10);
+		}
+	}
+
+	public static int getBytesBeforeDecodingIndex() {
+		return (httpOptions & 0x0F);
+	}
+
+	public static void setBytesBeforeDecodingIndex(int bytesBeforeDecodingIndex) {
+		httpOptions = (httpOptions & ~0x0F) | (bytesBeforeDecodingIndex & 0x0F);
+	}
+
+	public static int getSecondsBeforePlayback(int index) {
+		switch (index) {
+		case 0:
+			return 500;
+		case 1:
+			return 1000;
+		case 3:
+			return 2000;
+		case 4:
+			return 2500;
+		default:
+			return 1500;
+		}
+	}
+
+	public static int getSecondsBeforePlaybackIndex() {
+		return ((httpOptions >>> 4) & 0x0F);
+	}
+
+	public static void setSecondsBeforePlayingIndex(int secondsBeforePlayingIndex) {
+		httpOptions = (httpOptions & ~0xF0) | ((secondsBeforePlayingIndex & 0x0F) << 4);
+	}
+
+	private static void _httpStreamReceiverError(int version, int errorCode) {
+		if (state != STATE_ALIVE || version != httpStreamReceiverVersion || song == null || player == null || thePlayer == null)
+			return;
+		_releaseInternetObjects();
+		thePlayer.onError(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, !isConnectedToTheInternet() ? ERROR_NOT_FOUND : errorCode);
+	}
+
+	private static void httpStreamReceiverMetadataUpdate(int version, String metadata) {
+		if (state != STATE_ALIVE || version != httpStreamReceiverVersion || localSong == null || localPlayer == null || thePlayer == null)
+			return;
+		int i;
+		if ((i = metadata.indexOf("StreamTitle")) < 0)
+			return;
+		if ((i = metadata.indexOf('=', i + 11)) < 0)
+			return;
+		if ((i = metadata.indexOf('\'', i + 1)) < 0)
+			return;
+		final int firstChar = i + 1;
+		int loopCount = 0;
+		do {
+			loopCount++;
+			if ((i = metadata.indexOf('\'', i + 1)) < 0)
+				return;
+		} while (metadata.charAt(i - 1) == '\\');
+		metadata = metadata.substring(firstChar, i).trim();
+		if (loopCount > 1)
+			metadata = metadata.replace("\\'", "\'");
+		if (metadata.length() > 0) {
+			String name = null, url = null;
+			//by doing like this, we do not need to synchronize the access to httpStreamReceiver
+			final HttpStreamReceiver receiver = httpStreamReceiver;
+			if (receiver != null) {
+				name = receiver.getIcyName();
+				url = receiver.getIcyUrl();
+			}
+			//****** NEVER update the song's path! we need the original title in order to be able to resolve it again, later!
+			if (name != null && name.length() > 0) {
+				localSong.artist = name;
+				localSong.extraInfo = name;
+			}
+			if (url != null && url.length() > 0)
+				localSong.album = url;
+			localSong.title = metadata;
+			broadcastStateChange(getCurrentTitle(thePlayer, isPreparing()), isPreparing(), true);
+			//this will force a serialization when closing the app (saving this update)
+			songs.markAsChanged();
+			if (observer != null)
+				observer.onPlayerMetadataChanged(localSong);
+		}
+	}
+
+	private static void _httpStreamReceiverPrepared(int version) {
+		if (state != STATE_ALIVE || version != httpStreamReceiverVersion || song == null || player == null || thePlayer == null)
+			return;
+		playerBuffering = false;
+		thePlayer.onPrepared(player);
+	}
+
+	private static void _httpStreamReceiverUrlUpdated(int version, String newPath) {
+		if (state != STATE_ALIVE || version != httpStreamReceiverVersion || song == null || player == null || thePlayer == null)
+			return;
+		song.path = newPath;
+	}
+
+	private static void _createInternetObjects() throws IOException {
+		//force the player to always start playing as if coming from a pause
+		silenceMode = SILENCE_NORMAL;
+		playerBuffering = true;
+		httpStreamReceiver = new HttpStreamReceiver(handler, MSG_HTTP_STREAM_RECEIVER_ERROR, MSG_HTTP_STREAM_RECEIVER_PREPARED, MSG_HTTP_STREAM_RECEIVER_METADATA_UPDATE, MSG_HTTP_STREAM_RECEIVER_URL_UPDATED, ++httpStreamReceiverVersion, getBytesBeforeDecoding(getBytesBeforeDecodingIndex()), getSecondsBeforePlayback(getSecondsBeforePlaybackIndex()), player.getAudioSessionId(), song.path);
+		if (httpStreamReceiver.start()) {
+			if ((httpStreamReceiverActsLikePlayer = httpStreamReceiver.isPerformingFullPlayback))
+				return;
+			playerBuffering = false;
+			//Even though it happens very rarely, a few devices will freeze and produce an ANR
+			//when calling setDataSource from the main thread :(
+			player.setDataSource(httpStreamReceiver.getLocalURL());
+			player.prepareAsync();
+		} else {
+			//when start() returns false, this means we were unable to create the local server
+			_releaseInternetObjects();
+			throw new PermissionDeniedException();
+		}
+	}
+
+	private static void _releaseInternetObjects() {
+		if (httpStreamReceiver != null) {
+			httpStreamReceiverVersion++;
+			httpStreamReceiver.release();
+			httpStreamReceiverActsLikePlayer = false;
+			httpStreamReceiver = null;
 		}
 	}
 
@@ -1707,6 +1948,9 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static final int OPT_RADIOLASTGENRE = 0x0033;
 	private static final int OPT_TRANSITION = 0x0034;
 	private static final int OPT_BLUETOOTHVISUALIZERCONFIG = 0x0035;
+	private static final int OPT_HEADSETHOOKACTIONS = 0x0036;
+	private static final int OPT_RADIOLASTGENRESHOUTCAST = 0x0037;
+	private static final int OPT_HTTPOPTIONS = 0x0038;
 
 	//values 0x01xx are shared among all effects
 	//static final int OPT_EQUALIZER_ENABLED = 0x0100;
@@ -1754,7 +1998,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	static final int OPTBIT_EQUALIZER_ENABLED = 23;
 	static final int OPTBIT_BASSBOOST_ENABLED = 24;
 	static final int OPTBIT_VIRTUALIZER_ENABLED = 25;
-	private static final int OPTBIT_HEADSETHOOK_DOUBLE_PRESS_PAUSES = 26;
+	//this bit has been removed on version 83
+	//private static final int OPTBIT_HEADSETHOOK_DOUBLE_PRESS_PAUSES = 26;
 	private static final int OPTBIT_DO_NOT_ATTENUATE_VOLUME = 27;
 	private static final int OPTBIT_SCROLLBAR_TO_THE_LEFT = 28;
 	private static final int OPTBIT_SCROLLBAR_SONGLIST0 = 29;
@@ -1787,12 +2032,13 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static Notification notification;
 	private static RemoteViews notificationRemoteViews;
 	private static boolean appNotInForeground, idleTurnOffTimerSent;
-	private static long turnOffTimerOrigin, idleTurnOffTimerOrigin, headsetHookLastTime;
+	private static long turnOffTimerOrigin, idleTurnOffTimerOrigin;
 	private static final HashSet<String> favoriteFolders = new HashSet<>();
 	private static PendingIntent intentActivityHost, intentPrevious, intentPlayPause, intentNext, intentExit;
+	private static int headsetHookActions, headsetHookPressCount;
 	public static String path, originalPath, radioSearchTerm;
-	public static boolean lastRadioSearchWasByGenre, nextPreparationEnabled, doNotAttenuateVolume, headsetHookDoublePressPauses, clearListWhenPlayingFolders, controlMode, bassBoostMode, handleCallKey, playWhenHeadsetPlugged, goBackWhenPlayingFolders, turnOffWhenPlaylistEnds, followCurrentSong, announceCurrentSong;
-	public static int radioLastGenre, fadeInIncrementOnFocus, fadeInIncrementOnPause, fadeInIncrementOnOther, turnOffTimerCustomMinutes, turnOffTimerSelectedMinutes, idleTurnOffTimerCustomMinutes, idleTurnOffTimerSelectedMinutes;
+	public static boolean lastRadioSearchWasByGenre, nextPreparationEnabled, doNotAttenuateVolume, clearListWhenPlayingFolders, controlMode, bassBoostMode, handleCallKey, playWhenHeadsetPlugged, goBackWhenPlayingFolders, turnOffWhenPlaylistEnds, followCurrentSong, announceCurrentSong;
+	public static int radioLastGenre, radioLastGenreShoutcast, fadeInIncrementOnFocus, fadeInIncrementOnPause, fadeInIncrementOnOther, turnOffTimerCustomMinutes, turnOffTimerSelectedMinutes, idleTurnOffTimerCustomMinutes, idleTurnOffTimerSelectedMinutes;
 
 	public static SerializableMap loadConfigFromFile(Context context) {
 		final SerializableMap opts = SerializableMap.deserialize(context, "_Player");
@@ -1839,7 +2085,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		Song.extraInfoMode = opts.getInt(OPT_SONGEXTRAINFOMODE, Song.EXTRA_ARTIST);
 		radioSearchTerm = opts.getString(OPT_RADIOSEARCHTERM);
 		radioLastGenre = opts.getInt(OPT_RADIOLASTGENRE, 21);
+		radioLastGenreShoutcast = opts.getInt(OPT_RADIOLASTGENRESHOUTCAST, 20);
+		httpOptions = opts.getInt(OPT_HTTPOPTIONS, 0x00000021);
 		UI.setTransition((UI.lastVersionCode < 76 && UI.deviceSupportsAnimations) ? UI.TRANSITION_FADE : opts.getInt(OPT_TRANSITION, UI.deviceSupportsAnimations ? UI.TRANSITION_FADE : UI.TRANSITION_NONE));
+		headsetHookActions = opts.getInt(OPT_HEADSETHOOKACTIONS, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE | (KeyEvent.KEYCODE_MEDIA_NEXT << 8) | (KeyEvent.KEYCODE_MEDIA_PREVIOUS << 16));
 		//the volume control types changed on version 71
 		if (UI.lastVersionCode <= 70 && UI.lastVersionCode != 0) {
 			final int volumeControlType = opts.getInt(OPT_VOLUMECONTROLTYPE, UI.isTV ? VOLUME_CONTROL_NONE : VOLUME_CONTROL_STREAM);
@@ -1879,7 +2128,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			UI.wrapAroundList = opts.getBit(OPTBIT_WRAPAROUNDLIST);
 			UI.extraSpacing = opts.getBit(OPTBIT_EXTRASPACING, UI.isTV || (UI.screenWidth >= UI.dpToPxI(600)) || (UI.screenHeight >= UI.dpToPxI(600)));
 			//new settings (cannot be loaded the old way)
-			headsetHookDoublePressPauses = opts.getBit(OPTBIT_HEADSETHOOK_DOUBLE_PRESS_PAUSES);
+			//headsetHookDoublePressPauses = opts.getBit(OPTBIT_HEADSETHOOK_DOUBLE_PRESS_PAUSES);
 			doNotAttenuateVolume = opts.getBit(OPTBIT_DO_NOT_ATTENUATE_VOLUME);
 			UI.scrollBarToTheLeft = opts.getBit(OPTBIT_SCROLLBAR_TO_THE_LEFT);
 			UI.songListScrollBarType = (opts.getBitI(OPTBIT_SCROLLBAR_SONGLIST1, 0) << 1) | opts.getBitI(OPTBIT_SCROLLBAR_SONGLIST0, UI.isTV ? 0 : 1);
@@ -1895,8 +2144,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			UI.visualizerPortrait = opts.getBit(OPTBIT_VISUALIZER_PORTRAIT);
 			turnOffWhenPlaylistEnds = opts.getBit(OPTBIT_TURNOFFPLAYLIST);
 			followCurrentSong = opts.getBit(OPTBIT_FOLLOW_CURRENT_SONG, true);
-						announceCurrentSong = opts.getBit(OPTBIT_ANNOUNCE_CURRENT_SONG);
-						UI.placeTitleAtTheBottom = opts.getBit(OPTBIT_PLACE_TITLE_AT_THE_BOTTOM);
+			announceCurrentSong = opts.getBit(OPTBIT_ANNOUNCE_CURRENT_SONG);
+			UI.placeTitleAtTheBottom = opts.getBit(OPTBIT_PLACE_TITLE_AT_THE_BOTTOM);
 		/*} else {
 			//load bit flags the old way
 			controlMode = opts.getBoolean(OPT_CONTROLMODE);
@@ -1969,7 +2218,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		opts.put(OPT_SONGEXTRAINFOMODE, Song.extraInfoMode);
 		opts.put(OPT_RADIOSEARCHTERM, radioSearchTerm);
 		opts.put(OPT_RADIOLASTGENRE, radioLastGenre);
+		opts.put(OPT_RADIOLASTGENRESHOUTCAST, radioLastGenreShoutcast);
+		opts.put(OPT_HTTPOPTIONS, httpOptions);
 		opts.put(OPT_TRANSITION, UI.transition);
+		opts.put(OPT_HEADSETHOOKACTIONS, headsetHookActions);
 		opts.putBit(OPTBIT_CONTROLMODE, controlMode);
 		opts.putBit(OPTBIT_BASSBOOSTMODE, bassBoostMode);
 		opts.putBit(OPTBIT_NEXTPREPARATION, nextPreparationEnabled);
@@ -1996,7 +2248,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		opts.putBit(OPTBIT_BACKKEYALWAYSRETURNSTOPLAYERWHENBROWSING, UI.backKeyAlwaysReturnsToPlayerWhenBrowsing);
 		opts.putBit(OPTBIT_WRAPAROUNDLIST, UI.wrapAroundList);
 		opts.putBit(OPTBIT_EXTRASPACING, UI.extraSpacing);
-		opts.putBit(OPTBIT_HEADSETHOOK_DOUBLE_PRESS_PAUSES, headsetHookDoublePressPauses);
+		//opts.putBit(OPTBIT_HEADSETHOOK_DOUBLE_PRESS_PAUSES, headsetHookDoublePressPauses);
 		opts.putBit(OPTBIT_DO_NOT_ATTENUATE_VOLUME, doNotAttenuateVolume);
 		opts.putBit(OPTBIT_SCROLLBAR_TO_THE_LEFT, UI.scrollBarToTheLeft);
 		opts.putBit(OPTBIT_SCROLLBAR_SONGLIST0, (UI.songListScrollBarType & 1) != 0);
@@ -2030,7 +2282,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		//PresetReverb.saveConfig(opts);
 		opts.serialize(context, "_Player");
 		if (saveSongs)
-			songs.serialize(context, null);
+			songs.serialize(context);
 	}
 
 	private static void createIntents(Context context) {
@@ -2056,12 +2308,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	public static RemoteViews prepareRemoteViews(Context context, RemoteViews views, boolean prepareButtons, boolean notification, boolean notificationFirstTime) {
 		createIntents(context);
 
-		if (localSong == null)
-			views.setTextViewText(R.id.lblTitle, context.getText(R.string.nothing_playing));
-		else if (isPreparing())
-			views.setTextViewText(R.id.lblTitle, context.getText(R.string.loading));
-		else
-			views.setTextViewText(R.id.lblTitle, localSong.title);
+		views.setTextViewText(R.id.lblTitle, getCurrentTitle(context, isPreparing()));
 
 		if (prepareButtons) {
 			if (notification) {
@@ -2103,7 +2350,6 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		return views;
 	}
 
-	@SuppressWarnings("deprecation")
 	private static Notification getNotification() {
 		boolean firstTime = false;
 		if (notification == null) {
@@ -2212,6 +2458,18 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		}
 	}
 
+	public static HttpURLConnection createConnection(String url) throws Throwable {
+		HttpURLConnection urlConnection = (HttpURLConnection)(new URL(url)).openConnection();
+		urlConnection.setInstanceFollowRedirects(false);
+		urlConnection.setConnectTimeout(30000);
+		urlConnection.setDoInput(true);
+		urlConnection.setDoOutput(false);
+		urlConnection.setReadTimeout(30000);
+		urlConnection.setRequestMethod("GET");
+		urlConnection.setUseCaches(false);
+		return urlConnection;
+	}
+
 	public static boolean isConnectedToTheInternet() {
 		if (thePlayer != null) {
 			try {
@@ -2225,7 +2483,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		return false;
 	}
 
-	@SuppressWarnings({"deprecation"})
+	@SuppressWarnings({})
 	public static boolean isInternetConnectedViaWiFi() {
 		if (thePlayer != null) {
 			try {
@@ -2384,14 +2642,13 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static Intent stickyBroadcast;
 	private static ExternalReceiver externalReceiver;
 	private static ComponentName mediaButtonEventReceiver;
-	@SuppressWarnings("deprecation")
 	private static RemoteControlClient remoteControlClient;
 	private static MediaSession mediaSession;
 	private static MediaMetadata.Builder mediaSessionMetadataBuilder;
 	private static PlaybackState.Builder mediaSessionPlaybackStateBuilder;
 	private static Object mediaRouterCallback;
 
-	private static ArrayList<PlayerDestroyedObserver> destroyedObservers;
+	private static TypedRawArrayList<PlayerDestroyedObserver> destroyedObservers;
 	public static PlayerTurnOffTimerObserver turnOffTimerObserver;
 	public static PlayerObserver observer;
 
@@ -2445,7 +2702,6 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		mediaRouterCallback = null;
 	}
 
-	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	private static void registerRemoteControlClientCallbacks() {
 		remoteControlClient.setOnGetPlaybackPositionListener(new RemoteControlClient.OnGetPlaybackPositionListener() {
@@ -2462,14 +2718,12 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		});
 	}
 
-	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	private static void unregisterRemoteControlClientCallbacks() {
 		remoteControlClient.setOnGetPlaybackPositionListener(null);
 		remoteControlClient.setPlaybackPositionUpdateListener(null);
 	}
 
-	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	private static void registerRemoteControlClient() {
 		try {
@@ -2488,7 +2742,6 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 	private static void unregisterRemoteControlClient() {
 		try {
@@ -2513,15 +2766,13 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 				mediaSession = new MediaSession(thePlayer, "FPlay");
 				mediaSession.setCallback(new MediaSession.Callback() {
 					@Override
-					public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-						if (mediaButtonIntent != null) {
-							final Object o = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-							if (o == null || !(o instanceof KeyEvent))
-								return false;
-							final KeyEvent e = (KeyEvent)o;
-							if (e.getAction() == KeyEvent.ACTION_DOWN)
-								handleMediaButton(e.getKeyCode());
-						}
+					public boolean onMediaButtonEvent(@NonNull Intent mediaButtonIntent) {
+						final Object o = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+						if (o == null || !(o instanceof KeyEvent))
+							return false;
+						final KeyEvent e = (KeyEvent)o;
+						if (e.getAction() == KeyEvent.ACTION_DOWN)
+							handleMediaButton(e.getKeyCode());
 						return true;
 					}
 
@@ -2582,7 +2833,6 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void registerMediaButtonEventReceiver() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			registerMediaSession();
@@ -2597,7 +2847,6 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	public static void unregisterMediaButtonEventReceiver() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			unregisterMediaSession();
@@ -2621,15 +2870,45 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			handler.sendMessageAtTime(Message.obtain(handler, MSG_AUDIO_SINK_CHANGED, wiredHeadsetJustPlugged ? 1 : 0, 0), SystemClock.uptimeMillis());
 	}
 
+	public static void setHeadsetHookAction(int pressCount, int action) {
+		switch (pressCount) {
+		case 1:
+			headsetHookActions = (headsetHookActions & ~0xFF) | (action & 0xFF);
+			break;
+		case 2:
+			headsetHookActions = (headsetHookActions & ~0xFF00) | ((action & 0xFF) << 8);
+			break;
+		case 3:
+			headsetHookActions = (headsetHookActions & ~0xFF0000) | ((action & 0xFF) << 16);
+			break;
+		}
+	}
+
+	public static int getHeadsetHookAction(int pressCount) {
+		return ((headsetHookActions >> ((pressCount == 1) ? 0 : ((pressCount == 2) ? 8 : 16))) & 0xFF);
+	}
+
+	private static void resetHeadsetHook() {
+		headsetHookPressCount = 0;
+		if (localHandler != null)
+			localHandler.removeMessages(MSG_HEADSET_HOOK_TIMER);
+	}
+
 	private static void processHeadsetHookTimer() {
 		if (state != STATE_ALIVE)
 			return;
-		if (headsetHookLastTime != 0) {
-			headsetHookLastTime = 0;
-			if (headsetHookDoublePressPauses)
-				next();
-			else
-				playPause();
+		final int action = getHeadsetHookAction(headsetHookPressCount);
+		resetHeadsetHook();
+		switch (action) {
+		case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+			playPause();
+			break;
+		case KeyEvent.KEYCODE_MEDIA_NEXT:
+			next();
+			break;
+		case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+			previous();
+			break;
 		}
 	}
 
@@ -2668,19 +2947,12 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			break;
 		case KeyEvent.KEYCODE_HEADSETHOOK:
 			if (localHandler != null) {
-				if (headsetHookLastTime != 0) {
-					localHandler.removeMessages(MSG_HEADSET_HOOK_TIMER);
-					if ((SystemClock.uptimeMillis() - headsetHookLastTime) < 500) {
-						headsetHookLastTime = 0;
-						if (headsetHookDoublePressPauses)
-							playPause();
-						else
-							next();
-					}
-				} else {
-					headsetHookLastTime = SystemClock.uptimeMillis();
-					localHandler.sendEmptyMessageAtTime(MSG_HEADSET_HOOK_TIMER, headsetHookLastTime + 500);
-				}
+				localHandler.removeMessages(MSG_HEADSET_HOOK_TIMER);
+				headsetHookPressCount++;
+				if (headsetHookPressCount >= 3)
+					processHeadsetHookTimer();
+				else
+					localHandler.sendEmptyMessageAtTime(MSG_HEADSET_HOOK_TIMER, SystemClock.uptimeMillis() + 500);
 			}
 			break;
 		case KeyEvent.KEYCODE_MEDIA_STOP:
@@ -2747,7 +3019,6 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			destroyedObservers.remove(observer);
 	}
 
-	@SuppressWarnings("deprecation")
 	private static void _checkAudioSink(boolean wiredHeadsetJustPlugged, boolean triggerNoisy, boolean reinitializeEffects) {
 		if (audioManager == null)
 			return;
@@ -2845,9 +3116,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	private static Song stateLastSong;
 	private static boolean stateLastPlaying, stateLastPreparing;
 
-	@SuppressWarnings("deprecation")
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-	private static void broadcastStateChangeToRemoteControl(boolean preparing, boolean titleOrSongHaveChanged) {
+	private static void broadcastStateChangeToRemoteControl(String title, boolean preparing, boolean titleOrSongHaveChanged) {
 		try {
 			if (localSong == null) {
 				remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
@@ -2855,7 +3125,7 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 				remoteControlClient.setPlaybackState(preparing ? RemoteControlClient.PLAYSTATE_BUFFERING : (playing ? RemoteControlClient.PLAYSTATE_PLAYING : RemoteControlClient.PLAYSTATE_PAUSED));
 				if (titleOrSongHaveChanged) {
 					final RemoteControlClient.MetadataEditor ed = remoteControlClient.editMetadata(true);
-					ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, preparing ? thePlayer.getText(R.string.loading).toString() : localSong.title);
+					ed.putString(MediaMetadataRetriever.METADATA_KEY_TITLE, title);
 					ed.putString(MediaMetadataRetriever.METADATA_KEY_ARTIST, localSong.artist);
 					ed.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM, localSong.album);
 					ed.putLong(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER, localSong.track);
@@ -2874,14 +3144,14 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	}
 
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	private static void broadcastStateChangeToMediaSession(boolean preparing, boolean titleOrSongHaveChanged) {
+	private static void broadcastStateChangeToMediaSession(String title, boolean preparing, boolean titleOrSongHaveChanged) {
 		try {
 			if (localSong == null) {
 				mediaSession.setPlaybackState(mediaSessionPlaybackStateBuilder.setState(PlaybackState.STATE_STOPPED, 0, 1, SystemClock.elapsedRealtime()).build());
 			} else {
 				mediaSession.setPlaybackState(mediaSessionPlaybackStateBuilder.setState(preparing ? PlaybackState.STATE_BUFFERING : (playing ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED), getPosition(), 1, SystemClock.elapsedRealtime()).build());
 				if (titleOrSongHaveChanged) {
-					mediaSessionMetadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, preparing ? thePlayer.getText(R.string.loading).toString() : localSong.title);
+					mediaSessionMetadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, title);
 					mediaSessionMetadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, localSong.artist);
 					mediaSessionMetadataBuilder.putString(MediaMetadata.METADATA_KEY_ALBUM, localSong.album);
 					mediaSessionMetadataBuilder.putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, localSong.track);
@@ -2895,8 +3165,9 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	private static void broadcastStateChange(boolean playbackHasChanged, boolean preparing, boolean titleOrSongHaveChanged) {
+	private static void broadcastStateChange(String title, boolean preparing, boolean titleOrSongHaveChanged) {
+		notificationManager.notify(1, getNotification());
+		WidgetMain.updateWidgets(thePlayer);
 		//
 		//perhaps, one day we should implement RemoteControlClient for better Bluetooth support...?
 		//http://developer.android.com/reference/android/media/RemoteControlClient.html
@@ -2920,11 +3191,11 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			stickyBroadcast.removeExtra("playing");
 		} else {
 			//apparently, a few 4.3 devices have an issue with com.android.music.metachanged....
-			stickyBroadcast.setAction(playbackHasChanged ? "com.android.music.playstatechanged" : "com.android.music.metachanged");
-			//stickyBroadcast.setAction("com.android.music.playstatechanged");
+			//stickyBroadcast.setAction(playbackHasChanged ? "com.android.music.playstatechanged" : "com.android.music.metachanged");
+			stickyBroadcast.setAction("com.android.music.playstatechanged");
 			stickyBroadcast.putExtra("id", localSong.id);
 			stickyBroadcast.putExtra("songid", localSong.id);
-			stickyBroadcast.putExtra("track", preparing ? thePlayer.getText(R.string.loading) : localSong.title);
+			stickyBroadcast.putExtra("track", title);
 			stickyBroadcast.putExtra("artist", localSong.artist);
 			stickyBroadcast.putExtra("album", localSong.album);
 			stickyBroadcast.putExtra("duration", (long)localSong.lengthMS);
@@ -2935,9 +3206,9 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		//maybe check if api >= 23, and if so, use sendBroadcast instead.....???
 		thePlayer.sendStickyBroadcast(stickyBroadcast);
 		if (remoteControlClient != null)
-			broadcastStateChangeToRemoteControl(preparing, titleOrSongHaveChanged);
+			broadcastStateChangeToRemoteControl(title, preparing, titleOrSongHaveChanged);
 		if (mediaSession != null)
-			broadcastStateChangeToMediaSession(preparing, titleOrSongHaveChanged);
+			broadcastStateChangeToMediaSession(title, preparing, titleOrSongHaveChanged);
 	}
 
 	private static void updateState(int arg1, Object[] objs) {
@@ -2953,30 +3224,33 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			if (turnOffWhenPlaylistEnds)
 				localHandler.sendEmptyMessageAtTime(MSG_TURN_OFF_NOW, SystemClock.uptimeMillis() + 100);
 		}
-		notificationManager.notify(1, getNotification());
 		final boolean songHasChanged = ((arg1 & 0x08) != 0);
-		final boolean playbackHasChanged = ((arg1 & 0x10) != 0);
+		//final boolean playbackHasChanged = ((arg1 & 0x10) != 0);
 		final boolean preparing = ((arg1 & 0x20) != 0);
 		final boolean preparingHasChanged = ((arg1 & 0x40) != 0);
-		broadcastStateChange(playbackHasChanged, preparing, songHasChanged | preparingHasChanged);
+		final String title = ((localSong == null) ? null : getCurrentTitle(thePlayer, preparing));
+		broadcastStateChange(title, preparing, songHasChanged | preparingHasChanged);
 		if (idleTurnOffTimerSelectedMinutes > 0)
 			processIdleTurnOffTimer();
 		if (bluetoothVisualizerController != null)
 			updateBluetoothVisualizer(songHasChanged);
-		WidgetMain.updateWidgets(thePlayer);
 		Throwable ex = null;
 		if (songHasChanged && announceCurrentSong && UI.accessibilityManager != null && UI.accessibilityManager.isEnabled() && state == STATE_ALIVE)
-			UI.announceAccessibilityText(localSong == null ? thePlayer.getText(R.string.nothing_playing) : localSong.title);
+			UI.announceAccessibilityText(title);
 		if (objs[2] != null) {
 			ex = (Throwable)objs[2];
 			objs[2] = null;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && (ex instanceof PermissionDeniedException) && observer != null && (observer instanceof ClientActivity))
-				((ClientActivity)observer).getHostActivity().requestStoragePermission();
+				((ClientActivity)observer).getHostActivity().requestReadStoragePermission();
 			final String msg = ex.getMessage();
 			if (ex instanceof IllegalStateException) {
 				UI.toast(thePlayer, R.string.error_state);
+			} else if (ex instanceof UnsupportedFormatException) {
+				UI.toast(thePlayer, R.string.error_unsupported_format);
 			} else if (ex instanceof FileNotFoundException) {
-				UI.toast(thePlayer, R.string.error_file_not_found);
+				UI.toast(thePlayer, (localSong != null && localSong.isHttp) ?
+					(!isConnectedToTheInternet() ? R.string.error_connection : R.string.error_server_not_found) :
+						R.string.error_file_not_found);
 			} else if (ex instanceof TimeoutException) {
 				UI.toast(thePlayer, R.string.error_timeout);
 			} else if (ex instanceof MediaServerDiedException) {
@@ -2984,7 +3258,20 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			} else if (ex instanceof SecurityException) {
 				UI.toast(thePlayer, R.string.error_security);
 			} else if (ex instanceof IOException) {
-				UI.toast(thePlayer, (localSong != null && localSong.isHttp && !isConnectedToTheInternet()) ? R.string.error_connection : R.string.error_io);
+				int err = R.string.error_io;
+				if (localSong != null) {
+					if (localSong.isHttp) {
+						err = (!isConnectedToTheInternet() ? R.string.error_connection : R.string.error_io);
+					} else {
+						try {
+							if (!(new File(localSong.path)).exists())
+								err = R.string.error_file_not_found;
+						} catch (Throwable ex2) {
+							err = R.string.error_file_not_found;
+						}
+					}
+				}
+				UI.toast(thePlayer, err);
 			} else if (msg == null || msg.length() == 0) {
 				UI.toast(thePlayer, R.string.error_playback);
 			} else {

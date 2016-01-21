@@ -1,49 +1,52 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -76,13 +79,13 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 	private static final double MIN_THRESHOLD = 1.5; //waaaaaaaaaayyyyyyyy below W3C recommendations, so no one should complain about the app being "boring"
 	private final boolean colorMode, bluetoothMode;
 	private boolean changed, checkingReturn, configsChanged, lblTitleOk, startTransmissionOnConnection;
-	private BgButton btnGoBack, btnAbout;
+	private BgButton btnGoBack, btnBluetooth, btnAbout;
 	private EditText txtCustomMinutes;
 	private ObservableScrollView list;
 	private TextView lblTitle;
 	private RelativeLayout panelControls;
 	private LinearLayout panelSettings;
-	private SettingView optLoadCurrentTheme, optUseAlternateTypeface, optAutoTurnOff, optAutoIdleTurnOff, optAutoTurnOffPlaylist, optKeepScreenOn, optTheme, optFlat, optBorders, optExpandSeekBar, optVolumeControlType, optDoNotAttenuateVolume, opt3D, optIsDividerVisible, optIsVerticalMarginLarge, optExtraSpacing, optPlaceTitleAtTheBottom, optForcedLocale, optPlacePlaylistToTheRight, optScrollBarToTheLeft, optScrollBarSongList, optScrollBarBrowser, optWidgetTransparentBg, optWidgetTextColor, optWidgetIconColor, optHandleCallKey, optPlayWhenHeadsetPlugged, optBlockBackKey, optBackKeyAlwaysReturnsToPlayerWhenBrowsing, optWrapAroundList, optDoubleClickMode, optMarqueeTitle, optPrepareNext, optClearListWhenPlayingFolders, optGoBackWhenPlayingFolders, optExtraInfoMode, optForceOrientation, optTransition, optAnimations, optNotFullscreen, optFadeInFocus, optFadeInPause, optFadeInOther, optBtMessage, optBtConnect, optBtStart, optBtFramesToSkip, optBtSize, optBtVUMeter, optBtSpeed, optAnnounceCurrentSong, optFollowCurrentSong, lastMenuView;
+	private SettingView firstViewAdded, lastViewAdded, optLoadCurrentTheme, optUseAlternateTypeface, optAutoTurnOff, optAutoIdleTurnOff, optAutoTurnOffPlaylist, optKeepScreenOn, optTheme, optFlat, optBorders, optExpandSeekBar, optVolumeControlType, optDoNotAttenuateVolume, opt3D, optIsDividerVisible, optIsVerticalMarginLarge, optExtraSpacing, optPlaceTitleAtTheBottom, optForcedLocale, optPlacePlaylistToTheRight, optScrollBarToTheLeft, optScrollBarSongList, optScrollBarBrowser, optWidgetTransparentBg, optWidgetTextColor, optWidgetIconColor, optHandleCallKey, optHeadsetHook1, optHeadsetHook2, optHeadsetHook3, optPlayWhenHeadsetPlugged, optBlockBackKey, optBackKeyAlwaysReturnsToPlayerWhenBrowsing, optWrapAroundList, optDoubleClickMode, optMarqueeTitle, optPrepareNext, optClearListWhenPlayingFolders, optGoBackWhenPlayingFolders, optExtraInfoMode, optForceOrientation, optTransition, optAnimations, optNotFullscreen, optFadeInFocus, optFadeInPause, optFadeInOther, optBtMessage, optBtConnect, optBtStart, optBtFramesToSkip, optBtSize, optBtVUMeter, optBtSpeed, optAnnounceCurrentSong, optFollowCurrentSong, optBytesBeforeDecoding, optSecondsBeforePlayback, lastMenuView;
 	private SettingView[] colorViews;
 	private int lastColorView, currentHeader, btMessageText, btErrorMessage, btConnectText, btStartText;
 	private TextView[] headers;
@@ -139,7 +142,7 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			.setIcon(new TextIconDrawable((o == UI.LOCALE_US) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
 			menu.add(1, UI.LOCALE_TAL, 2, UI.getLocaleDescriptionFromCode(ctx, UI.LOCALE_TAL))
 			.setOnMenuItemClickListener(this)
-			.setIcon(new TextIconDrawable((o == UI.LOCALE_TAL) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+		   .setIcon(new TextIconDrawable((o == UI.LOCALE_TAL) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
 		
 		} else if (view == optTheme) {
 			final Context ctx = getApplication();
@@ -151,7 +154,7 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 				.setIcon(new TextIconDrawable((o == UI.THEME_CUSTOM) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
 			UI.separator(menu, 0, 1);
 			menu.add(1, UI.THEME_pinkmusic, 0, UI.getThemeString(ctx, UI.THEME_pinkmusic))
-			.setOnMenuItemClickListener(this)
+				.setOnMenuItemClickListener(this)
 				.setIcon(new TextIconDrawable((o == UI.THEME_pinkmusic) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
 			menu.add(1, UI.THEME_CREAMY, 1, UI.getThemeString(ctx, UI.THEME_CREAMY))
 				.setOnMenuItemClickListener(this)
@@ -264,6 +267,24 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			menu.add(1, 62, 2, R.string.dlong)
 				.setOnMenuItemClickListener(this)
 				.setIcon(new TextIconDrawable(((d > 0) && (d < 125)) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+		} else if (view == optHeadsetHook1 || view == optHeadsetHook2 || view == optHeadsetHook3) {
+			lastMenuView = (SettingView)view;
+			UI.prepare(menu);
+			final int pressCount = ((view == optHeadsetHook1) ? 1 : ((view == optHeadsetHook2) ? 2 : 3));
+			final int action = Player.getHeadsetHookAction(pressCount);
+			menu.add(0, 0, 0, R.string.nothing)
+				.setOnMenuItemClickListener(this)
+				.setIcon(new TextIconDrawable((action == 0) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+			UI.separator(menu, 0, 1);
+			menu.add(1, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE, 0, getText(R.string.play) + "/" + getText(R.string.pause))
+				.setOnMenuItemClickListener(this)
+				.setIcon(new TextIconDrawable((action == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+			menu.add(1, KeyEvent.KEYCODE_MEDIA_NEXT, 1, R.string.next)
+				.setOnMenuItemClickListener(this)
+				.setIcon(new TextIconDrawable((action == KeyEvent.KEYCODE_MEDIA_NEXT) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+			menu.add(1, KeyEvent.KEYCODE_MEDIA_PREVIOUS, 2, R.string.previous)
+				.setOnMenuItemClickListener(this)
+				.setIcon(new TextIconDrawable((action == KeyEvent.KEYCODE_MEDIA_PREVIOUS) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
 		} else if (view == optBtSize) {
 			lastMenuView = optBtSize;
 			UI.prepare(menu);
@@ -290,6 +311,24 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 				menu.add(0, i, i, Integer.toString(Player.getBluetoothVisualizerFramesPerSecond(i)))
 					.setOnMenuItemClickListener(this)
 					.setIcon(new TextIconDrawable((framesToSkip == i) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+			}
+		} else if (view == optBytesBeforeDecoding) {
+			lastMenuView = optBytesBeforeDecoding;
+			UI.prepare(menu);
+			final int bytesBeforeDecodingIndex = Player.getBytesBeforeDecodingIndex();
+			for (int i = 0; i <= 7; i++) {
+				menu.add(0, i, i, getBytesBeforeDecodingString(i))
+					.setOnMenuItemClickListener(this)
+					.setIcon(new TextIconDrawable((bytesBeforeDecodingIndex == i) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
+			}
+		} else if (view == optSecondsBeforePlayback) {
+			lastMenuView = optSecondsBeforePlayback;
+			UI.prepare(menu);
+			final int secondsBeforePlaybackIndex = Player.getSecondsBeforePlaybackIndex();
+			for (int i = 0; i <= 4; i++) {
+				menu.add(0, i, i, getSecondsBeforePlaybackString(i))
+					.setOnMenuItemClickListener(this)
+					.setIcon(new TextIconDrawable((secondsBeforePlaybackIndex == i) ? UI.ICON_RADIOCHK : UI.ICON_RADIOUNCHK));
 			}
 		}
 	}
@@ -384,6 +423,10 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 		} else if (lastMenuView == optFadeInOther) {
 			Player.fadeInIncrementOnOther = item.getItemId();
 			optFadeInOther.setSecondaryText(getFadeInString(item.getItemId()));
+		} else if (lastMenuView == optHeadsetHook1 || lastMenuView == optHeadsetHook2 || lastMenuView == optHeadsetHook3) {
+			final int pressCount = ((lastMenuView == optHeadsetHook1) ? 1 : ((lastMenuView == optHeadsetHook2) ? 2 : 3));
+			Player.setHeadsetHookAction(pressCount, item.getItemId());
+			lastMenuView.setSecondaryText(getHeadsetHookString(pressCount));
 		} else if (lastMenuView == optBtSize) {
 			Player.setBluetoothVisualizerSize(item.getItemId());
 			optBtSize.setSecondaryText(getSizeString());
@@ -399,11 +442,26 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			optBtFramesToSkip.setSecondaryText(getFramesToSkipString());
 			if (Player.bluetoothVisualizerController != null)
 				((BluetoothVisualizerControllerJni)Player.bluetoothVisualizerController).syncFramesToSkip();
+		} else if (lastMenuView == optBytesBeforeDecoding) {
+			Player.setBytesBeforeDecodingIndex(item.getItemId());
+			optBytesBeforeDecoding.setSecondaryText(getBytesBeforeDecodingString(item.getItemId()));
+		} else if (lastMenuView == optSecondsBeforePlayback) {
+			Player.setSecondsBeforePlayingIndex(item.getItemId());
+			optSecondsBeforePlayback.setSecondaryText(getSecondsBeforePlaybackString(item.getItemId()));
 		}
 		configsChanged = true;
 		return true;
 	}
-	
+
+	private String getBytesBeforeDecodingString(int index) {
+		return (Player.getBytesBeforeDecoding(index) >> 10) + " kiB";
+	}
+
+	private String getSecondsBeforePlaybackString(int index) {
+		final int sec = Player.getSecondsBeforePlayback(index);
+		return UI.formatIntAsFloat(sec / 100, false, true) + " " + ((sec == 1000) ? getText(R.string.second) : getText(R.string.seconds));
+	}
+
 	private String getMinuteString(int minutes) {
 		if (minutes <= 0)
 			return getText(R.string.never).toString();
@@ -475,6 +533,18 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 		return Integer.toString(3 - Player.getBluetoothVisualizerSpeed());
 	}
 
+	private String getHeadsetHookString(int pressCount) {
+		switch (Player.getHeadsetHookAction(pressCount)) {
+		case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+			return getText(R.string.play) + "/" + getText(R.string.pause);
+		case KeyEvent.KEYCODE_MEDIA_NEXT:
+			return getText(R.string.next).toString();
+		case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+			return getText(R.string.previous).toString();
+		}
+		return getText(R.string.nothing).toString();
+	}
+
 	@SuppressWarnings("deprecation")
 	private void prepareHeader(TextView hdr) {
 		hdr.setMaxLines(2);
@@ -508,7 +578,18 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			}
 		}
 	}
-	
+
+	private SettingView addOption(SettingView view) {
+		if (firstViewAdded == null)
+			firstViewAdded = view;
+		lastViewAdded = view;
+		panelSettings.addView(view);
+		view.setOnClickListener(this);
+		view.setNextFocusLeftId(R.id.btnAbout);
+		view.setNextFocusRightId(R.id.btnGoBack);
+		return view;
+	}
+
 	private boolean cancelGoBack() {
 		if (colorMode && changed) {
 			checkingReturn = true;
@@ -600,15 +681,13 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			if (createControls)
 				colorViews[idx] = new SettingView(ctx, null, UI.getThemeColorDescription(ctx, idx).toString(), null, false, false, true);
 			colorViews[idx].setColor(UI.deserializeThemeColor(colors, idx * 3));
-			colorViews[idx].setOnClickListener(this);
 		}
 		if (createControls) {
 			optLoadCurrentTheme = new SettingView(ctx, UI.ICON_THEME, getText(R.string.load_colors_from_current_theme).toString(), null, false, false, false);
-			optLoadCurrentTheme.setOnClickListener(this);
 			int hIdx = 0;
 			headers = new TextView[6];
 			addHeader(ctx, R.string.color_theme, optLoadCurrentTheme, hIdx++);
-			panelSettings.addView(optLoadCurrentTheme);
+			addOption(optLoadCurrentTheme);
 			for (int i = 0; i < colorOrder.length; i++) {
 				final int idx = colorOrder[i];
 				switch (i) {
@@ -630,7 +709,7 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 				}
 				//don't show this to the user as it is not atually being used...
 				if (idx != UI.IDX_COLOR_TEXT_DISABLED)
-					panelSettings.addView(colorViews[idx]);
+					addOption(colorViews[idx]);
 			}
 			lblTitle.setVisibility(View.GONE);
 			currentHeader = -1;
@@ -738,16 +817,59 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 		btnGoBack = (BgButton)findViewById(R.id.btnGoBack);
 		btnGoBack.setOnClickListener(this);
 		btnGoBack.setIcon(UI.ICON_GOBACK);
+		btnBluetooth = (BgButton)findViewById(R.id.btnBluetooth);
+		btnBluetooth.setOnClickListener(this);
 		btnAbout = (BgButton)findViewById(R.id.btnAbout);
 		btnAbout.setOnClickListener(this);
+		boolean showBluetooth = false;
 		if (colorMode) {
 			btnAbout.setText(R.string.apply_theme);
 		} else if (bluetoothMode) {
 			btnAbout.setText(R.string.tutorial);
 			btnAbout.setCompoundDrawables(new TextIconDrawable(UI.ICON_LINK, UI.colorState_text_visualizer_reactive.getDefaultColor(), UI.defaultControlContentsSize), null, null, null);
 		} else {
+			try {
+				showBluetooth = (BluetoothAdapter.getDefaultAdapter() != null);
+			} catch (Throwable ex) {
+				ex.printStackTrace();
+			}
+			if (showBluetooth) {
+				btnBluetooth.setIcon(UI.ICON_BLUETOOTH);
+				final TextView sep = (TextView)findViewById(R.id.sep);
+				final RelativeLayout.LayoutParams rp = new RelativeLayout.LayoutParams(UI.strokeSize, UI.defaultControlContentsSize);
+				rp.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+				rp.addRule(RelativeLayout.LEFT_OF, R.id.btnAbout);
+				rp.leftMargin = UI.controlMargin;
+				rp.rightMargin = UI.controlMargin;
+				sep.setLayoutParams(rp);
+				sep.setBackgroundDrawable(new ColorDrawable(UI.color_highlight));
+				sep.setVisibility(View.VISIBLE);
+				btnBluetooth.setVisibility(View.VISIBLE);
+			}
 			btnAbout.setCompoundDrawables(new TextIconDrawable(UI.ICON_INFORMATION, UI.color_text, UI.defaultControlContentsSize), null, null, null);
 		}
+
+		btnGoBack.setNextFocusDownId(2);
+		btnBluetooth.setNextFocusDownId(2);
+		btnAbout.setNextFocusDownId(2);
+		btnAbout.setNextFocusRightId(2);
+		UI.setNextFocusForwardId(btnAbout, 2);
+
+		btnGoBack.setNextFocusUpId(3);
+		btnBluetooth.setNextFocusUpId(3);
+		btnAbout.setNextFocusUpId(3);
+		btnGoBack.setNextFocusLeftId(3);
+
+		if (!showBluetooth) {
+			UI.setNextFocusForwardId(btnGoBack, R.id.btnAbout);
+			btnGoBack.setNextFocusRightId(R.id.btnAbout);
+			btnAbout.setNextFocusLeftId(R.id.btnGoBack);
+		} else {
+			UI.setNextFocusForwardId(btnGoBack, R.id.btnBluetooth);
+			btnGoBack.setNextFocusRightId(R.id.btnBluetooth);
+			btnAbout.setNextFocusLeftId(R.id.btnBluetooth);
+		}
+
 		lastColorView = -1;
 		
 		final Context ctx = getHostActivity();
@@ -773,191 +895,158 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			loadColors(true, false);
 		} else if (bluetoothMode) {
 			optBtMessage = new SettingView(ctx, UI.ICON_INFORMATION, "", null, false, false, false);
-			optBtMessage.setOnClickListener(this);
 			optBtConnect = new SettingView(ctx, UI.ICON_BLUETOOTH, "", null, false, false, false);
-			optBtConnect.setOnClickListener(this);
 			optBtStart = new SettingView(ctx, Player.bluetoothVisualizerState == Player.BLUETOOTH_VISUALIZER_STATE_TRANSMITTING ? UI.ICON_PAUSE : UI.ICON_PLAY, "", null, false, false, false);
-			optBtStart.setOnClickListener(this);
 			optBtFramesToSkip = new SettingView(ctx, UI.ICON_CLOCK, getText(R.string.bt_fps).toString(), getFramesToSkipString(), false, false, false);
-			optBtFramesToSkip.setOnClickListener(this);
 			optBtSize = new SettingView(ctx, UI.ICON_VISUALIZER, getText(R.string.bt_sample_count).toString(), getSizeString(), false, false, false);
-			optBtSize.setOnClickListener(this);
 			optBtVUMeter = new SettingView(ctx, UI.ICON_VISUALIZER, getText(R.string.bt_vumeter).toString(), null, true, Player.isBluetoothUsingVUMeter(), false);
-			optBtVUMeter.setOnClickListener(this);
 			optBtSpeed = new SettingView(ctx, UI.ICON_VISUALIZER, getText(R.string.sustain).toString(), getSpeedString(), false, false, false);
-			optBtSpeed.setOnClickListener(this);
 			refreshBluetoothStatus(true);
 
 			headers = new TextView[3];
 			addHeader(ctx, R.string.information, optBtMessage, 0);
-			panelSettings.addView(optBtMessage);
+			addOption(optBtMessage);
 			addHeader(ctx, R.string.general, optBtMessage, 1);
-			panelSettings.addView(optBtConnect);
-			panelSettings.addView(optBtStart);
+			addOption(optBtConnect);
+			addOption(optBtStart);
 			addHeader(ctx, R.string.settings, optBtStart, 2);
-			//panelSettings.addView(optBtVUMeter);
-			panelSettings.addView(optBtFramesToSkip);
-			panelSettings.addView(optBtSize);
-			panelSettings.addView(optBtSpeed);
+			//addOption(optBtVUMeter);
+			addOption(optBtFramesToSkip);
+			addOption(optBtSize);
+			addOption(optBtSpeed);
 			currentHeader = -1;
 		} else {
 			if (!UI.isCurrentLocaleCyrillic()) {
 				optUseAlternateTypeface = new SettingView(ctx, UI.ICON_DYSLEXIA, getText(R.string.opt_use_alternate_typeface).toString(), null, true, UI.isUsingAlternateTypeface, false);
-				optUseAlternateTypeface.setOnClickListener(this);
 			}
 			optAutoTurnOff = new SettingView(ctx, UI.ICON_CLOCK, getText(R.string.opt_auto_turn_off).toString(), getAutoTurnOffString(), false, false, false);
-			optAutoTurnOff.setOnClickListener(this);
 			optAutoIdleTurnOff = new SettingView(ctx, UI.ICON_CLOCK, getText(R.string.opt_auto_idle_turn_off).toString(), getAutoIdleTurnOffString(), false, false, false);
-			optAutoIdleTurnOff.setOnClickListener(this);
 			optAutoTurnOffPlaylist = new SettingView(ctx, UI.ICON_REPEATNONE, getText(R.string.opt_auto_turn_off_playlist).toString(), null, true, Player.turnOffWhenPlaylistEnds, false);
-			optAutoTurnOffPlaylist.setOnClickListener(this);
 			optKeepScreenOn = new SettingView(ctx, UI.ICON_SCREEN, getText(R.string.opt_keep_screen_on).toString(), null, true, UI.keepScreenOn, false);
-			optKeepScreenOn.setOnClickListener(this);
 			optTheme = new SettingView(ctx, UI.ICON_THEME, getText(R.string.color_theme).toString() + ":", UI.getThemeString(ctx, UI.theme), false, false, false);
-			optTheme.setOnClickListener(this);
 			optFlat = new SettingView(ctx, UI.ICON_FLAT, getText(R.string.flat_details).toString(), null, true, UI.isFlat, false);
-			optFlat.setOnClickListener(this);
 			optBorders = new SettingView(ctx, UI.ICON_TRANSPARENT, getText(R.string.borders).toString(), null, true, UI.hasBorders, false);
-			optBorders.setOnClickListener(this);
 			optExpandSeekBar = new SettingView(ctx, UI.ICON_SEEKBAR, getText(R.string.expand_seek_bar).toString(), null, true, UI.expandSeekBar, false);
-			optExpandSeekBar.setOnClickListener(this);
 			optVolumeControlType = new SettingView(ctx, UI.ICON_VOLUME4, getText(R.string.opt_volume_control_type).toString(), getVolumeString(), false, false, false);
-			optVolumeControlType.setOnClickListener(this);
 			optDoNotAttenuateVolume = new SettingView(ctx, UI.ICON_INFORMATION, getText(R.string.opt_do_not_attenuate_volume).toString(), null, true, Player.doNotAttenuateVolume, false);
-			optDoNotAttenuateVolume.setOnClickListener(this);
 			opt3D = new SettingView(ctx, UI.ICON_DIVIDER, "3D", null, true, UI.is3D, false);
-			opt3D.setOnClickListener(this);
 			optIsDividerVisible = new SettingView(ctx, UI.ICON_DIVIDER, getText(R.string.opt_is_divider_visible).toString(), null, true, UI.isDividerVisible, false);
-			optIsDividerVisible.setOnClickListener(this);
 			optIsVerticalMarginLarge = new SettingView(ctx, UI.ICON_SPACELIST, getText(R.string.opt_is_vertical_margin_large).toString(), null, true, UI.isVerticalMarginLarge, false);
-			optIsVerticalMarginLarge.setOnClickListener(this);
 			optExtraSpacing = new SettingView(ctx, UI.ICON_SPACEHEADER, getText(R.string.opt_extra_spacing).toString(), null, true, UI.extraSpacing, false);
-			optExtraSpacing.setOnClickListener(this);
-			if (!UI.isLargeScreen) {
+			if (!UI.isLargeScreen)
 				optPlaceTitleAtTheBottom = new SettingView(ctx, UI.ICON_SPACEHEADER, getText(R.string.place_title_at_the_bottom).toString(), null, true, UI.placeTitleAtTheBottom, false);
-				optPlaceTitleAtTheBottom.setOnClickListener(this);
-			}
 			optForcedLocale = new SettingView(ctx, UI.ICON_LANGUAGE, getText(R.string.opt_language).toString(), UI.getLocaleDescriptionFromCode(ctx, UI.forcedLocale), false, false, false);
-			optForcedLocale.setOnClickListener(this);
-			if (UI.isLargeScreen) {
+			if (UI.isLargeScreen)
 				optPlacePlaylistToTheRight = new SettingView(ctx, UI.ICON_HAND, getText(R.string.place_the_playlist_to_the_right).toString(), null, true, UI.controlsToTheLeft, false);
-				optPlacePlaylistToTheRight.setOnClickListener(this);
-			}
 			optScrollBarToTheLeft = new SettingView(ctx, UI.ICON_HAND, getText(R.string.scrollbar_to_the_left).toString(), null, true, UI.scrollBarToTheLeft, false);
-			optScrollBarToTheLeft.setOnClickListener(this);
 			optScrollBarSongList = new SettingView(ctx, UI.ICON_SCROLLBAR, getText(R.string.scrollbar_playlist).toString(), getScrollBarString(UI.songListScrollBarType), false, false, false);
-			optScrollBarSongList.setOnClickListener(this);
 			optScrollBarBrowser = new SettingView(ctx, UI.ICON_SCROLLBAR, getText(R.string.scrollbar_browser_type).toString(), getScrollBarString(UI.browserScrollBarType), false, false, false);
-			optScrollBarBrowser.setOnClickListener(this);
 			optWidgetTransparentBg = new SettingView(ctx, UI.ICON_TRANSPARENT, getText(R.string.transparent_background).toString(), null, true, UI.widgetTransparentBg, false);
-			optWidgetTransparentBg.setOnClickListener(this);
 			optWidgetTextColor = new SettingView(ctx, UI.ICON_PALETTE, getText(R.string.text_color).toString(), null, false, false, true);
-			optWidgetTextColor.setOnClickListener(this);
 			optWidgetTextColor.setColor(UI.widgetTextColor);
 			optWidgetIconColor = new SettingView(ctx, UI.ICON_PALETTE, getText(R.string.icon_color).toString(), null, false, false, true);
-			optWidgetIconColor.setOnClickListener(this);
 			optWidgetIconColor.setColor(UI.widgetIconColor);
 			optHandleCallKey = new SettingView(ctx, UI.ICON_DIAL, getText(R.string.opt_handle_call_key).toString(), null, true, Player.handleCallKey, false);
-			optHandleCallKey.setOnClickListener(this);
+			optHeadsetHook1 = new SettingView(ctx, UI.ICON_HEADSETHOOK1, getText(R.string.headset_hook_1).toString(), getHeadsetHookString(1), false, false, false);
+			optHeadsetHook2 = new SettingView(ctx, UI.ICON_HEADSETHOOK2, getText(R.string.headset_hook_2).toString(), getHeadsetHookString(2), false, false, false);
+			optHeadsetHook3 = new SettingView(ctx, UI.ICON_HEADSETHOOK3, getText(R.string.headset_hook_3).toString(), getHeadsetHookString(3), false, false, false);
 			optPlayWhenHeadsetPlugged = new SettingView(ctx, UI.ICON_HEADSET, getText(R.string.opt_play_when_headset_plugged).toString(), null, true, Player.playWhenHeadsetPlugged, false);
-			optPlayWhenHeadsetPlugged.setOnClickListener(this);
 			optBlockBackKey = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_block_back_key).toString(), null, true, UI.blockBackKey, false);
-			optBlockBackKey.setOnClickListener(this);
 			optBackKeyAlwaysReturnsToPlayerWhenBrowsing = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_back_key_always_returns_to_player_when_browsing).toString(), null, true, UI.backKeyAlwaysReturnsToPlayerWhenBrowsing, false);
-			optBackKeyAlwaysReturnsToPlayerWhenBrowsing.setOnClickListener(this);
 			optWrapAroundList = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_wrap_around_list).toString(), null, true, UI.wrapAroundList, false);
-			optWrapAroundList.setOnClickListener(this);
 			optDoubleClickMode = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_double_click_mode).toString(), null, true, UI.doubleClickMode, false);
-			optDoubleClickMode.setOnClickListener(this);
 			optMarqueeTitle = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_marquee_title).toString(), null, true, UI.marqueeTitle, false);
-			optMarqueeTitle.setOnClickListener(this);
 			optPrepareNext = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_prepare_next).toString(), null, true, Player.nextPreparationEnabled, false);
-			optPrepareNext.setOnClickListener(this);
 			optClearListWhenPlayingFolders = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_clear_list_when_playing_folders).toString(), null, true, Player.clearListWhenPlayingFolders, false);
-			optClearListWhenPlayingFolders.setOnClickListener(this);
 			optGoBackWhenPlayingFolders = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.opt_go_back_when_playing_folders).toString(), null, true, Player.goBackWhenPlayingFolders, false);
-			optGoBackWhenPlayingFolders.setOnClickListener(this);
 			optExtraInfoMode = new SettingView(ctx, UI.ICON_SETTINGS, getText(R.string.secondary_line_of_text).toString(), getExtraInfoModeString(Song.extraInfoMode), false, false, false);
-			optExtraInfoMode.setOnClickListener(this);
 			optForceOrientation = new SettingView(ctx, UI.ICON_ORIENTATION, getText(R.string.opt_force_orientation).toString(), getOrientationString(), false, false, false);
-			optForceOrientation.setOnClickListener(this);
 			optTransition = new SettingView(ctx, UI.ICON_TRANSITION, getText(R.string.transition).toString(), UI.getTransitionString(ctx, UI.transition), false, false, false);
-			optTransition.setOnClickListener(this);
 			optAnimations = new SettingView(ctx, UI.ICON_TRANSITION, getText(R.string.animations).toString(), null, true, UI.animationEnabled, false);
-			optAnimations.setOnClickListener(this);
 			optNotFullscreen = new SettingView(ctx, UI.ICON_SCREEN, getText(R.string.fullscreen).toString(), null, true, !UI.notFullscreen, false);
-			optNotFullscreen.setOnClickListener(this);
 			optFadeInFocus = new SettingView(ctx, UI.ICON_FADE, getText(R.string.opt_fade_in_focus).toString(), getFadeInString(Player.fadeInIncrementOnFocus), false, false, false);
-			optFadeInFocus.setOnClickListener(this);
 			optFadeInPause = new SettingView(ctx, UI.ICON_FADE, getText(R.string.opt_fade_in_pause).toString(), getFadeInString(Player.fadeInIncrementOnPause), false, false, false);
-			optFadeInPause.setOnClickListener(this);
 			optFadeInOther = new SettingView(ctx, UI.ICON_FADE, getText(R.string.opt_fade_in_other).toString(), getFadeInString(Player.fadeInIncrementOnOther), false, false, false);
-			optFadeInOther.setOnClickListener(this);
 			optAnnounceCurrentSong = new SettingView(ctx, UI.ICON_MIC, getText(R.string.announce_current_song).toString(), null, true, Player.announceCurrentSong, false);
-			optAnnounceCurrentSong.setOnClickListener(this);
 			optFollowCurrentSong = new SettingView(ctx, UI.ICON_SCROLLBAR, getText(R.string.follow_current_song).toString(), null, true, Player.followCurrentSong, false);
-			optFollowCurrentSong.setOnClickListener(this);
+			optBytesBeforeDecoding = new SettingView(ctx, UI.ICON_RADIO, getText(R.string.bytes_before_decoding).toString(), getBytesBeforeDecodingString(Player.getBytesBeforeDecodingIndex()), false, false, false);
+			optSecondsBeforePlayback = new SettingView(ctx, UI.ICON_RADIO, getText(R.string.seconds_before_playback).toString(), getSecondsBeforePlaybackString(Player.getSecondsBeforePlaybackIndex()), false, false, false);
 
 			int hIdx = 0;
-			headers = new TextView[7];
+			headers = new TextView[8];
 			addHeader(ctx, R.string.msg_turn_off_title, optAutoTurnOffPlaylist, hIdx++);
-			panelSettings.addView(optAutoTurnOff);
-			panelSettings.addView(optAutoIdleTurnOff);
-			panelSettings.addView(optAutoTurnOffPlaylist);
+			addOption(optAutoTurnOff);
+			addOption(optAutoIdleTurnOff);
+			addOption(optAutoTurnOffPlaylist);
 			addHeader(ctx, R.string.hdr_display, optAutoTurnOffPlaylist, hIdx++);
-			panelSettings.addView(optKeepScreenOn);
-			panelSettings.addView(optTheme);
-			panelSettings.addView(opt3D);
-			panelSettings.addView(optFlat);
-			panelSettings.addView(optBorders);
-			panelSettings.addView(optIsDividerVisible);
-			panelSettings.addView(optExtraInfoMode);
-			panelSettings.addView(optForceOrientation);
-			panelSettings.addView(optTransition);
-			panelSettings.addView(optAnimations);
-			panelSettings.addView(optNotFullscreen);
-			panelSettings.addView(optIsVerticalMarginLarge);
-			panelSettings.addView(optExtraSpacing);
+			addOption(optKeepScreenOn);
+			addOption(optTheme);
+			addOption(opt3D);
+			addOption(optFlat);
+			addOption(optBorders);
+			if (!UI.is3D)
+				addOption(optIsDividerVisible);
+			addOption(optExtraInfoMode);
+			addOption(optForceOrientation);
+			addOption(optTransition);
+			addOption(optAnimations);
+			addOption(optNotFullscreen);
+			addOption(optIsVerticalMarginLarge);
+			addOption(optExtraSpacing);
 			if (!UI.isLargeScreen)
-				panelSettings.addView(optPlaceTitleAtTheBottom);
+				addOption(optPlaceTitleAtTheBottom);
 			if (!UI.isCurrentLocaleCyrillic())
-				panelSettings.addView(optUseAlternateTypeface);
-			panelSettings.addView(optForcedLocale);
+				addOption(optUseAlternateTypeface);
+			addOption(optForcedLocale);
 			addHeader(ctx, R.string.accessibility, optForcedLocale, hIdx++);
 			if (UI.isLargeScreen)
-				panelSettings.addView(optPlacePlaylistToTheRight);
-			panelSettings.addView(optAnnounceCurrentSong);
-			panelSettings.addView(optScrollBarToTheLeft);
+				addOption(optPlacePlaylistToTheRight);
+			addOption(optAnnounceCurrentSong);
+			addOption(optScrollBarToTheLeft);
 			addHeader(ctx, R.string.scrollbar, optScrollBarToTheLeft, hIdx++);
-			panelSettings.addView(optFollowCurrentSong);
-			panelSettings.addView(optScrollBarSongList);
-			panelSettings.addView(optScrollBarBrowser);
+			addOption(optFollowCurrentSong);
+			addOption(optScrollBarSongList);
+			addOption(optScrollBarBrowser);
 			addHeader(ctx, R.string.widget, optScrollBarBrowser, hIdx++);
-			panelSettings.addView(optWidgetTransparentBg);
-			panelSettings.addView(optWidgetTextColor);
-			panelSettings.addView(optWidgetIconColor);
-			addHeader(ctx, R.string.hdr_playback, optWidgetIconColor, hIdx++);
-			panelSettings.addView(optPlayWhenHeadsetPlugged);
-			panelSettings.addView(optHandleCallKey);
-			panelSettings.addView(optExpandSeekBar);
-			panelSettings.addView(optVolumeControlType);
-			panelSettings.addView(optDoNotAttenuateVolume);
-			panelSettings.addView(optFadeInFocus);
-			panelSettings.addView(optFadeInPause);
-			panelSettings.addView(optFadeInOther);
+			addOption(optWidgetTransparentBg);
+			addOption(optWidgetTextColor);
+			addOption(optWidgetIconColor);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+				addHeader(ctx, R.string.radio, optWidgetIconColor, hIdx++);
+				addOption(optBytesBeforeDecoding);
+				addOption(optSecondsBeforePlayback);
+			}
+			addHeader(ctx, R.string.hdr_playback, (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ? optSecondsBeforePlayback : optWidgetIconColor, hIdx++);
+			addOption(optPlayWhenHeadsetPlugged);
+			addOption(optHandleCallKey);
+			addOption(optHeadsetHook1);
+			addOption(optHeadsetHook2);
+			addOption(optHeadsetHook3);
+			addOption(optExpandSeekBar);
+			addOption(optVolumeControlType);
+			addOption(optDoNotAttenuateVolume);
+			addOption(optFadeInFocus);
+			addOption(optFadeInPause);
+			addOption(optFadeInOther);
 			addHeader(ctx, R.string.hdr_behavior, optFadeInOther, hIdx);
-			panelSettings.addView(optBackKeyAlwaysReturnsToPlayerWhenBrowsing);
-			panelSettings.addView(optClearListWhenPlayingFolders);
-			panelSettings.addView(optGoBackWhenPlayingFolders);
-			panelSettings.addView(optBlockBackKey);
-			panelSettings.addView(optWrapAroundList);
-			panelSettings.addView(optDoubleClickMode);
-			panelSettings.addView(optMarqueeTitle);
-			panelSettings.addView(optPrepareNext);
+			addOption(optBackKeyAlwaysReturnsToPlayerWhenBrowsing);
+			addOption(optClearListWhenPlayingFolders);
+			addOption(optGoBackWhenPlayingFolders);
+			addOption(optBlockBackKey);
+			addOption(optWrapAroundList);
+			addOption(optDoubleClickMode);
+			addOption(optMarqueeTitle);
+			addOption(optPrepareNext);
 			lblTitle.setVisibility(View.GONE);
 			currentHeader = -1;
 		}
-		
+		firstViewAdded.setId(2);
+		firstViewAdded.setNextFocusUpId(R.id.btnAbout);
+		firstViewAdded = null;
+		lastViewAdded.setId(3);
+		lastViewAdded.setNextFocusDownId(R.id.btnGoBack);
+		lastViewAdded = null;
+
 		UI.prepareControlContainer(panelControls, false, UI.isLargeScreen);
 		if (UI.isLargeScreen)
 			btnAbout.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI._22sp);
@@ -990,6 +1079,7 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 	@Override
 	protected void onCleanupLayout() {
 		btnGoBack = null;
+		btnBluetooth = null;
 		btnAbout = null;
 		list = null;
 		lblTitle = null;
@@ -1026,6 +1116,9 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 		optWidgetTextColor = null;
 		optWidgetIconColor = null;
 		optHandleCallKey = null;
+		optHeadsetHook1 = null;
+		optHeadsetHook2 = null;
+		optHeadsetHook3 = null;
 		optPlayWhenHeadsetPlugged = null;
 		optBlockBackKey = null;
 		optBackKeyAlwaysReturnsToPlayerWhenBrowsing = null;
@@ -1052,6 +1145,8 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 		optBtSpeed = null;
 		optAnnounceCurrentSong = null;
 		optFollowCurrentSong = null;
+		optBytesBeforeDecoding = null;
+		optSecondsBeforePlayback = null;
 		lastMenuView = null;
 		if (colorViews != null) {
 			for (int i = colorViews.length - 1; i >= 0; i--)
@@ -1071,6 +1166,14 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 		if (view == btnGoBack) {
 			if (!cancelGoBack())
 				finish(0, view, true);
+			return;
+		}
+		if (view == btnBluetooth && !colorMode && !bluetoothMode) {
+			try {
+				getHostActivity().startActivity(new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS));
+			} catch (Throwable ex) {
+				ex.printStackTrace();
+			}
 			return;
 		}
 		if (colorViews != null) {
@@ -1253,7 +1356,7 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			Player.announceCurrentSong = optAnnounceCurrentSong.isChecked();
 		} else if (view == optFollowCurrentSong) {
 			Player.followCurrentSong = optFollowCurrentSong.isChecked();
-		} else if (view == optAutoTurnOff || view == optAutoIdleTurnOff || view == optTheme || view == optForcedLocale || view == optVolumeControlType || view == optExtraInfoMode || view == optForceOrientation || view == optTransition || view == optFadeInFocus || view == optFadeInPause || view == optFadeInOther || view == optScrollBarSongList || view == optScrollBarBrowser) {
+		} else if (view == optAutoTurnOff || view == optAutoIdleTurnOff || view == optTheme || view == optForcedLocale || view == optVolumeControlType || view == optExtraInfoMode || view == optForceOrientation || view == optTransition || view == optFadeInFocus || view == optFadeInPause || view == optFadeInOther || view == optScrollBarSongList || view == optScrollBarBrowser || view == optHeadsetHook1 || view == optHeadsetHook2 || view == optHeadsetHook3 || view == optBytesBeforeDecoding || view == optSecondsBeforePlayback) {
 			lastMenuView = null;
 			CustomContextMenu.openContextMenu(view, this);
 			return;
@@ -1395,6 +1498,5 @@ public final class ActivitySettings extends ClientActivity implements Player.Pla
 			refreshBluetoothStatus(true);
 		else if (Player.state < Player.STATE_TERMINATING && Player.getService() != null)
 			Player.saveConfig(Player.getService(), false);
-	
 	}
 }

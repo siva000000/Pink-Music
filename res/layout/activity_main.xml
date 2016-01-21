@@ -26,6 +26,7 @@
         android:baselineAligned="false"
         android:orientation="vertical"
         android:splitMotionEvents="false" >
+       
 
         <TextView
             android:id="@+id/lblTitle"
@@ -64,6 +65,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:splitMotionEvents="false" >
+            
+             
+        <br.com.siva.pinkmusic.ui.BgButton
+                android:id="@+id/btnMoreInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:contentDescription="@string/information"
+                android:nextFocusDown="@+id/list"
+                android:nextFocusForward="@+id/btnMoveSel"
+                android:nextFocusLeft="@+id/btnCancelSel"
+                android:nextFocusRight="@+id/btnMoveSel"
+                android:nextFocusUp="@+id/list"/>
 
             <br.com.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnAdd"

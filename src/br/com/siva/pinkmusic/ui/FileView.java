@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.ui;
 
 import android.annotation.TargetApi;
@@ -52,6 +52,7 @@ import br.com.siva.pinkmusic.list.FileSt;
 import br.com.siva.pinkmusic.ui.drawable.TextIconDrawable;
 import br.com.siva.pinkmusic.util.ReleasableBitmapWrapper;
 
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public final class FileView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener, AlbumArtFetcher.AlbumArtFetcherListener, Handler.Callback {
 	private AlbumArtFetcher albumArtFetcher;
 	private Handler handler;
@@ -59,10 +60,11 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 	private FileSt file;
 	private BgButton btnCheckbox;
 	private String icon, ellipsizedName, secondaryText, albumStr, albumsStr, trackStr, tracksStr;
-	private boolean pendingAlbumArtRequest, checkBoxVisible;
+	private boolean pendingAlbumArtRequest, checkBoxVisible, btnCheckBoxMarginsPreparedForIndexedScrollBars;
 	private final boolean hasCheckbox;
 	private int state, width, position, requestId, bitmapLeftPadding, leftPadding, secondaryTextWidth;
 
+	private static boolean scrollBarCurrentlyIndexed;
 	private static int height, usableHeight, iconY, nameYNoSecondary, nameY, secondaryY, extraLeftMargin, extraRightMargin, leftMargin, topMargin, rightMargin, bottomMargin;
 
 	public static void updateExtraMargins(boolean isScrollBarIndexed) {
@@ -78,6 +80,7 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 			extraLeftMargin = 0;
 			extraRightMargin = 0;
 		}
+		scrollBarCurrentlyIndexed = isScrollBarIndexed;
 		getViewHeight();
 	}
 
@@ -132,12 +135,13 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 		setOnClickListener(this);
 		setOnLongClickListener(this);
 		setBaselineAligned(false);
-		setGravity(Gravity.RIGHT);
+		setGravity(Gravity.END);
 		getViewHeight();
 		if (hasCheckbox) {
 			LayoutParams p;
 			btnCheckbox = new BgButton(context);
 			btnCheckbox.setHideBorders(true);
+			btnCheckBoxMarginsPreparedForIndexedScrollBars = scrollBarCurrentlyIndexed;
 			p = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
 			p.leftMargin = UI.controlMargin;
 			p.topMargin = topMargin;
@@ -209,6 +213,15 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 				btnCheckbox.setTextColor(((state != 0) || (specialType == FileSt.TYPE_ALBUM_ITEM)) ? UI.colorState_text_selected_static : UI.colorState_text_listitem_reactive);
 				//btnPlay.setTextColor((state != 0) ? UI.colorState_text_selected_static : ((specialType == FileSt.TYPE_ALBUM_ITEM) ? UI.colorState_text_reactive : UI.colorState_text_listitem_reactive));
 			btnCheckbox.setChecked(file.isChecked);
+			if (btnCheckBoxMarginsPreparedForIndexedScrollBars != scrollBarCurrentlyIndexed) {
+				btnCheckBoxMarginsPreparedForIndexedScrollBars = scrollBarCurrentlyIndexed;
+				final LayoutParams p = (LayoutParams)btnCheckbox.getLayoutParams();
+				p.leftMargin = UI.controlMargin;
+				p.topMargin = topMargin;
+				p.rightMargin = rightMargin;
+				p.bottomMargin = bottomMargin;
+				btnCheckbox.setLayoutParams(p);
+			}
 		}
 		this.state = (this.state & ~(UI.STATE_CURRENT | UI.STATE_SELECTED | UI.STATE_MULTISELECTED)) | state;
 		//watch out, DO NOT use equals() in favor of speed!
@@ -234,24 +247,6 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 		if (file.isDirectory) {
 			ReleasableBitmapWrapper newAlbumArt;
 			switch (specialType) {
-			case FileSt.TYPE_INTERNAL_STORAGE:
-				icon = UI.ICON_SCREEN;
-				break;
-			case FileSt.TYPE_ALL_FILES:
-				icon = UI.ICON_ROOT;
-				break;
-			case FileSt.TYPE_EXTERNAL_STORAGE:
-				icon = UI.ICON_SD;
-				break;
-			case FileSt.TYPE_EXTERNAL_STORAGE_USB:
-				icon = UI.ICON_USB;
-				break;
-			case FileSt.TYPE_FAVORITE:
-				icon = UI.ICON_FAVORITE_ON;
-				break;
-			case FileSt.TYPE_ARTIST_ROOT:
-				icon = UI.ICON_MIC;
-				break;
 			case FileSt.TYPE_ARTIST:
 				albumCount = file.albums;
 				trackCount = file.tracks;
@@ -282,6 +277,34 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 					pendingAlbumArtRequest = (newAlbumArt == null);
 				}
 				albumArt = newAlbumArt;
+				break;
+			case FileSt.TYPE_ICECAST:
+				icon = UI.ICON_ICECAST;
+				if (getContext() != null)
+					secondaryTextWidth = UI.controlSmallMargin + UI.measureText(secondaryText = getContext().getText(R.string.radio_directory).toString(), UI._14sp);
+				break;
+			case FileSt.TYPE_SHOUTCAST:
+				icon = UI.ICON_SHOUTCAST;
+				if (getContext() != null)
+					secondaryTextWidth = UI.controlSmallMargin + UI.measureText(secondaryText = getContext().getText(R.string.radio_directory).toString(), UI._14sp);
+				break;
+			case FileSt.TYPE_INTERNAL_STORAGE:
+				icon = UI.ICON_SCREEN;
+				break;
+			case FileSt.TYPE_ALL_FILES:
+				icon = UI.ICON_ROOT;
+				break;
+			case FileSt.TYPE_EXTERNAL_STORAGE:
+				icon = UI.ICON_SD;
+				break;
+			case FileSt.TYPE_EXTERNAL_STORAGE_USB:
+				icon = UI.ICON_USB;
+				break;
+			case FileSt.TYPE_FAVORITE:
+				icon = UI.ICON_FAVORITE_ON;
+				break;
+			case FileSt.TYPE_ARTIST_ROOT:
+				icon = UI.ICON_MIC;
 				break;
 			default:
 				icon = UI.ICON_FOLDER;
@@ -319,7 +342,6 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 		super.setBackground(null);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setBackgroundDrawable(Drawable background) {
@@ -339,15 +361,6 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 	@Override
 	public Drawable getBackground() {
 		return null;
-	}
-
-	@Override
-	public void invalidateDrawable(@NonNull Drawable drawable) {
-	}
-
-	@Override
-	protected boolean verifyDrawable(Drawable drawable) {
-		return false;
 	}
 
 	@Override
@@ -399,20 +412,26 @@ public final class FileView extends LinearLayout implements View.OnClickListener
 		if (ellipsizedName == null)
 			return;
 		getDrawingRect(UI.rect);
-		final boolean albumItem = ((file != null) && (file.specialType == FileSt.TYPE_ALBUM_ITEM));
+		final int specialType = ((file == null) ? 0 : file.specialType);
 		int st = state | ((state & UI.STATE_SELECTED & BgListView.extraState) >>> 2);
-		if (albumItem)
+		if (specialType == FileSt.TYPE_ALBUM_ITEM)
 			st |= UI.STATE_SELECTED;
 		UI.drawBgListItem(canvas, st, true, leftMargin, rightMargin);
 		if (albumArt != null && albumArt.bitmap != null)
 			canvas.drawBitmap(albumArt.bitmap, bitmapLeftPadding, topMargin + ((usableHeight - albumArt.height) >> 1), null);
 		else if (icon != null)
-			TextIconDrawable.drawIcon(canvas, icon, bitmapLeftPadding, iconY, UI.defaultControlContentsSize, ((st != 0) || albumItem) ? UI.color_text_selected : UI.color_text_listitem_secondary);
+			TextIconDrawable.drawIcon(canvas, icon, bitmapLeftPadding, iconY, UI.defaultControlContentsSize, (st != 0) ? UI.color_text_selected : UI.color_text_listitem_secondary);
 		if (secondaryText == null) {
-			UI.drawText(canvas, ellipsizedName, ((st != 0) || albumItem) ? UI.color_text_selected : UI.color_text_listitem, UI._LargeItemsp, leftPadding, nameYNoSecondary);
+			UI.drawText(canvas, ellipsizedName, (st != 0) ? UI.color_text_selected : UI.color_text_listitem, UI._LargeItemsp, leftPadding, nameYNoSecondary);
+			//switch (specialType) {
+			//case FileSt.TYPE_ICECAST:
+			//case FileSt.TYPE_SHOUTCAST:
+			//	UI.drawText(canvas, ellipsizedName, (st != 0) ? UI.color_text_selected : UI.color_text_listitem_secondary, UI._14sp, leftPadding, topMargin + usableHeight - UI._14spBox + UI._14spYinBox);
+			//	break;
+			//}
 		} else {
-			UI.drawText(canvas, ellipsizedName, ((st != 0) || albumItem) ? UI.color_text_selected : UI.color_text_listitem, UI._LargeItemsp, leftPadding, nameY);
-			UI.drawText(canvas, secondaryText, ((st != 0) || albumItem) ? UI.color_text_selected : UI.color_text_listitem_secondary, UI._14sp, width - secondaryTextWidth - rightMargin, secondaryY);
+			UI.drawText(canvas, ellipsizedName, (st != 0) ? UI.color_text_selected : UI.color_text_listitem, UI._LargeItemsp, leftPadding, nameY);
+			UI.drawText(canvas, secondaryText, (st != 0) ? UI.color_text_selected : UI.color_text_listitem_secondary, UI._14sp, width - secondaryTextWidth - rightMargin, secondaryY);
 		}
 		super.dispatchDraw(canvas);
 	}

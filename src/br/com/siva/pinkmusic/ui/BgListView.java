@@ -1,36 +1,37 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.ui;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -72,6 +73,7 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 	public static final int SCROLLBAR_LARGE = 1;
 	public static final int SCROLLBAR_INDEXED = 2;
 	public static final int SCROLLBAR_NONE = 3;
+	
 	private OnAttachedObserver attachedObserver;
 	private OnBgListViewKeyDownObserver keyDownObserver;
 	private OnClickListener emptyListClickListener;
@@ -128,7 +130,7 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 		super.setOverscrollHeader(null); //Motorola bug!!! :P
 		super.setOverscrollFooter(null); //Motorola bug!!! :P
 		setOverScrollMode(OVER_SCROLL_IF_CONTENT_SCROLLS);
-		UI.prepareEdgeEffect(this, false);
+		UI.prepareEdgeEffect(this, UI.PLACEMENT_WINDOW);
 		//List color turns black while Scrolling
 		//http://stackoverflow.com/questions/8531006/list-color-turns-black-while-scrolling
 		//Remove shadow from top and bottom of ListView in android?
@@ -178,7 +180,6 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 	public void setBackground(Drawable background) {
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	@Deprecated
 	public void setBackgroundDrawable(Drawable background) {
@@ -246,15 +247,16 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 	public boolean isInTouchMode() {
 		return (ignoreTouchMode | super.isInTouchMode());
 	}
-	public boolean changingCurrentWouldScareUser() {
-				return (
-						(!isInTouchMode()) ||
-						(UI.accessibilityManager != null && UI.accessibilityManager.isEnabled()) ||
-						touching ||
-						(scrollState != SCROLL_STATE_IDLE)
-				);
-			}
 	
+	public boolean changingCurrentWouldScareUser() {
+		return (
+				(!isInTouchMode()) ||
+				(UI.accessibilityManager != null && UI.accessibilityManager.isEnabled()) ||
+				touching ||
+				(scrollState != SCROLL_STATE_IDLE)
+		);
+	}
+
 	/*@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void smoothScroll(int position, int y) {
 		smoothScrollToPositionFromTop(position, y);
@@ -311,7 +313,7 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 		if (text == null) {
 			emptyLayout = null;
 		} else {
-			UI.textPaint.setTextSize(UI._14sp);
+			UI.textPaint.setTextSize(UI._22sp);
 			emptyLayout = new StaticLayout(text, UI.textPaint, (viewWidth < (UI.controlLargeMargin << 1)) ? 0 : (viewWidth - (UI.controlLargeMargin << 1)), Alignment.ALIGN_CENTER, 1, 0, false);
 		}
 	}
@@ -410,6 +412,7 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 		invalidate(scrollBarLeft, scrollBarTop, scrollBarLeft + scrollBarWidth, scrollBarBottom);
 	}
 	
+	@SuppressLint("Recycle")
 	private void cancelTracking() {
 		if (tracking) {
 			tracking = false;
@@ -474,6 +477,7 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 			setSelectionAtTheTop(y);
 	}
 
+	@SuppressLint({ "ClickableViewAccessibility", "Recycle" })
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		switch (event.getAction()) {
@@ -876,7 +880,7 @@ public final class BgListView extends ListView implements ListView.OnScrollListe
 				final float y = (float)((viewHeight - emptyLayout.getHeight()) >> 1);
 				canvas.translate(x, y);
 				UI.textPaint.setColor(UI.color_text_disabled);
-				UI.textPaint.setTextSize(UI._14sp);
+				UI.textPaint.setTextSize(UI._22sp);
 				emptyLayout.draw(canvas);
 				canvas.translate(-x, -y);
 			}

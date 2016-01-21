@@ -1106,3 +1106,5 @@ void JNICALL glReleaseView(JNIEnv* env, jclass clazz) {
 	if (glSoundParticle) {
 		delete glSoundParticle;
 		glSoundParticle = 0;
+	}
+}

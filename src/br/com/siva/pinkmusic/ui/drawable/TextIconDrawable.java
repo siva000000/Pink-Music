@@ -1,34 +1,34 @@
-//
 // Pink Music Android is distributed under the FreeBSD License
 //
-// Copyright (c) 2013-2015, Siva Prasad
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this
-//    list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice,
-//    this list of conditions and the following disclaimer in the documentation
-//    and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-// ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-// ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-// SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// The views and conclusions contained in the software and documentation are those
-// of the authors and should not be interpreted as representing official policies,
-// either expressed or implied, of the FreeBSD Project.
-//
-
+// Copyright (c) 2013-2016, Siva Prasad												
+// All rights reserved.																
+// ****************************************************************************************
+//*******************************************************************************************
+//**	Redistribution and use in source and binary forms, with or without					**
+//**	modification, are permitted provided that the following conditions are met:			**
+//**																						**
+//**	 1. Redistributions of source code must retain the above copyright notice, this		**
+//**     list of conditions and the following disclaimer.									**
+//**	 2. Redistributions in binary form must reproduce the above copyright notice		**
+//**     this list of conditions and the following disclaimer in the documentation			**
+//**     and/or other materials provided with the distribution.							    **
+//**																						**
+//**	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND		**
+//**   	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED		**
+//**	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE				**
+//**    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR		**
+//**    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES		**
+//**    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;		**
+//**    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND			**
+//**    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT			**
+//**    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS		**
+//**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.						**
+//**																						**
+//**    The views and conclusions contained in the software and documentation are those		**
+//**    of the authors and should not be interpreted as representing official policies,		**
+//**    either expressed or implied, of the FreeBSD Project.								**
+//********************************************************************************************
+// ******************************************************************************************
 package br.com.siva.pinkmusic.ui.drawable;
 
 import android.graphics.Canvas;
@@ -45,7 +45,7 @@ public final class TextIconDrawable extends Drawable {
 	private static final TextPaint paint;
 	private int[] stateSet;
 	private int state, alpha, currentColor;
-	private final int width, height, y, color;
+	private final int width, height, textSize, color;
 	//private final boolean outsideMenu;
 	private String icon;
 	
@@ -69,7 +69,7 @@ public final class TextIconDrawable extends Drawable {
 		this.icon = icon;
 		this.width = UI.defaultCheckIconSize + UI.menuMargin;// UI._8sp + UI._8sp + 1;
 		this.height = UI.defaultCheckIconSize;
-		this.y = UI.defaultCheckIconSize >> 1;
+		this.textSize = UI.defaultCheckIconSize;
 		//this.outsideMenu = false;
 		this.alpha = 255;
 		this.color = UI.color_menu_icon;
@@ -82,7 +82,7 @@ public final class TextIconDrawable extends Drawable {
 		this.icon = icon;
 		this.width = UI.defaultCheckIconSize + UI.controlMargin;
 		this.height = UI.defaultCheckIconSize;
-		this.y = UI.defaultCheckIconSize >> 1;
+		this.textSize = UI.defaultCheckIconSize;
 		//this.outsideMenu = true;
 		this.alpha = 255;
 		this.color = color;
@@ -95,7 +95,7 @@ public final class TextIconDrawable extends Drawable {
 		this.icon = icon;
 		this.width = size + UI.controlMargin;
 		this.height = size;
-		this.y = size >> 1;
+		this.textSize = size;
 		//this.outsideMenu = true;
 		this.alpha = 255;
 		this.color = color;
@@ -108,7 +108,20 @@ public final class TextIconDrawable extends Drawable {
 		this.icon = icon;
 		this.width = size + padding;
 		this.height = size;
-		this.y = size >> 1;
+		this.textSize = size;
+		//this.outsideMenu = true;
+		this.alpha = 255;
+		this.color = color;
+		this.currentColor = color;
+		this.stateSet = super.getState();
+		super.setBounds(0, 0, width, height);
+	}
+
+	public TextIconDrawable(String icon, int color, int width, int height, int textSize) {
+		this.icon = icon;
+		this.width = width;
+		this.height = height;
+		this.textSize = textSize;
 		//this.outsideMenu = true;
 		this.alpha = 255;
 		this.color = color;
@@ -130,8 +143,8 @@ public final class TextIconDrawable extends Drawable {
 	public void draw(Canvas canvas) {
 		final Rect rect = getBounds();
 		paint.setColor(currentColor);
-		paint.setTextSize(height);
-		canvas.drawText(icon, rect.left, rect.top + ((rect.bottom - rect.top) >> 1) + y, paint);
+		paint.setTextSize(textSize);
+		canvas.drawText(icon, rect.left, rect.top + ((rect.bottom - rect.top + height) >> 1), paint);
 		/*if (!outsideMenu) {
 			UI.rect.left = rect.right - UI._8sp - 1;
 			UI.rect.right = UI.rect.left + UI.strokeSize;

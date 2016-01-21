@@ -16,7 +16,6 @@
             android:id="@+id/btnGoBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:contentDescription="@string/go_back"
             android:nextFocusDown="@+id/list"
             android:nextFocusForward="@+id/btnFavorite"
@@ -30,7 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="8dp"
-            android:layout_toRightOf="@+id/btnGoBack">
+            android:layout_toRightOf="@+id/btnGoBack"
+            android:visibility="gone">
 
             <ProgressBar
                 android:id="@+id/barLoading"
