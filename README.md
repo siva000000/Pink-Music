@@ -51,6 +51,8 @@ PinkMusic can be integrated to Arduino, or other electronic board, via Bluetooth
 
 Very special thanks to the people who helped translating PinkMusic:
 
+SIVA PRADEEP
+
 LENIN RETINA
 
 ALEX
