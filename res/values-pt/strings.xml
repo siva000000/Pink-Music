@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="fplay">FPlay</string>
+    <string name="Pinkmusic">PinkMusic</string>
     <string name="app_by">por Carlos Rafael Gimenes das Neves</string>
     <string name="app_description">Player de música com interface limpa, equalizador, ajuste de graves e de cores</string>
     <string name="app_more_info">Master Codings : Sivaprasad&lt;br/&gt;Ndk codings : Sivapradeep&lt;br/&gt;br/&gt;C++ codings : Lelin retna&lt;br/&gt;br/&gt;Layout codings : Shajin&lt;br/&gt;UI Design : Nithin&lt;br/&gt;Technical Support : Sayee Sreenath&lt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;Thanks a lot!! :D</string>
