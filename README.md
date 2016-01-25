@@ -1,7 +1,7 @@
 PinkMusic
 ============
 
-Play store : https://play.google.com/store/apps/details?id=br.com.siva.pinkmusic
+Play store : https://play.google.com/store/apps/details?id=com.n.siva.pinkmusic
 
 PinkMusic for Android is a simple and lightweight music player, with clean interface, equalizer, bass boost and customizable colors.
 
