@@ -146,7 +146,7 @@
             android:orientation="horizontal"
             android:splitMotionEvents="false">
 
-            <br.com.siva.pinkmusic.ui.BgSeekBar
+            <com.n.siva.pinkmusic.ui.BgSeekBar
                 android:id="@+id/barSeek"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -157,7 +157,7 @@
                 android:nextFocusRight="@+id/barVolume"
                 android:nextFocusUp="@+id/list"/>
 
-            <br.com.siva.pinkmusic.ui.BgSeekBar
+            <com.n.siva.pinkmusic.ui.BgSeekBar
                 android:id="@+id/barVolume"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -169,7 +169,7 @@
                 android:nextFocusRight="@+id/btnAdd"
                 android:nextFocusUp="@+id/list"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnVolume"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -189,7 +189,7 @@
             android:layout_height="wrap_content"
             android:splitMotionEvents="false">
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -201,7 +201,7 @@
                 android:nextFocusRight="@+id/btnPrev"
                 android:nextFocusUp="@+id/barVolume"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnPrev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -214,7 +214,7 @@
                 android:nextFocusRight="@+id/btnPlay"
                 android:nextFocusUp="@+id/barVolume"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnPlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -227,7 +227,7 @@
                 android:nextFocusRight="@+id/btnNext"
                 android:nextFocusUp="@+id/barVolume"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnNext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -239,7 +239,7 @@
                 android:nextFocusRight="@+id/btnMenu"
                 android:nextFocusUp="@+id/barVolume"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -272,7 +272,7 @@
             android:splitMotionEvents="false"
             android:visibility="gone">
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnMoveSel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -284,7 +284,7 @@
                 android:nextFocusRight="@+id/btnRemoveSel"
                 android:nextFocusUp="@+id/list"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnRemoveSel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -295,7 +295,7 @@
                 android:nextFocusRight="@+id/btnCancelSel"
                 android:nextFocusUp="@+id/list"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnCancelSel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

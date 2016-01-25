@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:splitMotionEvents="false">
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnGoBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:nextFocusUp="@+id/lblMsg">
 
             <requestFocus/>
-        </br.com.siva.pinkmusic.ui.BgButton>
+        </com.n.siva.pinkmusic.ui.BgButton>
 
         <ImageView
             android:id="@+id/imgIcon"
@@ -72,7 +72,7 @@
             android:text="@string/app_by"/>
     </RelativeLayout>
 
-    <br.com.siva.pinkmusic.ui.ObservableScrollView
+    <com.n.siva.pinkmusic.ui.ObservableScrollView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -104,6 +104,6 @@
                 android:focusable="false"
                 android:gravity="right"/>
         </LinearLayout>
-    </br.com.siva.pinkmusic.ui.ObservableScrollView>
+    </com.n.siva.pinkmusic.ui.ObservableScrollView>
 
 </LinearLayout>

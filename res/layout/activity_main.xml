@@ -9,14 +9,14 @@
     android:splitMotionEvents="false"
     tools:context=".ActivityHost" >
 
-    <br.com.siva.pinkmusic.ui.BgListView
+    <com.n.siva.pinkmusic.ui.BgListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="1200dp"
         android:layout_weight="0.27"
         android:nextFocusForward="@+id/btnAdd" >
 
-    </br.com.siva.pinkmusic.ui.BgListView>
+    </com.n.siva.pinkmusic.ui.BgListView>
 
     <LinearLayout
         android:id="@+id/panelTop"
@@ -67,7 +67,7 @@
             android:splitMotionEvents="false" >
             
              
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnMoreInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
                 android:nextFocusRight="@+id/btnMoveSel"
                 android:nextFocusUp="@+id/list"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -92,7 +92,7 @@
                 android:nextFocusRight="@+id/btnPrev"
                 android:nextFocusUp="@+id/list" />
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnPrev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                 android:nextFocusRight="@+id/btnPlay"
                 android:nextFocusUp="@+id/list" />
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnPlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -118,7 +118,7 @@
                 android:nextFocusUp="@+id/list" 
                 android:gravity="bottom"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnNext"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -131,7 +131,7 @@
                 android:nextFocusRight="@+id/btnMenu"
                 android:nextFocusUp="@+id/list" />
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnMenu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -156,10 +156,10 @@
             android:focusable="false" 
             android:measureWithLargestChild="false" 
             android:orientation="horizontal" 
-            android:splitMotionEvents="false" 
-            android:transitionGroup="false">
+            android:splitMotionEvents="false" >
+            
 
-                <br.com.siva.pinkmusic.ui.BgSeekBar 
+                <com.n.siva.pinkmusic.ui.BgSeekBar 
                     android:id="@+id/barSeek" 
                     android:layout_width="wrap_content" 
                     android:layout_height="wrap_content" 
@@ -170,7 +170,7 @@
                     android:nextFocusForward="@+id/btnPlay" 
                     android:nextFocusUp="@+id/btnPrev" />
 
-                <br.com.siva.pinkmusic.ui.BgSeekBar 
+                <com.n.siva.pinkmusic.ui.BgSeekBar 
                     android:id="@+id/barVolume" 
                     android:layout_width="0dp" 
                     android:layout_height="wrap_content" 
@@ -182,7 +182,7 @@
                     android:nextFocusRight="@+id/list" 
                     android:nextFocusUp="@+id/btnMenu" />
 
-                <br.com.siva.pinkmusic.ui.BgButton android:id="@+id/btnVolume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="8dp" android:layout_weight="1" android:contentDescription="@string/volume" android:nextFocusDown="@+id/list" android:nextFocusForward="@+id/list" android:nextFocusLeft="@+id/btnMenu" android:nextFocusRight="@+id/list" android:nextFocusUp="@+id/btnMenu" android:visibility="gone" />
+                <com.n.siva.pinkmusic.ui.BgButton android:id="@+id/btnVolume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="8dp" android:layout_weight="1" android:contentDescription="@string/volume" android:nextFocusDown="@+id/list" android:nextFocusForward="@+id/list" android:nextFocusLeft="@+id/btnMenu" android:nextFocusRight="@+id/list" android:nextFocusUp="@+id/btnMenu" android:visibility="gone" />
             </LinearLayout><RelativeLayout
             android:id="@+id/panelSelection"
             android:layout_width="match_parent"
@@ -190,7 +190,7 @@
             android:splitMotionEvents="false"
             android:visibility="gone" >
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnCancelSel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -203,7 +203,7 @@
                 android:nextFocusUp="@+id/list"
                 android:text="@string/cancel" />
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnMoveSel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -217,7 +217,7 @@
                 android:nextFocusRight="@+id/btnRemoveSel"
                 android:nextFocusUp="@+id/list" />
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/btnRemoveSel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

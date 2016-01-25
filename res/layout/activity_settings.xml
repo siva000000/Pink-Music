@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:splitMotionEvents="false">
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnGoBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,9 +22,9 @@
             android:contentDescription="@string/go_back">
 
             <requestFocus/>
-        </br.com.siva.pinkmusic.ui.BgButton>
+        </com.n.siva.pinkmusic.ui.BgButton>
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnBluetooth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,7 +43,7 @@
             android:singleLine="true"
             android:visibility="gone"/>
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnAbout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/panelControls"/>
 
-    <br.com.siva.pinkmusic.ui.ObservableScrollView
+    <com.n.siva.pinkmusic.ui.ObservableScrollView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -72,6 +72,6 @@
             android:baselineAligned="false"
             android:orientation="vertical"
             android:splitMotionEvents="false"/>
-    </br.com.siva.pinkmusic.ui.ObservableScrollView>
+    </com.n.siva.pinkmusic.ui.ObservableScrollView>
 
 </RelativeLayout>

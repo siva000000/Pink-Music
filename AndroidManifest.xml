@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="br.com.siva.pinkmusic"
+    package="com.n.siva.pinkmusic"
     android:installLocation="auto"
     android:versionCode="83"
     android:versionName="1.48" >
@@ -9,7 +9,7 @@
     <!-- versionName must be kept in sync with UI.VERSION_NAME -->
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="17"
         android:targetSdkVersion="23" />
 
       <!-- http://developer.android.com/guide/topics/manifest/supports-screens-element.html -->
@@ -86,7 +86,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="br.com.siva.pinkmusic.activity.ActivityHost"
+            android:name="com.n.siva.pinkmusic.activity.ActivityHost"
             android:clearTaskOnLaunch="true"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:label="PinkMusic"
@@ -199,29 +199,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="br.com.siva.pinkmusic.activity.ActivityVisualizer"
+            android:name="com.n.siva.pinkmusic.activity.ActivityVisualizer"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:hardwareAccelerated="true"
             android:label="@string/visualizer"
             android:multiprocess="false"
-            android:parentActivityName="br.com.siva.pinkmusic.activity.ActivityHost"
+            android:parentActivityName="com.n.siva.pinkmusic.activity.ActivityHost"
             android:screenOrientation="unspecified"
             android:stateNotNeeded="true"
             android:theme="@style/AppTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="br.com.siva.pinkmusic.activity.ActivityHost" />
+                android:value="com.n.siva.pinkmusic.activity.ActivityHost" />
         </activity>
 
         <service
-            android:name="br.com.siva.pinkmusic.playback.Player"
+        android:name="com.n.siva.pinkmusic.playback.Player"
             android:enabled="true"
             android:exported="false"
             android:label="Player"
             android:stopWithTask="false" />
 
+
         <receiver
-            android:name="br.com.siva.pinkmusic.WidgetMain"
+            android:name="com.n.siva.pinkmusic.WidgetMain"
             android:label="PinkMusic" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -231,7 +232,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/main_widget_info" />
         </receiver>
-        <receiver android:name="br.com.siva.pinkmusic.ExternalReceiver" >
+        <receiver android:name="com.n.siva.pinkmusic.ExternalReceiver" >
             <intent-filter>
 
                 <!-- MEDIA_BUTTON broadcast action MUST be declared in the application manifest!!! -->

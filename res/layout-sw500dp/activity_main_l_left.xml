@@ -11,7 +11,7 @@
 
     <include layout="@layout/activity_main_l_controls"/>
 
-    <br.com.siva.pinkmusic.ui.BgListView
+    <com.n.siva.pinkmusic.ui.BgListView
         android:id="@+id/list"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -20,6 +20,6 @@
         android:splitMotionEvents="false">
 
         <requestFocus/>
-    </br.com.siva.pinkmusic.ui.BgListView>
+    </com.n.siva.pinkmusic.ui.BgListView>
 
 </LinearLayout>

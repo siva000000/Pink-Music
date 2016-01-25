@@ -3,10 +3,6 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry kind="lib" path="C:/sdk/build-tools/23.0.2/jack.jar"/>
-	<classpathentry kind="lib" path="C:/sdk/build-tools/23.0.2/jill.jar"/>
-	<classpathentry kind="lib" path="C:/sdk/build-tools/23.0.2/lib/shrinkedAndroid.jar"/>
-	<classpathentry kind="lib" path="C:/sdk/build-tools/23.0.2/lib/dx.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>

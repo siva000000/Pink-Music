@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:splitMotionEvents="false">
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnGoBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,9 +26,9 @@
             android:nextFocusUp="@+id/btnChangeEffect">
 
             <requestFocus/>
-        </br.com.siva.pinkmusic.ui.BgButton>
+        </com.n.siva.pinkmusic.ui.BgButton>
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnAudioSink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:nextFocusRight="@+id/btnMenu"
             android:nextFocusUp="@+id/btnChangeEffect"/>
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
             android:splitMotionEvents="false"
             android:visibility="gone">
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/chkEqualizer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
             android:splitMotionEvents="false"
             android:visibility="gone">
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/chkBass"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
                 android:nextFocusUp="@+id/btnAudioSink"
                 android:text="@string/bass_boost"/>
 
-            <br.com.siva.pinkmusic.ui.BgSeekBar
+            <com.n.siva.pinkmusic.ui.BgSeekBar
                 android:id="@+id/barBass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -124,7 +124,7 @@
                 android:nextFocusRight="@+id/chkVirtualizer"
                 android:nextFocusUp="@+id/chkBass"/>
 
-            <br.com.siva.pinkmusic.ui.BgButton
+            <com.n.siva.pinkmusic.ui.BgButton
                 android:id="@+id/chkVirtualizer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -136,7 +136,7 @@
                 android:nextFocusUp="@+id/barBass"
                 android:text="@string/virtualization"/>
 
-            <br.com.siva.pinkmusic.ui.BgSeekBar
+            <com.n.siva.pinkmusic.ui.BgSeekBar
                 android:id="@+id/barVirtualizer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -168,7 +168,7 @@
         </LinearLayout>
         <!-- </ScrollView> -->
 
-        <br.com.siva.pinkmusic.ui.BgButton
+        <com.n.siva.pinkmusic.ui.BgButton
             android:id="@+id/btnChangeEffect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -33,12 +33,12 @@
 -printmapping build/outputs/mapping/release/mapping.txt
 -allowaccessmodification
 -repackageclasses ''
--keep public interface br.com.siva.pinkmusic.visualizer.Visualizer
--keepclassmembers interface br.com.siva.pinkmusic.visualizer.Visualizer {
+-keep public interface com.n.siva.pinkmusic.visualizer.Visualizer
+-keepclassmembers interface com.n.siva.pinkmusic.visualizer.Visualizer {
     public *;
 }
--keep class * implements br.com.siva.pinkmusic.visualizer.Visualizer
--keepclassmembers class * implements br.com.siva.pinkmusic.visualizer.Visualizer {
+-keep class * implements com.n.siva.pinkmusic.visualizer.Visualizer
+-keepclassmembers class * implements com.n.siva.pinkmusic.visualizer.Visualizer {
     public *;
 }
 -keep class android.widget.BgEdgeEffect {
