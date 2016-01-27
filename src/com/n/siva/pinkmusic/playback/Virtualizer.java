@@ -126,7 +126,8 @@ public final class Virtualizer {
 	}
 
 	public static int getMaxStrength() {
-		return 1000;
+		//return 1000;
+		return 500;
 	}
 
 	public static int getStrength(int audioSink) {
@@ -134,8 +135,10 @@ public final class Virtualizer {
 	}
 
 	public static void setStrength(int strength, int audioSink) {
-		if (strength > 1000)
-			strength = 1000;
+	//	if (strength > 1000)
+		//	strength = 1000;
+		if (strength > 500)
+			strength = 500;
 		else if (strength < 0)
 			strength = 0;
 		switch (audioSink) {
@@ -172,13 +175,16 @@ public final class Virtualizer {
 				if (!strengthSupported) {
 					switch (audioSink) {
 					case Player.AUDIO_SINK_WIRE:
-						strength_wire = 1000;
+						//strength_wire = 1000;
+						strength_wire = 500;
 						break;
 					case Player.AUDIO_SINK_BT:
-						strength_bt = 1000;
+						//strength_bt = 1000;
+						strength_bt = 500;
 						break;
 					default:
-						strength = 1000;
+					//	strength = 1000;
+						strength = 500;
 						break;
 					}
 				}
@@ -208,15 +214,18 @@ public final class Virtualizer {
 		try {
 			switch (audioSink) {
 			case Player.AUDIO_SINK_WIRE:
-				theVirtualizer.setStrength(strengthSupported ? (short)strength_wire : (short)((strength_wire == 0) ? 0 : 1000));
+				//theVirtualizer.setStrength(strengthSupported ? (short)strength_wire : (short)((strength_wire == 0) ? 0 : 1000));
+				theVirtualizer.setStrength(strengthSupported ? (short)strength_wire : (short)((strength_wire == 0) ? 0 : 500));
 				strength_wire = theVirtualizer.getRoundedStrength();
 				break;
 			case Player.AUDIO_SINK_BT:
-				theVirtualizer.setStrength(strengthSupported ? (short)strength_bt : (short)((strength_bt == 0) ? 0 : 1000));
+				//theVirtualizer.setStrength(strengthSupported ? (short)strength_bt : (short)((strength_bt == 0) ? 0 : 1000));
+				theVirtualizer.setStrength(strengthSupported ? (short)strength_bt : (short)((strength_bt == 0) ? 0 : 500));
 				strength_bt = theVirtualizer.getRoundedStrength();
 				break;
 			default:
-				theVirtualizer.setStrength(strengthSupported ? (short)strength : (short)((strength == 0) ? 0 : 1000));
+			//	theVirtualizer.setStrength(strengthSupported ? (short)strength : (short)((strength == 0) ? 0 : 1000));
+				theVirtualizer.setStrength(strengthSupported ? (short)strength : (short)((strength == 0) ? 0 : 500));
 				strength = theVirtualizer.getRoundedStrength();
 				break;
 			}

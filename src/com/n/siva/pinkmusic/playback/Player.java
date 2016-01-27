@@ -260,7 +260,8 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	public static final Virtualizer theVirtualizer = new Virtualizer();
 
 	public static boolean hasFocus;
-	public static int volumeStreamMax = 15, volumeControlType;
+	//public static int volumeStreamMax = 15, volumeControlType;
+	public static int volumeStreamMax = 50, volumeControlType;
 	private static boolean volumeDimmed;
 	private static int volumeDB, volumeDBFading, silenceMode;
 	private static float volumeMultiplier;
@@ -768,8 +769,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			//http://stackoverflow.com/a/4413073/3569421
 			//(a/b)*b+(a%b) is equal to a
 			//-350 % 200 = -150
-			final int leftover = (Player.volumeDB % 200);
-			return setVolume(Player.volumeDB + ((leftover == 0) ? -200 : (-200 - leftover)));
+		//	final int leftover = (Player.volumeDB % 200);
+			final int leftover = (Player.volumeDB % 500);
+			//return setVolume(Player.volumeDB + ((leftover == 0) ? -200 : (-200 - leftover)));
+			return setVolume(Player.volumeDB + ((leftover == 0) ? -500 : (-500 - leftover)));
 		}
 		showStreamVolumeUI();
 		return Integer.MIN_VALUE;
@@ -784,8 +787,10 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 			//http://stackoverflow.com/a/4413073/3569421
 			//(a/b)*b+(a%b) is equal to a
 			//-350 % 200 = -150
-			final int leftover = (Player.volumeDB % 200);
-			return setVolume(Player.volumeDB + ((leftover == 0) ? 200 : -leftover));
+		//	final int leftover = (Player.volumeDB % 200);
+			final int leftover = (Player.volumeDB % 500);
+		//	return setVolume(Player.volumeDB + ((leftover == 0) ? 200 : -leftover));
+			return setVolume(Player.volumeDB + ((leftover == 0) ? 500 : -leftover));
 		}
 		showStreamVolumeUI();
 		return Integer.MIN_VALUE;
@@ -804,11 +809,13 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 	public static void setVolumeInPercentage(int percentage) {
 		switch (volumeControlType) {
 		case VOLUME_CONTROL_STREAM:
-			setVolume((percentage * volumeStreamMax) / 100);
+		//	setVolume((percentage * volumeStreamMax) / 100);
+			setVolume((percentage * volumeStreamMax) / 500);
 			break;
 		case VOLUME_CONTROL_DB:
 		case VOLUME_CONTROL_PERCENT:
-			setVolume((percentage >= 100) ? 0 : ((percentage <= 0) ? VOLUME_MIN_DB : (((100 - percentage) * VOLUME_MIN_DB) / 100)));
+			//setVolume((percentage >= 100) ? 0 : ((percentage <= 0) ? VOLUME_MIN_DB : (((100 - percentage) * VOLUME_MIN_DB) / 100)));
+			setVolume((percentage >= 500) ? 0 : ((percentage <= 0) ? VOLUME_MIN_DB : (((100 - percentage) * VOLUME_MIN_DB) / 100)));
 			break;
 		}
 	}
@@ -817,10 +824,12 @@ public final class Player extends Service implements AudioManager.OnAudioFocusCh
 		switch (volumeControlType) {
 		case VOLUME_CONTROL_STREAM:
 			final int vol = getSystemStreamVolume();
-			return ((vol <= 0) ? 0 : ((vol >= volumeStreamMax) ? 100 : ((vol * 100) / volumeStreamMax)));
+			//return ((vol <= 0) ? 0 : ((vol >= volumeStreamMax) ? 100 : ((vol * 100) / volumeStreamMax)));
+			return ((vol <= 0) ? 0 : ((vol >= volumeStreamMax) ? 500 : ((vol * 500) / volumeStreamMax)));
 		case VOLUME_CONTROL_DB:
 		case VOLUME_CONTROL_PERCENT:
-			return ((localVolumeDB >= 0) ? 100 : ((localVolumeDB <= VOLUME_MIN_DB) ? 0 : (((VOLUME_MIN_DB - localVolumeDB) * 100) / VOLUME_MIN_DB)));
+			//return ((localVolumeDB >= 0) ? 100 : ((localVolumeDB <= VOLUME_MIN_DB) ? 0 : (((VOLUME_MIN_DB - localVolumeDB) * 100) / VOLUME_MIN_DB)));
+			return ((localVolumeDB >= 0) ? 100 : ((localVolumeDB <= VOLUME_MIN_DB) ? 0 : (((VOLUME_MIN_DB - localVolumeDB) * 500) / VOLUME_MIN_DB)));
 		}
 		return 0;
 	}

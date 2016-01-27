@@ -56,8 +56,10 @@ public final class Equalizer {
 		}
 		int count = opts.getInt(Player.OPT_EQUALIZER_LEVELCOUNT);
 		if (count > 0) {
-			if (count > 512)
-				count = 512;
+			//if (count > 512)
+			//	count = 512;
+			if (count > 1024)
+				count = 1024;
 			int[] levels;
 			switch (audioSink) {
 			case Player.AUDIO_SINK_WIRE:
@@ -180,12 +182,15 @@ public final class Equalizer {
 		}
 		if (copyFrequencies) {
 			for (int i = bandCount - 1; i >= 0; i--)
-				bandFrequencies[i] = theEqualizer.getCenterFreq((short)i) / 1000;
+				//bandFrequencies[i] = theEqualizer.getCenterFreq((short)i) / 1000;
+				bandFrequencies[i] = theEqualizer.getCenterFreq((short)i) / 1500;
 		}
 		short[] l = theEqualizer.getBandLevelRange();
 		if (l == null || l.length != 2) {
-			minBandLevel = -1500;
-			maxBandLevel = 1500;
+			//minBandLevel = -1500;
+			//maxBandLevel = 1500;
+			minBandLevel = -3000;
+			maxBandLevel = 3000;
 		} else {
 			minBandLevel = (int)l[0];
 			maxBandLevel = (int)l[1];

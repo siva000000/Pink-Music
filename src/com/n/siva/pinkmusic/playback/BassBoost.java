@@ -127,7 +127,8 @@ public final class BassBoost {
 	}
 
 	public static int getMaxStrength() {
-		return 1000;
+	//	return 1000;
+		return 5000;
 	}
 
 	public static int getStrength(int audioSink) {
@@ -135,8 +136,10 @@ public final class BassBoost {
 	}
 
 	public static void setStrength(int strength, int audioSink) {
-		if (strength > 1000)
-			strength = 1000;
+	//	if (strength > 1000)
+		//	strength = 1000;
+		if (strength > 5000)
+			strength = 5000;
 		else if (strength < 0)
 			strength = 0;
 		switch (audioSink) {
@@ -173,13 +176,15 @@ public final class BassBoost {
 				if (!strengthSupported) {
 					switch (audioSink) {
 					case Player.AUDIO_SINK_WIRE:
-						strength_wire = 1000;
+						//strength_wire = 1000;
+						strength_wire = 5000;
 						break;
 					case Player.AUDIO_SINK_BT:
 						strength_bt = 1000;
 						break;
 					default:
-						strength = 1000;
+						//strength = 1000;
+						strength = 5000;
 						break;
 					}
 				}
@@ -209,7 +214,8 @@ public final class BassBoost {
 		try {
 			switch (audioSink) {
 			case Player.AUDIO_SINK_WIRE:
-				theBooster.setStrength(strengthSupported ? (short)strength_wire : (short)((strength_wire == 0) ? 0 : 1000));
+				//theBooster.setStrength(strengthSupported ? (short)strength_wire : (short)((strength_wire == 0) ? 0 : 3000));
+				theBooster.setStrength(strengthSupported ? (short)strength_wire : (short)((strength_wire == 0) ? 0 : 5000));
 				strength_wire = theBooster.getRoundedStrength();
 				break;
 			case Player.AUDIO_SINK_BT:
@@ -217,7 +223,8 @@ public final class BassBoost {
 				strength_bt = theBooster.getRoundedStrength();
 				break;
 			default:
-				theBooster.setStrength(strengthSupported ? (short)strength : (short)((strength == 0) ? 0 : 1000));
+			//	theBooster.setStrength(strengthSupported ? (short)strength : (short)((strength == 0) ? 0 : 3000));
+				theBooster.setStrength(strengthSupported ? (short)strength : (short)((strength == 0) ? 0 : 5000));
 				strength = theBooster.getRoundedStrength();
 				break;
 			}
