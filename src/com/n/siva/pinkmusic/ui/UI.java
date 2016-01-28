@@ -591,7 +591,8 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 		case LOCALE_US:
 			return "English";
 		case LOCALE_TAL:
-			return "Tamil (தமிழ�?)";
+		//	return "Tamil (à®¤à®®à®¿à®´ï¿½?)";
+			return "Tamil (தமிழ்)";
 		
 		}
 		return context.getText(R.string.standard_language).toString();
