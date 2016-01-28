@@ -109,7 +109,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	//VERSION_CODE must be kept in sync with AndroidManifest.xml
 	public static final int VERSION_CODE = 83;
 	//VERSION_NAME must be kept in sync with AndroidManifest.xml
-	public static final String VERSION_NAME = "v1.49";
+	public static final String VERSION_NAME = "v1.50";
 
 	public static final int STATE_PRESSED = 1;
 	public static final int STATE_FOCUSED = 2;
