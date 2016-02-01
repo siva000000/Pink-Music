@@ -38,13 +38,6 @@ import android.view.ViewGroup;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import com.n.siva.pinkmusic.activity.MainHandler;
-import com.n.siva.pinkmusic.playback.Player;
-import com.n.siva.pinkmusic.ui.RadioStationView;
-import com.n.siva.pinkmusic.ui.UI;
-import com.n.siva.pinkmusic.util.ArraySorter;
-import com.n.siva.pinkmusic.util.Serializer;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
@@ -54,6 +47,12 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import com.n.siva.pinkmusic.R;
+import com.n.siva.pinkmusic.activity.MainHandler;
+import com.n.siva.pinkmusic.playback.Player;
+import com.n.siva.pinkmusic.ui.RadioStationView;
+import com.n.siva.pinkmusic.ui.UI;
+import com.n.siva.pinkmusic.util.ArraySorter;
+import com.n.siva.pinkmusic.util.Serializer;
 
 public abstract class RadioStationList extends BaseList<RadioStation> implements Runnable, ArraySorter.Comparer<RadioStation>, MainHandler.Callback {
 	public interface RadioStationAddedObserver {
@@ -84,8 +83,13 @@ public abstract class RadioStationList extends BaseList<RadioStation> implements
 		this.readyToFetch = true;
 		this.favoritesSync = new Object();
 		this.favorites = new HashSet<>(32);
+		this.moreResults = true;
 	}
-	
+
+	public final boolean hasMoreResults() {
+		return moreResults;
+	}
+
 	public final boolean isLoading() {
 		return loading;
 	}

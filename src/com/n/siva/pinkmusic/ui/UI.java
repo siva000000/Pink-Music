@@ -55,6 +55,7 @@ import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.InputType;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.TextUtils.TruncateAt;
@@ -78,6 +79,7 @@ import android.view.animation.Interpolator;
 import android.widget.AbsListView;
 import android.widget.BgEdgeEffect;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -100,11 +102,11 @@ import com.n.siva.pinkmusic.util.SerializableMap;
 import com.n.siva.pinkmusic.R;
 
 //
-@SuppressLint({ "RtlHardcoded", "InlinedApi" })
+@SuppressLint({ "RtlHardcoded", "InlinedApi", "NewApi" })
 //Unit conversions are based on:
 //http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/2.3.3_r1/android/util/TypedValue.java
 //
-@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public final class UI implements DialogInterface.OnShowListener, Animation.AnimationListener {
 	//VERSION_CODE must be kept in sync with AndroidManifest.xml
 	public static final int VERSION_CODE = 83;
@@ -136,6 +138,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static final int TRANSITION_FADE = 1;
 	public static final int TRANSITION_ZOOM = 2;
 	public static final int TRANSITION_DISSOLVE = 3;
+	public static final int TRANSITION_SLIDE = 4;
 	public static final int TRANSITION_DURATION_FOR_ACTIVITIES_SLOW = 300;
 	public static final int TRANSITION_DURATION_FOR_ACTIVITIES = 200; //used to be 300
 	public static final int TRANSITION_DURATION_FOR_VIEWS = 200; //used to be 300
@@ -270,6 +273,10 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	//keep in sync with v21/styles.xml
 	public static final int color_pinkmusic_dk = 0xff444abf;
 	public static final int color_pinkmusic_lt = 0xff9ea6ff;
+	public static final int color_dialog_text_dk = 0xff1f1f1f;
+	public static final int color_dialog_text_lt = 0xffffffff;
+	public static final int color_dialog_normal_dk = 0xff6d6d6d;
+	public static final int color_dialog_normal_lt = 0xffc7c7c7;
 
 	public static int color_window;
 	public static int color_control_mode;
@@ -1328,6 +1335,7 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 			case TRANSITION_DISSOLVE:
 			case TRANSITION_ZOOM:
 			case TRANSITION_FADE:
+			case TRANSITION_SLIDE:
 				UI.transition = transition;
 				break;
 			default:
@@ -1344,24 +1352,26 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 				return context.getText(R.string.zoom).toString();
 			case TRANSITION_FADE:
 				return context.getText(R.string.fade).toString();
+			case TRANSITION_SLIDE:
+				return context.getText(R.string.slide).toString();
 			default:
 				return context.getText(R.string.none).toString();
 		}
 	}
 
 	public static void showNextStartupMsg(Activity activity) {
-		if (msgStartup >= 26) {
-			msgStartup = 26;
+		if (msgStartup >= 27) {
+			msgStartup = 27;
 			return;
 		}
 		final int title = R.string.new_setting;
-		msgStartup = 26;
+		msgStartup = 27;
 		//final String content = activity.getText(R.string.startup_message).toString() + "!\n\n" + activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.expand_seek_bar).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
 		//final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.fullscreen).toString() + "\n- " + activity.getText(R.string.transition).toString() + "\n- " + activity.getText(R.string.color_theme).toString() + ": " + activity.getText(R.string.creamy).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
 		//final String content = activity.getText(R.string.startup_message).toString();
 		//final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.color_theme).toString() + ": Pinkmusic\n\n" + activity.getText(R.string.visualizer).toString() + "! :D\n- Liquid Spectrum\n- Spinning Rainbow\n\n" + activity.getText(R.string.check_it_out).toString();
 		//final String content = "- " + activity.getText(R.string.visualizer).toString() + ":\n" +  activity.getText(R.string.album_art).toString() + "\nInto the Particles! :D\n\n- " + activity.getText(R.string.color_theme).toString() + ":\nPinkmusic\n\n" + activity.getText(R.string.check_it_out).toString();
-		final String content = activity.getText(R.string.there_are_new_features).toString() + "\n- " + activity.getText(R.string.accessibility) + "\n- 3D\n\n" + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) ? activity.getText(R.string.visualizer) + ":\n- Into the Particles (VR)\n\n" : "") + activity.getText(R.string.startup_message).toString() + "\n- " + activity.getText(R.string.loudspeaker).toString() + "\n- " + activity.getText(R.string.earphones).toString() + "\n- " + activity.getText(R.string.bluetooth).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
+		final String content = activity.getText(R.string.there_are_new_features).toString() + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ? "\n- " + activity.getText(R.string.radio) : "") + "\n- " + activity.getText(R.string.accessibility) + "\n- 3D\n\n" + activity.getText(R.string.radio_directory) + ":\n- SHOUTcast\n- Icecast\n\n" + activity.getText(R.string.transition) + "\n- " + activity.getText(R.string.slide) + "\n\n" + ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) ? activity.getText(R.string.visualizer) + ":\n- Into the Particles (VR)\n\n" : "") + activity.getText(R.string.startup_message).toString() + "\n- " + activity.getText(R.string.loudspeaker).toString() + "\n- " + activity.getText(R.string.earphones).toString() + "\n- " + activity.getText(R.string.bluetooth).toString() + "\n\n" + activity.getText(R.string.check_it_out).toString();
 		prepareDialogAndShow((new AlertDialog.Builder(activity))
 			.setTitle(activity.getText(title))
 			.setView(createDialogView(activity, content))
@@ -1700,6 +1710,44 @@ public final class UI implements DialogInterface.OnShowListener, Animation.Anima
 	public static void setNextFocusForwardId(View view, int nextFocusForwardId) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
 			view.setNextFocusForwardId(nextFocusForwardId);
+	}
+	
+	public static TextView createDialogTextView(Context context, int id, LayoutParams layoutParams, CharSequence text) {
+		final TextView textView = new TextView(context);
+		if (id != 0)
+			textView.setId(id);
+		textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, dialogTextSize);
+		if (layoutParams != null)
+			textView.setLayoutParams(layoutParams);
+		if (text != null)
+			textView.setText(text);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			textView.setTextColor(isAndroidThemeLight() ? color_dialog_text_dk : color_dialog_text_lt);
+		return textView;
+	}
+	
+	public static EditText createDialogEditText(Context context, int id, LayoutParams layoutParams, CharSequence text, CharSequence contentDescription, int inputType) {
+		final EditText editText = new EditText(context);
+		if (id != 0)
+			editText.setId(id);
+		editText.setSingleLine((inputType & InputType.TYPE_TEXT_FLAG_MULTI_LINE) == 0);
+		editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, dialogTextSize);
+		editText.setInputType(inputType);
+		if (layoutParams != null)
+			editText.setLayoutParams(layoutParams);
+		if (text != null)
+			editText.setText(text);
+		if (contentDescription != null)
+			editText.setContentDescription(contentDescription);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			//lollipop bug!!!!!
+			//http://stackoverflow.com/questions/28112829/edittext-android-l-stylin
+			//http://stackoverflow.com/questions/27123278/lollipop-editbox-styling/27132324#27132324
+			//https://code.google.com/p/android/issues/detail?id=80180
+			editText.setBackgroundTintList(isAndroidThemeLight() ? new BgColorStateList(color_dialog_normal_dk, color_pinkmusic_dk) : new BgColorStateList(color_dialog_normal_lt, color_pinkmusic_lt));
+			editText.setBackgroundTintMode(PorterDuff.Mode.SRC_ATOP);
+		}
+		return editText;
 	}
 	
 	public static View createDialogView(Context context, CharSequence messageOnly) {

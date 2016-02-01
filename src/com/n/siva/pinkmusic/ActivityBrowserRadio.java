@@ -31,6 +31,31 @@
 //********************************************************************************************
 package com.n.siva.pinkmusic;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.database.DataSetObserver;
+import android.net.Uri;
+import android.os.Build;
+import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ImageSpan;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+
 import com.n.siva.pinkmusic.activity.MainHandler;
 import com.n.siva.pinkmusic.list.BaseList;
 import com.n.siva.pinkmusic.list.FileSt;
@@ -52,31 +77,7 @@ import com.n.siva.pinkmusic.ui.drawable.ColorDrawable;
 import com.n.siva.pinkmusic.ui.drawable.TextIconDrawable;
 import com.n.siva.pinkmusic.util.SafeURLSpan;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.ColorStateList;
-import android.database.DataSetObserver;
-import android.net.Uri;
-import android.text.InputType;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ImageSpan;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
-import com.n.siva.pinkmusic.R;
-
-public final class ActivityBrowserRadio extends ActivityBrowserView implements View.OnClickListener, DialogInterface.OnClickListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, BgListView.OnBgListViewKeyDownObserver, RadioStationList.OnBaseListSelectionChangedListener<RadioStation>, RadioStationList.RadioStationAddedObserver, FastAnimator.Observer, AdapterView.OnItemSelectedListener {
+public final class ActivityBrowserRadio extends ActivityBrowserView implements View.OnClickListener, DialogInterface.OnClickListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener, BgListView.OnBgListViewKeyDownObserver, RadioStationList.OnBaseListSelectionChangedListener<RadioStation>, RadioStationList.RadioStationAddedObserver, FastAnimator.Observer, AdapterView.OnItemSelectedListener, BgListView.OnScrollListener {
 	private static final class RadioStationAdapter implements SpinnerAdapter {
 		private Context context;
 		private ColorStateList defaultTextColors;
@@ -178,7 +179,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 	private Spinner btnType, btnGenre, btnGenreSecondary;
 	private EditText txtTerm;
 	private BgButton btnGoBack, btnFavorite, btnSearch, btnGoBackToPlayer, btnAdd, btnPlay;
-	private boolean loading, isAtFavorites, isCreatingLayout, isHidingLoadingPanel, ignoreFirstNotification;
+	private boolean loading, isAtFavorites, isHidingLoadingPanel, ignoreFirstNotification, animateListBox;
 	private FastAnimator animator, loadingPanelAnimatorHide, loadingPanelAnimatorShow;
 	private CharSequence msgNoFavorites, msgNoStations, msgLoading;
 
@@ -224,7 +225,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 				UI.setNextFocusForwardId(btnGoBackToPlayer, R.id.btnGoBack);
 			}
 		}
-		UI.animationCommit(isCreatingLayout, null);
+		UI.animationCommit(false, null);
 	}
 	
 	private void addPlaySelectedItem(final boolean play) {
@@ -263,13 +264,15 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		}
 	}
 	
+
+
 	@Override
 	public void loadingProcessChanged(boolean started) {
 		if (UI.browserActivity != this)
 			return;
 		loading = started;
 		if (panelLoading != null) {
-			if (loadingPanelAnimatorHide != null && !isCreatingLayout) {
+			if (loadingPanelAnimatorHide != null) {
 				panelLoading.setVisibility(View.VISIBLE);
 				loadingPanelAnimatorHide.end();
 				loadingPanelAnimatorShow.end();
@@ -281,7 +284,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		}
 		if (list != null) {
 			list.setCustomEmptyText(started ? msgLoading : (isAtFavorites ? msgNoFavorites : msgNoStations));
-			if (animator != null) {
+			if (animator != null && animateListBox) {
 				if (started) {
 					list.setVisibility(View.INVISIBLE);
 				} else if (list.getVisibility() != View.VISIBLE) {
@@ -291,6 +294,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 				}
 			}
 		}
+		
 		//if (!started)
 		//	updateButtons();
 	}
@@ -373,7 +377,8 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		return genre.children[(index >= genre.children.length) ? (genre.children.length - 1) : index];
 	}
 
-	private void doSearch() {
+	private void doSearch(boolean firstSearch) {
+		animateListBox = firstSearch;
 		final int selection = radioStationList.getSelection();
 		if (Player.radioSearchTerm != null) {
 			Player.radioSearchTerm = Player.radioSearchTerm.trim();
@@ -381,11 +386,11 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 				Player.radioSearchTerm = null;
 		}
 		if (Player.lastRadioSearchWasByGenre || Player.radioSearchTerm == null)
-			radioStationList.fetchStations(getApplication(), getGenre(), null, true);
+			radioStationList.fetchStations(getApplication(), getGenre(), null, firstSearch);
 		else
-			radioStationList.fetchStations(getApplication(), null, Player.radioSearchTerm, true);
+			radioStationList.fetchStations(getApplication(), null, Player.radioSearchTerm, firstSearch);
 		//do not call updateButtons() if onSelectionChanged() got called before!
-		if (selection < 0)
+		if (firstSearch && selection < 0)
 			updateButtons();
 	}
 	
@@ -436,11 +441,22 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 	}
 
 	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+		if (!isAtFavorites && totalItemCount > 0 && !loading && radioStationList != null && radioStationList.hasMoreResults() && (visibleItemCount >= totalItemCount || (firstVisibleItem + visibleItemCount) >= (totalItemCount - 5)))
+						doSearch(false);
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+	}
+
+	@Override
 	public void onClick(View view) {
 		if (view == btnGoBack) {
 			if (isAtFavorites) {
 				isAtFavorites = false;
-				doSearch();
+				doSearch(true);
 			} else {
 				finish(0, view, true);
 			}
@@ -480,27 +496,22 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 
 			p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			p.topMargin = UI.dialogMargin;
-			txtTerm = new EditText(ctx);
-			txtTerm.setContentDescription(ctx.getText(R.string.search_term));
-			txtTerm.setText(Player.radioSearchTerm == null ? "" : Player.radioSearchTerm);
+			txtTerm = UI.createDialogEditText(ctx, 0, p, Player.radioSearchTerm == null ? "" : Player.radioSearchTerm, ctx.getText(R.string.search_term), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 			txtTerm.setOnClickListener(this);
-			txtTerm.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI.dialogTextSize);
-			txtTerm.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-			txtTerm.setSingleLine();
-			txtTerm.setLayoutParams(p);
 			txtTerm.setVisibility(!Player.lastRadioSearchWasByGenre ? View.VISIBLE : View.GONE);
 
 			p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			p.topMargin = UI.dialogMargin;
 			p.bottomMargin = UI.dialogMargin;
-			final TextView lbl = new TextView(ctx);
+			final TextView lbl = UI.createDialogTextView(ctx, 0, p, null);
 			lbl.setSingleLine(false);
 			lbl.setMaxLines(4);
 			lbl.setAutoLinkMask(0);
 			lbl.setLinksClickable(true);
-			//lbl.setTextColor(new BgColorStateList(UI.isAndroidThemeLight() ? 0xff000000 : 0xffffffff));
 			//http://developer.android.com/design/style/color.html
-			lbl.setLinkTextColor(new BgColorStateList(UI.isAndroidThemeLight() ? 0xff0099cc : 0xff33b5e5));
+			lbl.setLinkTextColor((Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) ?
+				new BgColorStateList(UI.isAndroidThemeLight() ? UI.color_pinkmusic_dk : UI.color_pinkmusic_lt) :
+					new BgColorStateList(UI.isAndroidThemeLight() ? 0xff0099cc : 0xff33b5e5));
 			lbl.setTextSize(TypedValue.COMPLEX_UNIT_PX, UI._14sp);
 			lbl.setGravity(Gravity.CENTER_HORIZONTAL);
 			if (externalUri == null) {
@@ -525,7 +536,6 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			}
 			lbl.setText(message);
 			lbl.setMovementMethod(LinkMovementMethod.getInstance());
-			lbl.setLayoutParams(p);
 
 			l.addView(btnType);
 			l.addView(btnGenre);
@@ -594,7 +604,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 			}
 			if (txtTerm != null)
 				Player.radioSearchTerm = txtTerm.getText().toString();
-			doSearch();
+			doSearch(true);
 		}
 		btnType = null;
 		btnGenre = null;
@@ -656,6 +666,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		list.setScrollBarType((UI.browserScrollBarType == BgListView.SCROLLBAR_INDEXED) ? BgListView.SCROLLBAR_LARGE : UI.browserScrollBarType);
 		list.setCustomEmptyText(msgLoading);
 		list.setEmptyListOnClickListener(this);
+		list.setOnScrollListener(this);
 		panelLoading = (RelativeLayout)findViewById(R.id.panelLoading);
 		if (UI.animationEnabled) {
 			list.setVisibility(View.GONE);
@@ -719,8 +730,7 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 		else
 			Player.radioLastGenre = validateGenreIndex(Player.radioLastGenre);
 
-		doSearch();
-		isCreatingLayout = false;
+		doSearch(true);
 	}
 
 	@Override
@@ -796,7 +806,6 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 
 	@Override
 	public void onUpdate(FastAnimator animator, float value) {
-
 	}
 
 	@Override
@@ -837,6 +846,5 @@ public final class ActivityBrowserRadio extends ActivityBrowserView implements V
 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
-
 	}
 }
